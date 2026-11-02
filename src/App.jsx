@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { POEMS, POETS, CATEGORIES, SCENES, poetOf, poemOfTheDay } from './data/poems.js';
 
 const FAV_KEY = 'dailypoem_favs_v1';
@@ -15,20 +18,29 @@ function linesOf(poem) {
 function speak(text, lang) {
   try {
     const synth = window.speechSynthesis;
-    if (!synth) return;
-    synth.cancel();
-    const u = new SpeechSynthesisUtterance(text);
+    if (!synth) return false;
     const voices = synth.getVoices();
     const want = lang === 'ur' ? 'ur' : 'en';
     const v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith(want));
-    if (v) u.voice = v;
-    u.lang = lang === 'ur' ? 'ur-PK' : 'en-US';
+    if (!v) return false;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.voice = v;
+    u.lang = v.lang;
     u.rate = 0.92;
     synth.speak(u);
-  } catch { /* TTS unavailable — silent */ }
+    return true;
+  } catch { return false; }
 }
 
 function stopSpeak() { try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch { /* noop */ } }
+
+function synthHasVoice(lang) {
+  try {
+    const voices = (window.speechSynthesis && window.speechSynthesis.getVoices()) || [];
+    return voices.some(x => x.lang && x.lang.toLowerCase().startsWith(lang === 'ur' ? 'ur' : 'en'));
+  } catch { return false; }
+}
 
 /* ---------------- Share card (canvas) ---------------- */
 async function makeShareCard(poem, scene) {
@@ -36,7 +48,6 @@ async function makeShareCard(poem, scene) {
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-  // background
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0, '#241b12'); grad.addColorStop(1, '#0c0a09');
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
@@ -71,8 +82,7 @@ async function makeShareCard(poem, scene) {
     (poem.roman || []).forEach((ln, i) => ctx.fillText(ln, W / 2, 760 + i * 52));
   } else {
     ctx.font = '46px "Cormorant Garamond", serif';
-    const shown = lines.slice(0, 9);
-    shown.forEach((ln, i) => ctx.fillText(ln, W / 2, 330 + i * 68));
+    lines.slice(0, 9).forEach((ln, i) => ctx.fillText(ln, W / 2, 330 + i * 68));
   }
   ctx.fillStyle = '#d4af37';
   ctx.font = '600 36px Inter, sans-serif';
@@ -83,60 +93,120 @@ async function makeShareCard(poem, scene) {
   return canvas;
 }
 
-async function sharePoem(poem, scene) {
-  const canvas = await makeShareCard(poem, scene);
-  const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-  const file = new File([blob], 'dailypoem.png', { type: 'image/png' });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: 'DailyPoem' }); return; } catch { /* user cancelled */ }
+async function sharePoem(poem, scene, toast) {
+  try {
+    const canvas = await makeShareCard(poem, scene);
+    if (Capacitor.isNativePlatform()) {
+      const data = canvas.toDataURL('image/png').split(',')[1];
+      const { uri } = await Filesystem.writeFile({ path: 'dailypoem-card.png', data, directory: Directory.Cache });
+      await Share.share({ title: 'DailyPoem', files: [uri] });
+      return;
+    }
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const file = new File([blob], 'dailypoem.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'DailyPoem' });
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'dailypoem.png'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('Card saved as an image');
+  } catch {
+    toast('Sharing is not available on this device');
   }
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'dailypoem.png'; a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-function copyPoem(poem) {
+async function copyPoem(poem, toast) {
   const poet = poetOf(poem.poet);
   const lines = linesOf(poem).join('\n');
-  const extra = poem.lang === 'ur' && poem.roman ? '\n\n' + poem.roman.join('\n') : '';
-  const text = `${lines}${extra}\n— ${poem.customPoet || poet.name}\n(via DailyPoem)`;
-  if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+  const head = poem.lang === 'en' && poem.title ? poem.title + '\n\n' : '';
+  const text = `${head}${lines}\n— ${poem.customPoet || poet.name}`;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch { /* noop */ }
+    ta.remove();
+  }
+  toast('📋 Copied — paste it anywhere');
 }
 
 /* ---------------- Reel Player ---------------- */
-function ReelPlayer({ poem, scene, onClose }) {
+function ReelPlayer({ poem, scene, onClose, toast }) {
   const lines = linesOf(poem);
   const [shown, setShown] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [voice, setVoice] = useState(false);
-  const timer = useRef(null);
+  const hasAudio = !!poem.audio;
+  const [voice, setVoice] = useState(hasAudio);
+  const [pace, setPace] = useState(2100);
+  const audioRef = useRef(null);
   const poet = poetOf(poem.poet);
 
+  // bundled audio (English poems): pace the lines to the recording
+  useEffect(() => {
+    if (!hasAudio) return;
+    const el = audioRef.current;
+    if (!el) return;
+    const onMeta = () => {
+      if (el.duration && isFinite(el.duration)) {
+        const per = (el.duration * 1000) / lines.length;
+        setPace(Math.min(5200, Math.max(2000, per)));
+      }
+    };
+    el.addEventListener('loadedmetadata', onMeta);
+    return () => el.removeEventListener('loadedmetadata', onMeta);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasAudio]);
+
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (voice && playing) { el.play().catch(() => {}); } else { el.pause(); }
+  }, [voice, playing, hasAudio]);
+
+  // line progression
   useEffect(() => {
     if (!playing) return;
     if (shown >= lines.length) { setPlaying(false); return; }
-    timer.current = setTimeout(() => setShown(s => s + 1), shown === 0 ? 500 : 2100);
-    return () => clearTimeout(timer.current);
-  }, [playing, shown, lines.length]);
+    const t = setTimeout(() => setShown(s => s + 1), shown === 0 ? 500 : pace);
+    return () => clearTimeout(t);
+  }, [playing, shown, lines.length, pace]);
 
+  // device-voice fallback (custom poems / Urdu where a voice exists)
   useEffect(() => {
-    if (voice && shown > 0 && shown <= lines.length) {
-      const text = poem.lang === 'ur' ? (poem.roman ? poem.roman[shown - 1] : lines[shown - 1]) : lines[shown - 1];
-      speak(text, poem.lang === 'ur' ? 'ur' : 'en');
-    }
-    if (!voice) stopSpeak();
+    if (hasAudio || !voice || shown === 0 || shown > lines.length) return;
+    const text = poem.lang === 'ur' ? (poem.roman && poem.roman[shown - 1]) || lines[shown - 1] : lines[shown - 1];
+    speak(text, poem.lang);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shown, voice]);
+  }, [shown, voice, hasAudio]);
 
-  useEffect(() => () => stopSpeak(), []);
+  useEffect(() => () => { stopSpeak(); if (audioRef.current) audioRef.current.pause(); }, []);
 
-  const restart = () => { setShown(0); setPlaying(true); };
+  const toggleVoice = () => {
+    if (voice) { setVoice(false); stopSpeak(); return; }
+    if (!hasAudio && !synthHasVoice(poem.lang)) {
+      toast(poem.lang === 'ur'
+        ? 'Urdu voice is not available on this device yet'
+        : 'Voice is not available on this device');
+      return;
+    }
+    setVoice(true);
+  };
+
+  const restart = () => {
+    setShown(0); setPlaying(true);
+    if (audioRef.current) { audioRef.current.currentTime = 0; if (voice) audioRef.current.play().catch(() => {}); }
+  };
 
   return (
     <div className="reel">
       <div className="reel-bg"><img src={scene.img} alt="" /></div>
       <div className="reel-shade" />
+      {hasAudio && <audio ref={audioRef} src={poem.audio} preload="auto" />}
       <div className="reel-top">
         <span className="reel-brand">✦ DailyPoem Reel</span>
         <button className="reel-close" onClick={onClose} aria-label="Close">✕</button>
@@ -152,19 +222,18 @@ function ReelPlayer({ poem, scene, onClose }) {
       <div className="reel-poet">— {poem.customPoet || poet.name}</div>
       <div className="progress"><i style={{ width: `${(shown / lines.length) * 100}%` }} /></div>
       <div className="reel-controls">
-        <button className="btn" onClick={() => (playing || shown >= lines.length ? restart() : setPlaying(true))}>
-          {shown >= lines.length ? '↺ Dobara' : playing ? '⏸ Roko' : '▶ Chalao'}
-        </button>
-        {playing && shown < lines.length && <button className="btn" onClick={() => setPlaying(false)}>⏸ Roko</button>}
-        <button className="btn" onClick={() => setVoice(v => !v)}>{voice ? '🔊 Awaz On' : '🔇 Awaz'}</button>
-        <button className="btn" onClick={() => sharePoem(poem, scene)}>📤 Share</button>
+        {shown >= lines.length
+          ? <button className="btn" onClick={restart}>↺ Replay</button>
+          : <button className="btn" onClick={() => setPlaying(p => !p)}>{playing ? '⏸ Pause' : '▶ Play'}</button>}
+        <button className="btn" onClick={toggleVoice}>{voice ? '🔊 Voice On' : '🔇 Voice'}</button>
+        <button className="btn" onClick={() => sharePoem(poem, scene, toast)}>📤 Share</button>
       </div>
     </div>
   );
 }
 
 /* ---------------- Poem card ---------------- */
-function PoemCard({ poem, isFav, onFav, onReel }) {
+function PoemCard({ poem, isFav, onFav, onReel, toast }) {
   const poet = poetOf(poem.poet);
   const cat = CATEGORIES.find(c => c.id === poem.category);
   return (
@@ -180,10 +249,10 @@ function PoemCard({ poem, isFav, onFav, onReel }) {
       <footer>
         <span className="who">{poet.name} <span>· {cat ? cat.label : ''}</span></span>
         <span>
-          <button className="icon-btn" onClick={() => copyPoem(poem)} title="Copy">📋</button>
-          <button className="icon-btn" onClick={() => sharePoem(poem, SCENES[0])} title="Share card">📤</button>
-          <button className={`icon-btn ${isFav ? 'on' : ''}`} onClick={() => onFav(poem.id)} title="Pasandeeda">{isFav ? '❤️' : '🤍'}</button>
-          <button className="icon-btn" onClick={() => onReel(poem)} title="Reel">🎬</button>
+          <button className="icon-btn" onClick={() => copyPoem(poem, toast)} title="Copy">📋</button>
+          <button className="icon-btn" onClick={() => sharePoem(poem, SCENES[0], toast)} title="Share card">📤</button>
+          <button className={`icon-btn ${isFav ? 'on' : ''}`} onClick={() => onFav(poem.id)} title="Favourite">{isFav ? '❤️' : '🤍'}</button>
+          <button className="icon-btn" onClick={() => onReel(poem)} title="Play reel">🎬</button>
         </span>
       </footer>
     </div>
@@ -197,10 +266,18 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [catFilter, setCatFilter] = useState('all');
   const [poetFilter, setPoetFilter] = useState(null);
-  const [reel, setReel] = useState(null); // { poem, scene }
+  const [reel, setReel] = useState(null);
   const [ownText, setOwnText] = useState('');
   const [ownName, setOwnName] = useState('');
   const [ownScene, setOwnScene] = useState(SCENES[0]);
+  const [toastMsg, setToastMsg] = useState('');
+  const toastTimer = useRef(null);
+
+  const toast = msg => {
+    setToastMsg(msg);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMsg(''), 2400);
+  };
 
   const today = useMemo(() => poemOfTheDay(), []);
   const todayScene = SCENES[new Date().getDate() % SCENES.length];
@@ -234,17 +311,18 @@ export default function App() {
 
   const favPoems = POEMS.filter(p => favs.has(p.id));
 
-  const startOwnReel = () => {
+  const ownPoem = () => {
     const lines = ownText.split('\n').map(s => s.trim()).filter(Boolean);
-    if (lines.length < 1) return;
+    if (lines.length < 1) return null;
     const isUrdu = /[\u0600-\u06FF]/.test(ownText);
-    const poem = {
+    return {
       id: 'own', lang: isUrdu ? 'ur' : 'en', poet: 'dailypoem', category: 'mohabbat',
-      customPoet: ownName.trim() || 'Aik Shayar',
+      customPoet: ownName.trim() || 'Anonymous Poet',
       ...(isUrdu ? { urdu: lines, roman: [] } : { lines }),
     };
-    setReel({ poem, scene: ownScene });
   };
+
+  const startOwnReel = () => { const p = ownPoem(); if (p) setReel({ poem: p, scene: ownScene }); };
 
   return (
     <div className="app">
@@ -256,7 +334,7 @@ export default function App() {
             <div className="logo-sub">Shayari · Poetry · Reels</div>
           </div>
         </div>
-        <span className="tag">{POEMS.length} kalam</span>
+        <span className="tag">{POEMS.length} poems</span>
       </header>
 
       <div className="main">
@@ -266,7 +344,7 @@ export default function App() {
               <img className="hero-img" src={todayScene.img} alt="" />
               <div className="hero-shade" />
               <div className="hero-body">
-                <span className="kicker">✦ Roz ka Sher · Poem of the Day</span>
+                <span className="kicker">✦ Poem of the Day</span>
                 {today.lang === 'ur' ? (
                   <>
                     <div className="urdu">{today.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
@@ -277,26 +355,26 @@ export default function App() {
                 )}
                 <div className="poet-line">— {poetOf(today.poet).name} <span>· {poetOf(today.poet).years}</span></div>
                 <div className="hero-actions">
-                  <button className="btn btn-gold" onClick={() => setReel({ poem: today, scene: todayScene })}>🎬 Reel Banao</button>
+                  <button className="btn btn-gold" onClick={() => setReel({ poem: today, scene: todayScene })}>🎬 Play Reel</button>
                   <button className={`btn ${favs.has(today.id) ? 'active-fav' : ''}`} onClick={() => toggleFav(today.id)}>{favs.has(today.id) ? '❤️' : '🤍'}</button>
-                  <button className="btn" onClick={() => sharePoem(today, todayScene)}>📤</button>
+                  <button className="btn" onClick={() => sharePoem(today, todayScene, toast)}>📤</button>
                 </div>
               </div>
             </section>
 
-            <div className="section-title"><h2>Mood se chuno</h2><small>Categories</small></div>
+            <div className="section-title"><h2>Browse by Mood</h2><small>Categories</small></div>
             <div className="cat-grid">
               {CATEGORIES.map(c => (
-                <button key={c.id} className="cat-card" onClick={() => { setCatFilter(c.id); setTab('library'); }}>
+                <button key={c.id} className="cat-card" onClick={() => { setCatFilter(c.id); setPoetFilter(null); setTab('library'); }}>
                   <span className="urdu-sm">{c.urdu}</span>
                   <span className="ic">{c.icon}</span>
                   <h3>{c.label}</h3>
-                  <p>{POEMS.filter(p => p.category === c.id).length} kalam</p>
+                  <p>{POEMS.filter(p => p.category === c.id).length} poems</p>
                 </button>
               ))}
             </div>
 
-            <div className="section-title"><h2>Shayir</h2><small>Poets</small></div>
+            <div className="section-title"><h2>Poets</h2><small>The masters</small></div>
             <div className="poet-row">
               {POETS.map(p => (
                 <button key={p.id} className="poet" onClick={() => { setPoetFilter(p.id); setCatFilter('all'); setTab('library'); }}>
@@ -308,31 +386,31 @@ export default function App() {
             </div>
 
             <div className="create-hero">
-              <h3>✍️ Apni Shayari ki Reel</h3>
-              <p>Apni likhi hui shayari likho, manzar chuno, aur aik tap mein us ki khubsurat reel banao — bilkul apni, apne naam ke sath.</p>
-              <button className="btn btn-gold" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setTab('create')}>Apni Reel Banao</button>
+              <h3>✍️ Your Poetry, Your Reel</h3>
+              <p>Write your own poem, pick a scene, and turn it into a beautiful reel — with your name on it, ready to share anywhere.</p>
+              <button className="btn btn-gold" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setTab('create')}>Create Your Reel</button>
             </div>
           </>
         )}
 
         {tab === 'library' && (
           <>
-            <div className="search"><span>🔎</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Sher, shayir ya lafz dhundo…" /></div>
+            <div className="search"><span>🔎</span><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search poems, poets or words…" /></div>
             <div className="chips" style={{ marginTop: 14 }}>
-              <button className={`chip ${catFilter === 'all' && !poetFilter ? 'on' : ''}`} onClick={() => { setCatFilter('all'); setPoetFilter(null); }}>Sab</button>
+              <button className={`chip ${catFilter === 'all' && !poetFilter ? 'on' : ''}`} onClick={() => { setCatFilter('all'); setPoetFilter(null); }}>All</button>
               {CATEGORIES.map(c => (
                 <button key={c.id} className={`chip ${catFilter === c.id ? 'on' : ''}`} onClick={() => { setCatFilter(c.id); setPoetFilter(null); }}>{c.icon} {c.label}</button>
               ))}
             </div>
             {poetFilter && (
               <div style={{ marginTop: 10 }}>
-                <span className="tag">Shayir: {poetOf(poetFilter).name}</span>{' '}
-                <button className="btn" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setPoetFilter(null)}>✕ Hatao</button>
+                <span className="tag">Poet: {poetOf(poetFilter).name}</span>{' '}
+                <button className="btn" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setPoetFilter(null)}>✕ Clear</button>
               </div>
             )}
-            {filtered.length === 0 && <div className="empty"><span className="big">🌙</span>Kuch nahi mila — koi aur lafz azmao.</div>}
+            {filtered.length === 0 && <div className="empty"><span className="big">🌙</span>Nothing found — try another word.</div>}
             {filtered.map(p => (
-              <PoemCard key={p.id} poem={p} isFav={favs.has(p.id)} onFav={toggleFav} onReel={openReel} />
+              <PoemCard key={p.id} poem={p} isFav={favs.has(p.id)} onFav={toggleFav} onReel={openReel} toast={toast} />
             ))}
           </>
         )}
@@ -340,16 +418,16 @@ export default function App() {
         {tab === 'create' && (
           <>
             <div className="create-hero">
-              <h3>✍️ Apni Shayari, Apni Reel</h3>
-              <p>Neeche apni shayari likho (har line alag satar mein). Urdu ya English — dono chalegi. Manzar chuno aur reel tumhare naam ke sath tayyar.</p>
+              <h3>✍️ Your Poetry, Your Reel</h3>
+              <p>Type your own poem below — one line per line, in Urdu or English. Choose a scene, and your reel is ready with your name on it.</p>
             </div>
             <div className="form-card">
-              <label>Tumhari Shayari</label>
+              <label>Your Poem</label>
               <textarea rows={6} value={ownText} onChange={e => setOwnText(e.target.value)}
-                placeholder={'اپنی شاعری یہاں لکھیں…\n— ya apni English poetry yahan likho'} />
-              <label>Tumhara Naam (shayir ke tor par)</label>
-              <input type="text" value={ownName} onChange={e => setOwnName(e.target.value)} placeholder="Masalan: Ahmed Raza" />
-              <label>Reel ka Manzar</label>
+                placeholder={'Write your poem here, one line per line…'} />
+              <label>Your Name (shown as the poet)</label>
+              <input type="text" value={ownName} onChange={e => setOwnName(e.target.value)} placeholder="e.g. Ahmed Raza" />
+              <label>Reel Scene</label>
               <div className="scene-row">
                 {SCENES.map(s => (
                   <button key={s.id} className={`scene-pick ${ownScene.id === s.id ? 'on' : ''}`} onClick={() => setOwnScene(s)}>
@@ -359,17 +437,12 @@ export default function App() {
               </div>
               <button className="btn btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: 18, padding: '13px 16px' }}
                 onClick={startOwnReel} disabled={!ownText.trim()}>
-                🎬 Reel Chalao
+                🎬 Play My Reel
               </button>
               <button className="btn" style={{ width: '100%', justifyContent: 'center', marginTop: 9 }}
                 disabled={!ownText.trim()}
-                onClick={() => {
-                  const lines = ownText.split('\n').map(s => s.trim()).filter(Boolean);
-                  const isUrdu = /[\u0600-\u06FF]/.test(ownText);
-                  const poem = { id: 'own', lang: isUrdu ? 'ur' : 'en', poet: 'dailypoem', category: 'mohabbat', customPoet: ownName.trim() || 'Aik Shayar', ...(isUrdu ? { urdu: lines, roman: [] } : { lines }) };
-                  sharePoem(poem, ownScene);
-                }}>
-                📤 Share Card Banao
+                onClick={() => { const p = ownPoem(); if (p) sharePoem(p, ownScene, toast); }}>
+                📤 Create Share Card
               </button>
             </div>
           </>
@@ -377,12 +450,12 @@ export default function App() {
 
         {tab === 'favs' && (
           <>
-            <div className="section-title"><h2>Pasandeeda</h2><small>{favPoems.length} kalam</small></div>
+            <div className="section-title"><h2>Favourites</h2><small>{favPoems.length} poems</small></div>
             {favPoems.length === 0 && (
-              <div className="empty"><span className="big">🤍</span>Abhi koi pasandeeda nahi.<br />Kisi sher par dil (🤍) dabao, wo yahan mehfooz ho jayega.</div>
+              <div className="empty"><span className="big">🤍</span>No favourites yet.<br />Tap the heart on any poem and it will be saved here.</div>
             )}
             {favPoems.map(p => (
-              <PoemCard key={p.id} poem={p} isFav onFav={toggleFav} onReel={openReel} />
+              <PoemCard key={p.id} poem={p} isFav onFav={toggleFav} onReel={openReel} toast={toast} />
             ))}
           </>
         )}
@@ -391,11 +464,12 @@ export default function App() {
       <nav className="nav">
         <button className={tab === 'home' ? 'on' : ''} onClick={() => setTab('home')}><span className="ni">🏠</span>Home</button>
         <button className={tab === 'library' ? 'on' : ''} onClick={() => setTab('library')}><span className="ni">📚</span>Library</button>
-        <button className={tab === 'create' ? 'on' : ''} onClick={() => setTab('create')}><span className="ni">🎬</span>Apni Reel</button>
-        <button className={tab === 'favs' ? 'on' : ''} onClick={() => setTab('favs')}><span className="ni">❤️</span>Pasandeeda</button>
+        <button className={tab === 'create' ? 'on' : ''} onClick={() => setTab('create')}><span className="ni">🎬</span>My Reel</button>
+        <button className={tab === 'favs' ? 'on' : ''} onClick={() => setTab('favs')}><span className="ni">❤️</span>Favourites</button>
       </nav>
 
-      {reel && <ReelPlayer poem={reel.poem} scene={reel.scene} onClose={() => { setReel(null); stopSpeak(); }} />}
+      {toastMsg && <div className="toast">{toastMsg}</div>}
+      {reel && <ReelPlayer poem={reel.poem} scene={reel.scene} onClose={() => { setReel(null); stopSpeak(); }} toast={toast} />}
     </div>
   );
 }

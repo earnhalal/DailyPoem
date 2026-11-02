@@ -4,10 +4,10 @@
 // Har item: lines urdu script + roman me; categories app ke moods se map hoti hain.
 
 export const CATEGORIES = [
-  { id: 'mohabbat', label: 'Mohabbat', urdu: 'محبت', icon: '❤️' },
-  { id: 'udaasi', label: 'Udaasi', urdu: 'اداسی', icon: '🌙' },
-  { id: 'zindagi', label: 'Zindagi', urdu: 'زندگی', icon: '🌿' },
-  { id: 'umeed', label: 'Umeed', urdu: 'امید', icon: '🌅' },
+  { id: 'mohabbat', label: 'Love', urdu: 'محبت', icon: '❤️' },
+  { id: 'udaasi', label: 'Sadness', urdu: 'اداسی', icon: '🌙' },
+  { id: 'zindagi', label: 'Life', urdu: 'زندگی', icon: '🌿' },
+  { id: 'umeed', label: 'Hope', urdu: 'امید', icon: '🌅' },
   { id: 'sufi', label: 'Sufi', urdu: 'صوفی', icon: '🕯️' },
   { id: 'attitude', label: 'Andaaz', urdu: 'انداز', icon: '🔥' },
 ];
@@ -154,7 +154,7 @@ export const POEMS = [
   },
   // ---------------- English Originals (DailyPoem) ----------------
   {
-    id: 'e1', lang: 'en', poet: 'dailypoem', category: 'mohabbat', title: 'The Light I Chose',
+    id: 'e1', lang: 'en', poet: 'dailypoem', audio: 'audio/e1.mp3', category: 'mohabbat', title: 'The Light I Chose',
     lines: [
       'I did not choose you to escape my silence.',
       'My nights were never empty — they were mine.',
@@ -168,7 +168,7 @@ export const POEMS = [
     ],
   },
   {
-    id: 'e2', lang: 'en', poet: 'dailypoem', category: 'udaasi', title: 'The Room I Kept',
+    id: 'e2', lang: 'en', poet: 'dailypoem', audio: 'audio/e2.mp3', category: 'udaasi', title: 'The Room I Kept',
     lines: [
       'I never asked the night to leave me.',
       'I had made my peace with empty rooms,',
@@ -184,7 +184,7 @@ export const POEMS = [
     ],
   },
   {
-    id: 'e3', lang: 'en', poet: 'dailypoem', category: 'udaasi', title: 'Unposted',
+    id: 'e3', lang: 'en', poet: 'dailypoem', audio: 'audio/e3.mp3', category: 'udaasi', title: 'Unposted',
     lines: [
       'I wrote you a hundred messages',
       'and sent none of them.',
@@ -197,7 +197,7 @@ export const POEMS = [
     ],
   },
   {
-    id: 'e4', lang: 'en', poet: 'dailypoem', category: 'umeed', title: 'What the Rain Kept',
+    id: 'e4', lang: 'en', poet: 'dailypoem', audio: 'audio/e4.mp3', category: 'umeed', title: 'What the Rain Kept',
     lines: [
       'The rain does not ask the roof for permission,',
       'it simply finds the cracks we hid.',
@@ -210,7 +210,7 @@ export const POEMS = [
     ],
   },
   {
-    id: 'e5', lang: 'en', poet: 'dailypoem', category: 'zindagi', title: 'Half of Me',
+    id: 'e5', lang: 'en', poet: 'dailypoem', audio: 'audio/e5.mp3', category: 'zindagi', title: 'Half of Me',
     lines: [
       'Half of me is patient, half of me is late.',
       'Half of me forgives, half keeps the gate.',
@@ -221,7 +221,7 @@ export const POEMS = [
     ],
   },
   {
-    id: 'e6', lang: 'en', poet: 'dailypoem', category: 'mohabbat', title: 'The Quiet Hours',
+    id: 'e6', lang: 'en', poet: 'dailypoem', audio: 'audio/e6.mp3', category: 'mohabbat', title: 'The Quiet Hours',
     lines: [
       'Love me in the quiet hours,',
       'when the house has gone to sleep,',
