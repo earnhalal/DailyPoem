@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { POEMS, POETS, CATEGORIES, SCENES, poetOf, poemOfTheDay } from './data/poems.js';
+import { DUAS, HADEES, noorOfTheDay } from './data/noor.js';
 
 const FAV_KEY = 'dailypoem_favs_v1';
 
@@ -270,6 +271,7 @@ export default function App() {
   const [ownText, setOwnText] = useState('');
   const [ownName, setOwnName] = useState('');
   const [ownScene, setOwnScene] = useState(SCENES[0]);
+  const [noorTab, setNoorTab] = useState('dua');
   const [toastMsg, setToastMsg] = useState('');
   const toastTimer = useRef(null);
 
@@ -280,7 +282,20 @@ export default function App() {
   };
 
   const today = useMemo(() => poemOfTheDay(), []);
+  const noorToday = useMemo(() => noorOfTheDay(), []);
   const todayScene = SCENES[new Date().getDate() % SCENES.length];
+
+  const copyText = async text => {
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch { /* noop */ }
+      ta.remove();
+    }
+    toast('📋 Copied — paste it anywhere');
+  };
 
   useEffect(() => {
     localStorage.setItem(FAV_KEY, JSON.stringify([...favs]));
@@ -386,6 +401,12 @@ export default function App() {
             </div>
 
             <div className="create-hero">
+              <h3>☪️ Noor — Daily Light</h3>
+              <p><b style={{ color: 'var(--cream)' }}>Dua of the Day:</b> {noorToday.dua.english}</p>
+              <button className="btn btn-gold" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setTab('noor')}>Open Noor — Duas & Hadees</button>
+            </div>
+
+            <div className="create-hero">
               <h3>✍️ Your Poetry, Your Reel</h3>
               <p>Write your own poem, pick a scene, and turn it into a beautiful reel — with your name on it, ready to share anywhere.</p>
               <button className="btn btn-gold" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setTab('create')}>Create Your Reel</button>
@@ -448,6 +469,60 @@ export default function App() {
           </>
         )}
 
+        {tab === 'noor' && (
+          <>
+            <div className="create-hero">
+              <h3>☪️ Noor — Daily Light</h3>
+              <p>Authentic duas and ahadees for every day — each one shown with its source, so you can trust and verify what you read.</p>
+            </div>
+
+            <div className="pcard">
+              <span className="tag">Dua of the Day · {noorToday.dua.source}</span>
+              <div className="arabic" style={{ marginTop: 10 }}>{noorToday.dua.arabic}</div>
+              <div className="roman">{noorToday.dua.roman}</div>
+              <div className="en-lines" style={{ fontSize: 16.5, marginTop: 6 }}>{noorToday.dua.english}</div>
+            </div>
+            <div className="pcard">
+              <span className="tag">Hadees of the Day · {noorToday.hadees.source}</span>
+              <div className="arabic" style={{ marginTop: 10 }}>{noorToday.hadees.arabic}</div>
+              <div className="en-lines" style={{ fontSize: 16.5, marginTop: 6 }}>{noorToday.hadees.english}</div>
+            </div>
+
+            <div className="chips" style={{ marginTop: 18 }}>
+              <button className={`chip ${noorTab === 'dua' ? 'on' : ''}`} onClick={() => setNoorTab('dua')}>🤲 Duas ({DUAS.length})</button>
+              <button className={`chip ${noorTab === 'hadees' ? 'on' : ''}`} onClick={() => setNoorTab('hadees')}>📜 Ahadees ({HADEES.length})</button>
+            </div>
+
+            {noorTab === 'dua' && DUAS.map(d => (
+              <div className="pcard" key={d.id}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <b style={{ fontSize: 14.5 }}>{d.title}</b><span className="tag">{d.when}</span>
+                </div>
+                <div className="arabic" style={{ marginTop: 8 }}>{d.arabic}</div>
+                <div className="roman">{d.roman}</div>
+                <div className="en-lines" style={{ fontSize: 16, marginTop: 6 }}>{d.english}</div>
+                <footer>
+                  <span className="tag">{d.source}</span>
+                  <button className="icon-btn" title="Copy" onClick={() => copyText(`${d.arabic}\n${d.english}\n(${d.source}) — via DailyPoem Noor`)}>📋</button>
+                </footer>
+              </div>
+            ))}
+
+            {noorTab === 'hadees' && HADEES.map(h => (
+              <div className="pcard" key={h.id}>
+                <div className="arabic">{h.arabic}</div>
+                <div className="en-lines" style={{ fontSize: 16, marginTop: 6 }}>{h.english}</div>
+                <footer>
+                  <span className="tag">{h.source}</span>
+                  <button className="icon-btn" title="Copy" onClick={() => copyText(`${h.arabic}\n${h.english}\n(${h.source}) — via DailyPoem Noor`)}>📋</button>
+                </footer>
+              </div>
+            ))}
+
+            <div className="empty" style={{ padding: '26px 24px' }}>Quran reading with recitation is coming in the next phase of Noor, in shaa Allah.</div>
+          </>
+        )}
+
         {tab === 'favs' && (
           <>
             <div className="section-title"><h2>Favourites</h2><small>{favPoems.length} poems</small></div>
@@ -464,6 +539,7 @@ export default function App() {
       <nav className="nav">
         <button className={tab === 'home' ? 'on' : ''} onClick={() => setTab('home')}><span className="ni">🏠</span>Home</button>
         <button className={tab === 'library' ? 'on' : ''} onClick={() => setTab('library')}><span className="ni">📚</span>Library</button>
+        <button className={tab === 'noor' ? 'on' : ''} onClick={() => setTab('noor')}><span className="ni">☪️</span>Noor</button>
         <button className={tab === 'create' ? 'on' : ''} onClick={() => setTab('create')}><span className="ni">🎬</span>My Reel</button>
         <button className={tab === 'favs' ? 'on' : ''} onClick={() => setTab('favs')}><span className="ni">❤️</span>Favourites</button>
       </nav>

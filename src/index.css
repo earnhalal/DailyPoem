@@ -112,7 +112,7 @@ input, textarea { font-family: inherit; }
 .create-hero p { color: var(--muted); font-size: 13px; margin-top: 5px; line-height: 1.6; }
 
 .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
-  display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(16,13,11,.92); backdrop-filter: blur(14px);
+  display: grid; grid-template-columns: repeat(5, 1fr); background: rgba(16,13,11,.92); backdrop-filter: blur(14px);
   border-top: 1px solid var(--line); padding: 9px 8px calc(9px + env(safe-area-inset-bottom)); z-index: 30; }
 .nav button { background: none; border: none; color: var(--muted); font-size: 10.5px; font-weight: 600; letter-spacing: .3px;
   display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
@@ -145,3 +145,6 @@ input, textarea { font-family: inherit; }
   padding: 11px 18px; border-radius: 999px; font-size: 13.5px; font-weight: 600; white-space: nowrap;
   box-shadow: 0 8px 30px rgba(0,0,0,.5); animation: toastin .25s ease; }
 @keyframes toastin { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+.arabic { font-family: 'Amiri', 'Noto Nastaliq Urdu', serif; direction: rtl; text-align: center;
+  font-size: 21px; line-height: 2.1; color: var(--cream); }
