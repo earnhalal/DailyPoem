@@ -152,6 +152,97 @@ export const POEMS = [
     urdu: ['لگتا نہیں ہے دل میرا اجڑے دیار میں', 'کس کی بنی ہے عالم ناپائیدار میں'],
     roman: ['Lagtā nahīñ hai dil merā ujṛe dayār meñ', 'Kis kī banī hai ālam-e-nā-pāedār meñ'],
   },
+  // ---------------- mazeed classic ashaar (v0.3) ----------------
+  {
+    id: 'g9', lang: 'ur', poet: 'ghalib', category: 'mohabbat',
+    urdu: ['عشق نے غالب نکما کر دیا', 'ورنہ ہم بھی آدمی تھے کام کے'],
+    roman: ['Ishq ne Ghālib nikammā kar diyā', 'Warna ham bhī ādmī thay kām ke'],
+  },
+  {
+    id: 'g10', lang: 'ur', poet: 'ghalib', category: 'mohabbat',
+    urdu: ['ان کے دیکھے سے جو آ جاتی ہے منہ پر رونق', 'وہ سمجھتے ہیں کہ بیمار کا حال اچھا ہے'],
+    roman: ['Un ke dekhe se jo ā jātī hai muñh par raunaq', 'Wo samajhte haiñ ke bīmār kā hāl achhā hai'],
+  },
+  {
+    id: 'g11', lang: 'ur', poet: 'ghalib', category: 'udaasi',
+    urdu: ['ہوئی مدت کہ غالب مر گیا پر یاد آتا ہے', 'وہ ہر اک بات پر کہنا کہ یوں ہوتا تو کیا ہوتا'],
+    roman: ['Huī muddat ke Ghālib mar gayā par yād ātā hai', 'Wo har ik baat par kehnā ke yūñ hotā to kyā hotā'],
+  },
+  {
+    id: 'g12', lang: 'ur', poet: 'ghalib', category: 'zindagi',
+    urdu: ['قید حیات و بند غم اصل میں دونوں ایک ہیں', 'موت سے پہلے آدمی غم سے نجات پائے کیوں'],
+    roman: ['Qaid-e-hayāt o band-e-gham asl meñ donoñ ek haiñ', 'Maut se pehle ādmī gham se nijāt pāye kyūñ'],
+  },
+  {
+    id: 'g13', lang: 'ur', poet: 'ghalib', category: 'sufi',
+    urdu: ['نہ تھا کچھ تو خدا تھا کچھ نہ ہوتا تو خدا ہوتا', 'ڈبویا مجھ کو ہونے نے نہ ہوتا میں تو کیا ہوتا'],
+    roman: ['Na thā kuchh to Khudā thā, kuchh na hotā to Khudā hotā', 'Duboyā mujh ko hone ne, na hotā maiñ to kyā hotā'],
+  },
+  {
+    id: 'g14', lang: 'ur', poet: 'ghalib', category: 'mohabbat',
+    urdu: ['دل سے تیری نگاہ جگر تک اتر گئی', 'دونوں کو اک ادا میں رضامند کر گئی'],
+    roman: ['Dil se terī nigāh jigar tak utar gaī', 'Donoñ ko ik adā meñ razā-mand kar gaī'],
+  },
+  {
+    id: 'm7', lang: 'ur', poet: 'mir', category: 'mohabbat',
+    urdu: ['ہمارے آگے تیرا جب کسی نے نام لیا', 'دل ستم زدہ کو ہم نے تھام تھام لیا'],
+    roman: ['Hamāre āge terā jab kisī ne nām liyā', 'Dil-e-sitam-zada ko ham ne thām thām liyā'],
+  },
+  {
+    id: 'm8', lang: 'ur', poet: 'mir', category: 'udaasi',
+    urdu: ['الٹی ہو گئیں سب تدبیریں کچھ نہ دوا نے کام کیا', 'دیکھا اس بیماری دل نے آخر کام تمام کیا'],
+    roman: ['Ulṭī ho gaīñ sab tadbīreñ kuchh na dawā ne kām kiyā', 'Dekhā is bīmārī-e-dil ne ākhir kām tamām kiyā'],
+  },
+  {
+    id: 'm9', lang: 'ur', poet: 'mir', category: 'zindagi',
+    urdu: ['موت اک ماندگی کا وقفہ ہے', 'یعنی آگے چلیں گے دم لے کر'],
+    roman: ['Maut ik māndagī kā waqfa hai', 'Yaani āge chaleñge dam le kar'],
+  },
+  {
+    id: 'm10', lang: 'ur', poet: 'mir', category: 'udaasi',
+    urdu: ['بے خودی لے گئی کہاں ہم کو', 'دیر سے انتظار ہے اپنا'],
+    roman: ['Bekhudī le gaī kahāñ ham ko', 'Der se intezār hai apnā'],
+  },
+  {
+    id: 'i7', lang: 'ur', poet: 'iqbal', category: 'umeed',
+    urdu: ['تندیٔ باد مخالف سے نہ گھبرا اے عقاب', 'یہ تو چلتی ہے تجھے اونچا اڑانے کے لیے'],
+    roman: ['Tundī-e-bād-e-mukhālif se na ghabrā ai uqāb', 'Ye to chaltī hai tujhe ūnchā uṛāne ke liye'],
+  },
+  {
+    id: 'i8', lang: 'ur', poet: 'iqbal', category: 'zindagi',
+    urdu: ['اپنے من میں ڈوب کر پا جا سراغ زندگی', 'تو اگر میرا نہیں بنتا نہ بن اپنا تو بن'],
+    roman: ['Apne man meñ ḍūb kar pā jā surāgh-e-zindagī', 'Tū agar merā nahīñ bantā na ban, apnā to ban'],
+  },
+  {
+    id: 'i9', lang: 'ur', poet: 'iqbal', category: 'attitude',
+    urdu: ['ہر لحظہ ہے مومن کی نئی شان نئی آن', 'گفتار میں کردار میں اللہ کی برہان'],
+    roman: ['Har lehza hai momin kī naī shān naī ān', 'Guftār meñ kirdār meñ Allāh kī burhān'],
+  },
+  {
+    id: 'i10', lang: 'ur', poet: 'iqbal', category: 'zindagi',
+    urdu: ['وجود زن سے ہے تصویر کائنات میں رنگ', 'اسی کے ساز سے ہے زندگی کا سوز دروں'],
+    roman: ['Wujūd-e-zan se hai taswīr-e-kāināt meñ rang', 'Isī ke sāz se hai zindagī kā soz-e-darūñ'],
+  },
+  {
+    id: 'd3', lang: 'ur', poet: 'dagh', category: 'mohabbat',
+    urdu: ['ستم ہی کرنا جفا ہی کرنا نگاہ الفت کبھی نہ کرنا', 'تمہیں قسم ہے ہمارے سر کی ہمارے حق میں کمی نہ کرنا'],
+    roman: ['Sitam hī karnā, jafā hī karnā, nigāh-e-ulfat kabhī na karnā', 'Tumheñ qasam hai hamāre sar kī, hamāre haq meñ kamī na karnā'],
+  },
+  {
+    id: 'mo3', lang: 'ur', poet: 'momin', category: 'udaasi',
+    urdu: ['اثر اس کو ذرا نہیں ہوتا', 'رنج راحت فزا نہیں ہوتا'],
+    roman: ['Asar us ko zarā nahīñ hotā', 'Ranj rāhat-fazā nahīñ hotā'],
+  },
+  {
+    id: 'z2', lang: 'ur', poet: 'zafar', category: 'udaasi',
+    urdu: ['کتنا ہے بدنصیب ظفر دفن کے لیے', 'دو گز زمین بھی نہ ملی کوئے یار میں'],
+    roman: ['Kitnā hai badnasīb Zafar dafan ke liye', 'Do gaz zamīn bhī na milī kū-e-yār meñ'],
+  },
+  {
+    id: 'z3', lang: 'ur', poet: 'zafar', category: 'udaasi',
+    urdu: ['نہ کسی کی آنکھ کا نور ہوں نہ کسی کے دل کا قرار ہوں', 'جو کسی کے کام نہ آ سکے میں وہ ایک مشت غبار ہوں'],
+    roman: ['Na kisī kī ānkh kā nūr hūñ, na kisī ke dil kā qarār hūñ', 'Jo kisī ke kām na ā sake, maiñ wo ek musht-e-ghubār hūñ'],
+  },
   // ---------------- English Originals (DailyPoem) ----------------
   {
     id: 'e1', lang: 'en', poet: 'dailypoem', audio: 'audio/e1.mp3', category: 'mohabbat', title: 'The Light I Chose',
@@ -230,6 +321,54 @@ export const POEMS = [
       'Anyone can love a celebration.',
       'Stay for the ordinary Tuesdays —',
       'that is where forever hides.',
+    ],
+  },
+  {
+    id: 'e7', lang: 'en', poet: 'dailypoem', audio: 'audio/e7.mp3', category: 'umeed', title: 'Paper Boats',
+    lines: [
+      'We folded our hopes into paper boats',
+      'and set them on the rain.',
+      'Some sank at the doorstep,',
+      'some reached the drain and vanished.',
+      'But one — one is still sailing',
+      'somewhere past the street of giving up,',
+      'carrying everything we were afraid to say.',
+    ],
+  },
+  {
+    id: 'e8', lang: 'en', poet: 'dailypoem', audio: 'audio/e8.mp3', category: 'udaasi', title: 'The Last Page',
+    lines: [
+      'Every story warns you about the ending,',
+      'except the ones we live.',
+      'I kept reading us like a favourite book,',
+      'slower and slower near the end,',
+      'as if turning the pages gently',
+      'could keep the last page from coming.',
+      'It came anyway. It always does.',
+      'But oh — the chapters were worth it.',
+    ],
+  },
+  {
+    id: 'e9', lang: 'en', poet: 'dailypoem', audio: 'audio/e9.mp3', category: 'mohabbat', title: 'Small Hours',
+    lines: [
+      'Meet me in the small hours,',
+      'when the world has stopped performing,',
+      'when your voice is still honest from sleep.',
+      'Daylight love is easy — it has an audience.',
+      'But three in the morning,',
+      'with nothing left to hide behind —',
+      'that is where I keep my truest heart.',
+    ],
+  },
+  {
+    id: 'e10', lang: 'en', poet: 'dailypoem', audio: 'audio/e10.mp3', category: 'zindagi', title: 'Borrowed Light',
+    lines: [
+      'The moon is not ashamed of borrowed light.',
+      'It takes the sun\'s fire and returns it softer,',
+      'so the night can bear to look at it.',
+      'Be like that with what you\'ve been given —',
+      'take the brightness life lends you,',
+      'and hand it on, gentler than you found it.',
     ],
   },
 ];

@@ -8,7 +8,20 @@
   --gold2: #b8912c;
   --cream: #f3ead8;
   --muted: #a89c8a;
+  --navbg: rgba(16,13,11,.92);
   --radius: 18px;
+}
+:root[data-theme='light'] {
+  --bg: #f6f1e5;
+  --bg2: #fffdf6;
+  --card: #fffaf0;
+  --card2: #ffffff;
+  --line: #e0d2b8;
+  --gold: #9c7812;
+  --gold2: #85650d;
+  --cream: #2b2113;
+  --muted: #7d6f57;
+  --navbg: rgba(255,252,243,.94);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { background: var(--bg); }
@@ -38,7 +51,7 @@ input, textarea { font-family: inherit; }
 .urdu { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; text-align: center; line-height: 2.5; }
 .hero .urdu { font-size: 21px; margin: 20px 0 4px; color: var(--cream); text-shadow: 0 2px 14px rgba(0,0,0,.6); }
 .roman { text-align: center; color: #d9cdb6; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16.5px; line-height: 1.55; }
-.en-lines { text-align: center; font-family: 'Cormorant Garamond', serif; font-size: 19px; line-height: 1.6; color: var(--cream); }
+.en-lines { text-align: center; font-family: 'Playfair Display', serif; font-weight: 600; font-size: 20px; line-height: 1.55; color: var(--cream); }
 .poet-line { text-align: center; margin-top: 14px; color: var(--gold); font-size: 13.5px; letter-spacing: .4px; }
 .poet-line span { color: var(--muted); }
 .hero-actions { display: flex; gap: 9px; margin-top: 18px; }
@@ -112,7 +125,7 @@ input, textarea { font-family: inherit; }
 .create-hero p { color: var(--muted); font-size: 13px; margin-top: 5px; line-height: 1.6; }
 
 .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
-  display: grid; grid-template-columns: repeat(5, 1fr); background: rgba(16,13,11,.92); backdrop-filter: blur(14px);
+  display: grid; grid-template-columns: repeat(5, 1fr); background: var(--navbg); backdrop-filter: blur(14px);
   border-top: 1px solid var(--line); padding: 9px 8px calc(9px + env(safe-area-inset-bottom)); z-index: 30; }
 .nav button { background: none; border: none; color: var(--muted); font-size: 10.5px; font-weight: 600; letter-spacing: .3px;
   display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
@@ -132,7 +145,7 @@ input, textarea { font-family: inherit; }
   text-shadow: 0 2px 16px rgba(0,0,0,.75); }
 .reel-line.show { opacity: 1; transform: none; }
 .reel-line.ur { font-family: 'Noto Nastaliq Urdu', serif; direction: rtl; font-size: 24px; line-height: 2.4; }
-.reel-line.en { font-family: 'Cormorant Garamond', serif; font-size: 25px; line-height: 1.45; }
+.reel-line.en { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 26px; line-height: 1.45; }
 .reel-line.rm { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; color: rgba(255,255,255,.75); margin-top: 10px; }
 .reel-poet { position: relative; text-align: center; color: var(--gold); font-size: 14px; padding-bottom: 6px; letter-spacing: .5px; }
 .reel-controls { position: relative; display: flex; gap: 9px; justify-content: center; padding: 0 18px 30px; }
@@ -148,3 +161,11 @@ input, textarea { font-family: inherit; }
 
 .arabic { font-family: 'Amiri', 'Noto Nastaliq Urdu', serif; direction: rtl; text-align: center;
   font-size: 21px; line-height: 2.1; color: var(--cream); }
+
+/* hero hamesha dark rehta hai (tasveer wala card) — light theme mein bhi */
+.hero .urdu { color: #f3ead8; }
+.hero .poet-line { color: #d4af37; }
+.hero .btn { color: #f3ead8; }
+.hero .btn-gold { color: #1c1503; }
+.kicker { color: #d4af37; }
+.pcard .urdu { font-size: 18.5px; }

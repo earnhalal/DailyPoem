@@ -272,6 +272,12 @@ export default function App() {
   const [ownName, setOwnName] = useState('');
   const [ownScene, setOwnScene] = useState(SCENES[0]);
   const [noorTab, setNoorTab] = useState('dua');
+  const [theme, setTheme] = useState(() => { try { return localStorage.getItem('dailypoem_theme') || 'dark'; } catch { return 'dark'; } });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('dailypoem_theme', theme); } catch { /* noop */ }
+  }, [theme]);
   const [toastMsg, setToastMsg] = useState('');
   const toastTimer = useRef(null);
 
@@ -349,7 +355,12 @@ export default function App() {
             <div className="logo-sub">Shayari · Poetry · Reels</div>
           </div>
         </div>
-        <span className="tag">{POEMS.length} poems</span>
+        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button className="btn" style={{ padding: '8px 12px', fontSize: 13 }} onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}>
+            {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+          </button>
+          <span className="tag">{POEMS.length} poems</span>
+        </span>
       </header>
 
       <div className="main">
