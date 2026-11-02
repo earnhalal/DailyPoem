@@ -440,7 +440,7 @@ function ReelPlayer({ poem, scene, onClose, toast }) {
       <div className="progress"><i style={{ width: `${(shown / lines.length) * 100}%` }} /></div>
       {exporting > 0 && (
         <div className="reel-export">
-          <div>Rendering video\u2026 {exporting}%</div>
+          <div>Rendering video… {exporting}%</div>
           <div className="reel-export-bar"><span style={{ width: exporting + '%' }} /></div>
           <small>Keep the app open while it renders</small>
         </div>
@@ -734,11 +734,11 @@ function IntroSplash({ onDone }) {
   return (
     <div className={'intro' + (leaving ? ' leaving' : '')} onClick={() => doneRef.current()}>
       <div className="intro-glow" />
-      <div className="intro-emblem"><span>\u2726</span></div>
+      <div className="intro-emblem"><span>✦</span></div>
       <div className="intro-name">{'DailyPoem'.split('').map((c, i) => <span key={i} style={{ animationDelay: (0.15 + i * 0.055) + 's' }}>{c}</span>)}</div>
-      <div className="intro-tag">SHAYARI \u2022 POETRY \u2022 REELS</div>
-      <div className="intro-sher" dir="rtl">\u0633\u062a\u0627\u0631\u0648\u06ba \u0633\u06d2 \u0622\u06af\u06d2 \u062c\u06c1\u0627\u06ba \u0627\u0648\u0631 \u0628\u06be\u06cc \u06c1\u06cc\u06ba</div>
-      <div className="intro-roman">Sitaaron se aage jahan aur bhi hain \u2014 Iqbal</div>
+      <div className="intro-tag">SHAYARI • POETRY • REELS</div>
+      <div className="intro-sher" dir="rtl">ستاروں سے آگے جہاں اور بھی ہیں</div>
+      <div className="intro-roman">Sitaaron se aage jahan aur bhi hain — Iqbal</div>
       <div className="intro-bar"><span /></div>
     </div>
   );
