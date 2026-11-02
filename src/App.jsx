@@ -746,11 +746,11 @@ function IntroSplash({ onDone }) {
 
 
 /* ---------------- Home slider ---------------- */
-function HomeSlider({ today, todayScene, poemsCount, noorDua, novelCount, isFav, onToggleFav, onOpenReel, onShare, onGo }) {
+function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, onOpenReel, onShare, onGo, onOpenPoem }) {
   const ref = useRef(null);
   const [idx, setIdx] = useState(0);
   const pauseUntil = useRef(0);
-  const SLIDES = 6;
+  const SLIDES = 5;
   const goTo = (i) => { const el = ref.current; if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' }); };
   useEffect(() => {
     const t = setInterval(() => {
@@ -764,6 +764,28 @@ function HomeSlider({ today, todayScene, poemsCount, noorDua, novelCount, isFav,
   }, []);
   const hold = () => { pauseUntil.current = Date.now() + 12000; };
   const sceneImg = (id) => (SCENES.find(x => x.id === id) || todayScene).img;
+  const poemSlide = (p, label, sceneId) => p && (
+    <section className="slide hero slide-tap" onClick={() => onOpenPoem(p, SCENES.find(x => x.id === sceneId) || todayScene)}>
+      <img className="hero-img" src={sceneImg(sceneId)} alt="" />
+      <div className="hero-shade" />
+      <div className="hero-body">
+        <span className="kicker">{label}</span>
+        {p.lang === 'ur' ? (
+          <>
+            <div className="urdu">{p.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
+            <div className="roman">{p.roman.map((l, i) => <div key={i}>{l}</div>)}</div>
+          </>
+        ) : (
+          <>
+            {p.title && <div className="slide-title" style={{ marginTop: 16 }}>{p.title}</div>}
+            <div className="en-lines" style={{ marginTop: 12 }}>{p.lines.slice(0, 4).map((l, i) => <div key={i}>{l}</div>)}</div>
+          </>
+        )}
+        <div className="poet-line">— {poetOf(p.poet).name} <span>· {poetOf(p.poet).years}</span></div>
+        <span className="slide-chip">🎬 Play Reel</span>
+      </div>
+    </section>
+  );
   return (
     <div>
       <div className="slider" ref={ref} onScroll={() => { const el = ref.current; if (el) setIdx(Math.round(el.scrollLeft / el.clientWidth)); }} onPointerDown={hold} onTouchStart={hold}>
@@ -801,48 +823,11 @@ function HomeSlider({ today, todayScene, poemsCount, noorDua, novelCount, isFav,
           </div>
         </section>
 
-        <section className="slide hero slide-tap" onClick={() => onGo('noor')}>
-          <img className="hero-img" src={sceneImg('mehfil')} alt="" />
-          <div className="hero-shade" />
-          <div className="hero-body">
-            <span className="kicker">☪️ Noor — Daily Light</span>
-            <div className="slide-title" style={{ marginTop: 16 }}>Dua of the Day</div>
-            <p className="slide-sub">{noorDua.english}</p>
-            <span className="slide-chip">Open Noor →</span>
-          </div>
-        </section>
+        {poemSlide(poems.find(p => p.id === 'g1'), '🔥 Trending', 'mehfil')}
 
-        <section className="slide hero slide-tap" onClick={() => onGo('create')}>
-          <img className="hero-img" src={sceneImg('gulab')} alt="" />
-          <div className="hero-shade" />
-          <div className="hero-body">
-            <span className="kicker">🖼️ Poetry Photo</span>
-            <div className="slide-title" style={{ marginTop: 16 }}>Your photo. Your sher.</div>
-            <p className="slide-sub">Put any poem on your own photo — colours, styles, your name — and share it anywhere.</p>
-            <span className="slide-chip">Try It →</span>
-          </div>
-        </section>
+        {poemSlide(poems.find(p => p.id === 'i11'), '🔥 Trending', 'chaand')}
 
-        <section className="slide hero slide-tap" onClick={() => onGo('create')}>
-          <img className="hero-img" src={sceneImg('baarish')} alt="" />
-          <div className="hero-shade" />
-          <div className="hero-body">
-            <span className="kicker">✍️ Create</span>
-            <div className="slide-title" style={{ marginTop: 16 }}>Your words, your reel</div>
-            <p className="slide-sub">Write your own poem, pick a scene, and export a real video — ready for TikTok and WhatsApp.</p>
-            <span className="slide-chip">Create →</span>
-          </div>
-        </section>
-
-        <section className="slide hero slide-tap" onClick={() => onGo('library')}>
-          <div className="slide-grad" />
-          <div className="hero-body">
-            <span className="kicker">📚 Library</span>
-            <div className="slide-title" style={{ marginTop: 16 }}>{poemsCount} poems & growing</div>
-            <p className="slide-sub">Ghalib • Mir • Iqbal • Dagh • Momin • Zafar • Hasrat • Akbar — plus original English poetry with voice.</p>
-            <span className="slide-chip">Browse →</span>
-          </div>
-        </section>
+        {poemSlide(poems.find(p => p.id === 'e1'), '⭐ English Spotlight', 'baarish')}
       </div>
       <div className="slider-dots">
         {Array.from({ length: SLIDES }).map((_, i) => (
@@ -970,12 +955,12 @@ export default function App() {
         {tab === 'home' && (
           <>
             <HomeSlider
-              today={today} todayScene={todayScene} poemsCount={poems.length}
-              noorDua={noorToday.dua} novelCount={NOVEL_FALLBACK.episodes.length}
+              today={today} todayScene={todayScene} poems={poems}
+              novelCount={NOVEL_FALLBACK.episodes.length}
               isFav={favs.has(today.id)} onToggleFav={() => toggleFav(today.id)}
               onOpenReel={() => setReel({ poem: today, scene: todayScene })}
               onShare={() => sharePoem(today, todayScene, toast)}
-              onGo={setTab}
+              onGo={setTab} onOpenPoem={(p, sc) => setReel({ poem: p, scene: sc })}
             />
 
             <div className="section-title"><h2>Browse by Mood</h2><small>Categories</small></div>
