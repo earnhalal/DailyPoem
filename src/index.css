@@ -125,7 +125,7 @@ input, textarea { font-family: inherit; }
 .create-hero p { color: var(--muted); font-size: 13px; margin-top: 5px; line-height: 1.6; }
 
 .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
-  display: grid; grid-template-columns: repeat(6, 1fr); background: var(--navbg); backdrop-filter: blur(14px);
+  display: grid; grid-template-columns: repeat(7, 1fr); background: var(--navbg); backdrop-filter: blur(14px);
   border-top: 1px solid var(--line); padding: 9px 8px calc(9px + env(safe-area-inset-bottom)); z-index: 30; }
 .nav button { background: none; border: none; color: var(--muted); font-size: 10.5px; font-weight: 600; letter-spacing: .3px;
   display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
@@ -227,10 +227,10 @@ input[type='range'].slider { accent-color: var(--gold); height: 28px; }
 @keyframes introSlide { 0% { transform: translateX(-110%); } 100% { transform: translateX(280%); } }
 
 /* ---------- home slider ---------- */
-.slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 24px; margin-top: 14px; }
-.slider::-webkit-scrollbar { display: none; }
+.hslider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 24px; margin-top: 14px; }
+.hslider::-webkit-scrollbar { display: none; }
 .slide { min-width: 100%; scroll-snap-align: start; }
-.slider .hero { margin-top: 0; border: none; border-radius: 0; }
+.hslider .hero { margin-top: 0; border: none; border-radius: 0; }
 .slide-tap { cursor: pointer; }
 .slide-grad { position: absolute; inset: 0; background: linear-gradient(150deg, #2b1e0e, #100d0b 62%); }
 .slide-title { font-family: 'Playfair Display', serif; font-size: 25px; font-weight: 700; color: #f3ead8; }
@@ -239,3 +239,17 @@ input[type='range'].slider { accent-color: var(--gold); height: 28px; }
 .slider-dots { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
 .dot { width: 7px; height: 7px; border-radius: 99px; background: var(--line); border: none; padding: 0; cursor: pointer; transition: all .25s; }
 .dot.on { width: 22px; background: var(--gold); }
+
+/* ---------- reels video feed ---------- */
+.vfeed { position: fixed; top: 0; bottom: calc(60px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; overflow-y: auto; scroll-snap-type: y mandatory; background: #000; z-index: 25; scrollbar-width: none; }
+.vfeed::-webkit-scrollbar { display: none; }
+.vfeed-item { position: relative; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; background: #000; }
+.vfeed-item video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.vfeed-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.25), transparent 30%, transparent 62%, rgba(0,0,0,.72)); pointer-events: none; }
+.vfeed-meta { position: absolute; left: 16px; right: 76px; bottom: 20px; pointer-events: none; }
+.vfeed-title { font-family: 'Playfair Display', serif; font-size: 21px; font-weight: 700; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+.vfeed-poet { color: #d4af37; font-size: 13px; font-weight: 600; margin-top: 3px; text-shadow: 0 1px 8px rgba(0,0,0,.8); }
+.vfeed-mute { position: absolute; right: 14px; bottom: 20px; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35); background: rgba(0,0,0,.45); color: #fff; font-size: 18px; display: grid; place-items: center; z-index: 2; cursor: pointer; }
+.vfeed-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 54px; color: rgba(255,255,255,.9); text-shadow: 0 4px 24px rgba(0,0,0,.7); pointer-events: none; }
+.vfeed-empty { height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; color: #a89c8a; padding: 40px 30px; font-size: 14.5px; line-height: 1.7; }
+.vfeed-empty .big { font-size: 38px; display: block; margin-bottom: 10px; }

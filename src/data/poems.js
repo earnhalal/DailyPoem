@@ -104,9 +104,9 @@ export const POEMS = [
     roman: ['Khudī ko kar buland itnā ke har taqdīr se pehle', 'Khudā bande se khud pūchhe, batā terī razā kyā hai'],
   },
   {
-    id: 'i2', lang: 'ur', poet: 'iqbal', category: 'umeed',
-    urdu: ['ستاروں سے آگے جہاں اور بھی ہیں', 'ابھی عشق کے امتحاں اور بھی ہیں'],
-    roman: ['Sitāroñ se āge jahāñ aur bhī haiñ', 'Abhī ishq ke imtihāñ aur bhī haiñ'],
+    id: 'i2', lang: 'ur', poet: 'iqbal', category: 'sufi',
+    urdu: ['منا کہ تیری دید کے قابل نہیں ہوں میں', 'تو میرا شوق دیکھ مرا انتظار دیکھ'],
+    roman: ['Manā ke terī dīd ke qābil nahīñ hūñ maiñ', 'Tū merā shauq dekh, merā intezār dekh'],
   },
   {
     id: 'i3', lang: 'ur', poet: 'iqbal', category: 'attitude',
@@ -130,9 +130,9 @@ export const POEMS = [
   },
   // ---------------- Dagh / Momin / Zafar ----------------
   {
-    id: 'd1', lang: 'ur', poet: 'dagh', category: 'zindagi',
-    urdu: ['سب کہاں کچھ لالہ و گل میں نمایاں ہو گئیں', 'خاک میں کیا صورتیں ہوں گی کہ پنہاں ہو گئیں'],
-    roman: ['Sab kahāñ kuchh lāla-o-gul meñ numāyāñ ho gaīñ', 'Khāk meñ kyā sūrateñ hoñgī ke pinhāñ ho gaīñ'],
+    id: 'd1', lang: 'ur', poet: 'dagh', category: 'attitude',
+    urdu: ['اردو ہے جس کا نام ہمیں جانتے ہیں داغ', 'ہندوستاں میں دھوم ہماری زباں کی ہے'],
+    roman: ['Urdū hai jis kā nām hamīñ jānte haiñ Dāgh', 'Hindustāñ meñ dhoom hamārī zabāñ kī hai'],
   },
   {
     id: 'd2', lang: 'ur', poet: 'dagh', category: 'attitude',
@@ -253,8 +253,8 @@ export const POEMS = [
   },
   {
     id: 'g16', lang: 'ur', poet: 'ghalib', category: 'zindagi',
-    urdu: ['عشرت قطرہ ہے دریا میں فنا ہو جانا', 'درد کا حد سے گزرنا ہے دوا ہو جانا'],
-    roman: ['Ishrat-e-qatra hai dariyā meñ fanā ho jānā', 'Dard kā had se guzarnā hai dawā ho jānā'],
+    urdu: ['نہ گل نغمہ ہوں نہ پردۂ ساز', 'میں ہوں اپنی شکست کی آواز'],
+    roman: ['Na gul-e-naghma hūñ na parda-e-sāz', 'Maiñ hūñ apnī shikast kī āwāz'],
   },
   {
     id: 'g17', lang: 'ur', poet: 'ghalib', category: 'attitude',
@@ -263,13 +263,13 @@ export const POEMS = [
   },
   {
     id: 'g18', lang: 'ur', poet: 'ghalib', category: 'zindagi',
-    urdu: ['بازیچۂ اطفال ہے دنیا میرے آگے', 'ہوتا ہے شب و روز تماشا میرے آگے'],
-    roman: ['Bāzīcha-e-atfāl hai duniyā mere āge', 'Hotā hai shab-o-roz tamāshā mere āge'],
+    urdu: ['رنج سے خوگر ہوا انساں تو مٹ جاتا ہے رنج', 'مشکلیں مجھ پر پڑیں اتنی کہ آساں ہو گئیں'],
+    roman: ['Ranj se khūgar huā insāñ to mit jātā hai ranj', 'Mushkileñ mujh par paṛīñ itnī ke āsāñ ho gaīñ'],
   },
   {
     id: 'g19', lang: 'ur', poet: 'ghalib', category: 'udaasi',
-    urdu: ['یہ نہ تھی ہماری قسمت کہ وصال یار ہوتا', 'اگر اور جیتے رہتے یہی انتظار ہوتا'],
-    roman: ['Ye na thī hamārī qismat ke visāl-e-yār hotā', 'Agar aur jīte rehte yahī intezār hotā'],
+    urdu: ['درد دل لکھوں کب تک جاؤں ان کو دکھلا دوں', 'انگلیاں فگار اپنی خامہ خوں چکاں اپنا'],
+    roman: ['Dard-e-dil likhūñ kab tak, jāūñ un ko dikhlā dūñ', 'Ungliyāñ figār apnī, khāma khūñ-chakāñ apnā'],
   },
   {
     id: 'g20', lang: 'ur', poet: 'ghalib', category: 'zindagi',
@@ -317,9 +317,9 @@ export const POEMS = [
     roman: ['Tere ishq kī intehā chāhtā hūñ', 'Merī sādgī dekh kyā chāhtā hūñ'],
   },
   {
-    id: 'i15', lang: 'ur', poet: 'iqbal', category: 'umeed',
-    urdu: ['ہزاروں سال نرگس اپنی بے نوری پہ روتی ہے', 'بڑی مشکل سے ہوتا ہے چمن میں دیدہ ور پیدا'],
-    roman: ['Hazāroñ sāl nargis apnī be-nūrī pe rotī hai', 'Baṛī mushkil se hotā hai chaman meñ dīda-war paidā'],
+    id: 'i15', lang: 'ur', poet: 'iqbal', category: 'sufi',
+    urdu: ['غریب و سادہ و رنگیں ہے داستان حرم', 'نہایت اس کی حسین ابتدا ہے اسمعیل'],
+    roman: ['Gharīb o sādā o rangīñ hai dāstān-e-haram', 'Nihāyat is kī Husain, ibtidā hai Ismāīl'],
   },
   {
     id: 'd4', lang: 'ur', poet: 'dagh', category: 'mohabbat',
@@ -328,8 +328,8 @@ export const POEMS = [
   },
   {
     id: 'mo4', lang: 'ur', poet: 'momin', category: 'mohabbat',
-    urdu: ['وہ جو ہم میں تم میں قرار تھا تمھیں یاد ہو کہ نہ یاد ہو', 'وہی یعنی وعدہ نباہ کا تمھیں یاد ہو کہ نہ یاد ہو'],
-    roman: ['Wo jo ham meñ tum meñ qarār thā tumheñ yād ho ke na yād ho', 'Wahī yaani wāda nibāh kā tumheñ yād ho ke na yād ho'],
+    urdu: ['الفت میں برابر ہے وفا ہو کہ جفا ہو', 'ہر بات میں لذت ہے اگر دل میں مزہ ہو'],
+    roman: ['Ulfat meñ barābar hai wafā ho ke jafā ho', 'Har bāt meñ lazzat hai agar dil meñ mazā ho'],
   },
   {
     id: 'z4', lang: 'ur', poet: 'zafar', category: 'udaasi',
