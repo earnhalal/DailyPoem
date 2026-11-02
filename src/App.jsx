@@ -4,6 +4,7 @@ import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { POEMS, POETS, CATEGORIES, SCENES, poetOf, poemOfTheDay } from './data/poems.js';
 import { DUAS, HADEES, noorOfTheDay } from './data/noor.js';
+import { NOVEL_FALLBACK, NOVEL_REMOTE_URL } from './data/novel.js';
 
 const FAV_KEY = 'dailypoem_favs_v1';
 
@@ -261,6 +262,87 @@ function PoemCard({ poem, isFav, onFav, onReel, toast }) {
 }
 
 /* ---------------- App ---------------- */
+
+function NovelScreen() {
+  const [data, setData] = useState(() => { try { return JSON.parse(localStorage.getItem('dailypoem_novel_cache')) || NOVEL_FALLBACK; } catch { return NOVEL_FALLBACK; } });
+  const [reading, setReading] = useState(null);
+  const [readSet, setReadSet] = useState(() => { try { return JSON.parse(localStorage.getItem('dailypoem_novel_read') || '[]'); } catch { return []; } });
+  const [fs, setFs] = useState(() => { const v = parseInt(localStorage.getItem('dailypoem_novel_fs') || '19', 10); return isNaN(v) ? 19 : v; });
+
+  useEffect(() => {
+    let live = true;
+    fetch(NOVEL_REMOTE_URL, { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => { if (live && j && Array.isArray(j.episodes) && j.episodes.length) { setData(j); try { localStorage.setItem('dailypoem_novel_cache', JSON.stringify(j)); } catch { /* noop */ } } })
+      .catch(() => {});
+    return () => { live = false; };
+  }, []);
+
+  const openEp = (ep) => {
+    setReading(ep);
+    if (!readSet.includes(ep.n)) {
+      const nr = [...readSet, ep.n]; setReadSet(nr);
+      try { localStorage.setItem('dailypoem_novel_read', JSON.stringify(nr)); } catch { /* noop */ }
+    }
+  };
+  const changeFs = (d) => { const v = Math.min(24, Math.max(16, fs + d)); setFs(v); try { localStorage.setItem('dailypoem_novel_fs', String(v)); } catch { /* noop */ } };
+
+  if (reading) {
+    const next = data.episodes.find(e => e.n === reading.n + 1);
+    return (
+      <div className="reader">
+        <div className="reader-top">
+          <button className="btn" onClick={() => setReading(null)}>← Episodes</button>
+          <span className="reader-title">Episode {reading.n}</span>
+          <span style={{ display: 'flex', gap: 6 }}>
+            <button className="btn" onClick={() => changeFs(-1)}>A−</button>
+            <button className="btn" onClick={() => changeFs(1)}>A+</button>
+          </span>
+        </div>
+        <div className="reader-body">
+          <div className="reader-ep-title" dir="rtl">{reading.urduTitle}</div>
+          <div className="reader-ep-sub">{reading.title} • {reading.mins} min read</div>
+          {reading.body.map((p, i) => p === '✦'
+            ? <div key={i} className="novel-brk">✦ ✦ ✦</div>
+            : <p key={i} className="novel-p" dir="rtl" style={{ fontSize: fs }}>{p}</p>)}
+          <div className="reader-end">
+            <div style={{ fontSize: 28 }}>📖</div>
+            <b>End of Episode {reading.n}</b>
+            {next
+              ? <button className="btn btn-gold" onClick={() => openEp(next)}>Next Episode →</button>
+              : <span className="muted" style={{ fontSize: 13 }}>The next episode arrives tomorrow at 8:00 PM.</span>}
+            <button className="btn" onClick={() => setReading(null)}>← Back to episodes</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="ncover">
+        <div className="ncover-urdu" dir="rtl">{data.novel.urduTitle}</div>
+        <div className="ncover-title">{data.novel.title}</div>
+        <span className="tag">A DailyPoem Original Novel</span>
+        <p className="ncover-syn">{data.novel.synopsis}</p>
+        <div className="ncover-meta">{data.episodes.length} episode{data.episodes.length === 1 ? '' : 's'} live • {data.novel.plannedEpisodes} planned • New episode daily at 8:00 PM</div>
+      </div>
+      <div className="section-title"><h2>Episodes</h2><small>{data.episodes.length} live</small></div>
+      {[...data.episodes].sort((a, b) => a.n - b.n).map(ep => (
+        <div key={ep.n} className="ep-row" onClick={() => openEp(ep)}>
+          <div className="ep-num">{ep.n}</div>
+          <div style={{ flex: 1 }}>
+            <div className="ep-urdu" dir="rtl">{ep.urduTitle}</div>
+            <div className="ep-sub">{ep.title} • {ep.mins} min read{readSet.includes(ep.n) ? ' • ✓ Read' : ''}</div>
+          </div>
+          <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
+        </div>
+      ))}
+      <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 14 }}>Episodes appear here automatically when published — no app update needed.</p>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState('home');
   const [favs, setFavs] = useState(loadFavs);
@@ -388,6 +470,14 @@ export default function App() {
               </div>
             </section>
 
+            <div className="create-hero" style={{ margin: '14px 0 4px' }} onClick={() => setTab('novel')}>
+              <div style={{ fontSize: 26 }}>📖</div>
+              <div style={{ flex: 1 }}>
+                <b>Aakhri Sajda — the novel</b>
+                <div className="muted" style={{ fontSize: 13 }}>Episode 1 is live. A new episode every day at 8:00 PM.</div>
+              </div>
+              <span style={{ color: 'var(--gold)', fontWeight: 700 }}>Read →</span>
+            </div>
             <div className="section-title"><h2>Browse by Mood</h2><small>Categories</small></div>
             <div className="cat-grid">
               {CATEGORIES.map(c => (
@@ -480,6 +570,8 @@ export default function App() {
           </>
         )}
 
+        {tab === 'novel' && <NovelScreen />}
+
         {tab === 'noor' && (
           <>
             <div className="create-hero">
@@ -536,9 +628,9 @@ export default function App() {
 
         {tab === 'favs' && (
           <>
-            <div className="section-title"><h2>Favourites</h2><small>{favPoems.length} poems</small></div>
+            <div className="section-title"><h2>Saved</h2><small>{favPoems.length} poems</small></div>
             {favPoems.length === 0 && (
-              <div className="empty"><span className="big">🤍</span>No favourites yet.<br />Tap the heart on any poem and it will be saved here.</div>
+              <div className="empty"><span className="big">🤍</span>Nothing saved yet.<br />Tap the heart on any poem and it will be saved here.</div>
             )}
             {favPoems.map(p => (
               <PoemCard key={p.id} poem={p} isFav onFav={toggleFav} onReel={openReel} toast={toast} />
@@ -552,7 +644,8 @@ export default function App() {
         <button className={tab === 'library' ? 'on' : ''} onClick={() => setTab('library')}><span className="ni">📚</span>Library</button>
         <button className={tab === 'noor' ? 'on' : ''} onClick={() => setTab('noor')}><span className="ni">☪️</span>Noor</button>
         <button className={tab === 'create' ? 'on' : ''} onClick={() => setTab('create')}><span className="ni">🎬</span>My Reel</button>
-        <button className={tab === 'favs' ? 'on' : ''} onClick={() => setTab('favs')}><span className="ni">❤️</span>Favourites</button>
+        <button className={tab === 'novel' ? 'on' : ''} onClick={() => setTab('novel')}><span className="ni">📖</span>Novel</button>
+        <button className={tab === 'favs' ? 'on' : ''} onClick={() => setTab('favs')}><span className="ni">❤️</span>Saved</button>
       </nav>
 
       {toastMsg && <div className="toast">{toastMsg}</div>}
