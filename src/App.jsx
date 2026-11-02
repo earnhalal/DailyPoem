@@ -744,6 +744,115 @@ function IntroSplash({ onDone }) {
   );
 }
 
+
+/* ---------------- Home slider ---------------- */
+function HomeSlider({ today, todayScene, poemsCount, noorDua, novelCount, isFav, onToggleFav, onOpenReel, onShare, onGo }) {
+  const ref = useRef(null);
+  const [idx, setIdx] = useState(0);
+  const pauseUntil = useRef(0);
+  const SLIDES = 6;
+  const goTo = (i) => { const el = ref.current; if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' }); };
+  useEffect(() => {
+    const t = setInterval(() => {
+      if (Date.now() < pauseUntil.current) return;
+      const el = ref.current; if (!el) return;
+      const cur = Math.round(el.scrollLeft / el.clientWidth);
+      goTo((cur + 1) % SLIDES);
+    }, 4600);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const hold = () => { pauseUntil.current = Date.now() + 12000; };
+  const sceneImg = (id) => (SCENES.find(x => x.id === id) || todayScene).img;
+  return (
+    <div>
+      <div className="slider" ref={ref} onScroll={() => { const el = ref.current; if (el) setIdx(Math.round(el.scrollLeft / el.clientWidth)); }} onPointerDown={hold} onTouchStart={hold}>
+        <section className="slide hero">
+          <img className="hero-img" src={todayScene.img} alt="" />
+          <div className="hero-shade" />
+          <div className="hero-body">
+            <span className="kicker">✦ Poem of the Day</span>
+            {today.lang === 'ur' ? (
+              <>
+                <div className="urdu">{today.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
+                <div className="roman">{today.roman.map((l, i) => <div key={i}>{l}</div>)}</div>
+              </>
+            ) : (
+              <div className="en-lines" style={{ marginTop: 18 }}>{today.lines.slice(0, 4).map((l, i) => <div key={i}>{l}</div>)}</div>
+            )}
+            <div className="poet-line">— {poetOf(today.poet).name} <span>· {poetOf(today.poet).years}</span></div>
+            <div className="hero-actions">
+              <button className="btn btn-gold" onClick={onOpenReel}>🎬 Play Reel</button>
+              <button className={'btn' + (isFav ? ' active-fav' : '')} onClick={onToggleFav}>{isFav ? '❤️' : '🤍'}</button>
+              <button className="btn" onClick={onShare}>📤</button>
+            </div>
+          </div>
+        </section>
+
+        <section className="slide hero slide-tap" onClick={() => onGo('novel')}>
+          <img className="hero-img" src={sceneImg('chaand')} alt="" />
+          <div className="hero-shade" />
+          <div className="hero-body">
+            <span className="kicker">📖 Original Novel</span>
+            <div className="urdu" style={{ fontSize: 30 }}>آخری سجدہ</div>
+            <div className="slide-title">Aakhri Sajda</div>
+            <p className="slide-sub">{novelCount} episodes live — a new episode every day at 8:00 PM. A story of loss, search, and the long road back.</p>
+            <span className="slide-chip">Read Now →</span>
+          </div>
+        </section>
+
+        <section className="slide hero slide-tap" onClick={() => onGo('noor')}>
+          <img className="hero-img" src={sceneImg('mehfil')} alt="" />
+          <div className="hero-shade" />
+          <div className="hero-body">
+            <span className="kicker">☪️ Noor — Daily Light</span>
+            <div className="slide-title" style={{ marginTop: 16 }}>Dua of the Day</div>
+            <p className="slide-sub">{noorDua.english}</p>
+            <span className="slide-chip">Open Noor →</span>
+          </div>
+        </section>
+
+        <section className="slide hero slide-tap" onClick={() => onGo('create')}>
+          <img className="hero-img" src={sceneImg('gulab')} alt="" />
+          <div className="hero-shade" />
+          <div className="hero-body">
+            <span className="kicker">🖼️ Poetry Photo</span>
+            <div className="slide-title" style={{ marginTop: 16 }}>Your photo. Your sher.</div>
+            <p className="slide-sub">Put any poem on your own photo — colours, styles, your name — and share it anywhere.</p>
+            <span className="slide-chip">Try It →</span>
+          </div>
+        </section>
+
+        <section className="slide hero slide-tap" onClick={() => onGo('create')}>
+          <img className="hero-img" src={sceneImg('baarish')} alt="" />
+          <div className="hero-shade" />
+          <div className="hero-body">
+            <span className="kicker">✍️ Create</span>
+            <div className="slide-title" style={{ marginTop: 16 }}>Your words, your reel</div>
+            <p className="slide-sub">Write your own poem, pick a scene, and export a real video — ready for TikTok and WhatsApp.</p>
+            <span className="slide-chip">Create →</span>
+          </div>
+        </section>
+
+        <section className="slide hero slide-tap" onClick={() => onGo('library')}>
+          <div className="slide-grad" />
+          <div className="hero-body">
+            <span className="kicker">📚 Library</span>
+            <div className="slide-title" style={{ marginTop: 16 }}>{poemsCount} poems & growing</div>
+            <p className="slide-sub">Ghalib • Mir • Iqbal • Dagh • Momin • Zafar • Hasrat • Akbar — plus original English poetry with voice.</p>
+            <span className="slide-chip">Browse →</span>
+          </div>
+        </section>
+      </div>
+      <div className="slider-dots">
+        {Array.from({ length: SLIDES }).map((_, i) => (
+          <button key={i} className={'dot' + (idx === i ? ' on' : '')} onClick={() => { hold(); goTo(i); }} aria-label={'Slide ' + (i + 1)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState('home');
   const [favs, setFavs] = useState(loadFavs);
@@ -860,36 +969,15 @@ export default function App() {
       <div className="main">
         {tab === 'home' && (
           <>
-            <section className="hero">
-              <img className="hero-img" src={todayScene.img} alt="" />
-              <div className="hero-shade" />
-              <div className="hero-body">
-                <span className="kicker">✦ Poem of the Day</span>
-                {today.lang === 'ur' ? (
-                  <>
-                    <div className="urdu">{today.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
-                    <div className="roman">{today.roman.map((l, i) => <div key={i}>{l}</div>)}</div>
-                  </>
-                ) : (
-                  <div className="en-lines" style={{ marginTop: 18 }}>{today.lines.slice(0, 4).map((l, i) => <div key={i}>{l}</div>)}</div>
-                )}
-                <div className="poet-line">— {poetOf(today.poet).name} <span>· {poetOf(today.poet).years}</span></div>
-                <div className="hero-actions">
-                  <button className="btn btn-gold" onClick={() => setReel({ poem: today, scene: todayScene })}>🎬 Play Reel</button>
-                  <button className={`btn ${favs.has(today.id) ? 'active-fav' : ''}`} onClick={() => toggleFav(today.id)}>{favs.has(today.id) ? '❤️' : '🤍'}</button>
-                  <button className="btn" onClick={() => sharePoem(today, todayScene, toast)}>📤</button>
-                </div>
-              </div>
-            </section>
+            <HomeSlider
+              today={today} todayScene={todayScene} poemsCount={poems.length}
+              noorDua={noorToday.dua} novelCount={NOVEL_FALLBACK.episodes.length}
+              isFav={favs.has(today.id)} onToggleFav={() => toggleFav(today.id)}
+              onOpenReel={() => setReel({ poem: today, scene: todayScene })}
+              onShare={() => sharePoem(today, todayScene, toast)}
+              onGo={setTab}
+            />
 
-            <div className="create-hero" style={{ margin: '14px 0 4px' }} onClick={() => setTab('novel')}>
-              <div style={{ fontSize: 26 }}>📖</div>
-              <div style={{ flex: 1 }}>
-                <b>Aakhri Sajda — the novel</b>
-                <div className="muted" style={{ fontSize: 13 }}>Episode 1 is live. A new episode every day at 8:00 PM.</div>
-              </div>
-              <span style={{ color: 'var(--gold)', fontWeight: 700 }}>Read →</span>
-            </div>
             <div className="section-title"><h2>Browse by Mood</h2><small>Categories</small></div>
             <div className="cat-grid">
               {CATEGORIES.map(c => (
@@ -913,17 +1001,6 @@ export default function App() {
               ))}
             </div>
 
-            <div className="create-hero">
-              <h3>☪️ Noor — Daily Light</h3>
-              <p><b style={{ color: 'var(--cream)' }}>Dua of the Day:</b> {noorToday.dua.english}</p>
-              <button className="btn btn-gold" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setTab('noor')}>Open Noor — Duas & Hadees</button>
-            </div>
-
-            <div className="create-hero">
-              <h3>✍️ Your Poetry, Your Reel</h3>
-              <p>Write your own poem, pick a scene, and turn it into a beautiful reel — with your name on it, ready to share anywhere.</p>
-              <button className="btn btn-gold" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }} onClick={() => setTab('create')}>Create Your Reel</button>
-            </div>
           </>
         )}
 
