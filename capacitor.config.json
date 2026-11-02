@@ -1,1 +1,6 @@
-{"appId":"com.dailypoem.app","appName":"DailyPoem","webDir":"dist"}
+{
+  "appId": "com.dailypoem.app",
+  "appName": "DailyPoem",
+  "webDir": "dist",
+  "backgroundColor": "#100d0b"
+}

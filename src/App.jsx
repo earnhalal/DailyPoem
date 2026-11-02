@@ -720,6 +720,30 @@ function PhotoCardMaker({ poems, toast }) {
   );
 }
 
+
+/* ---------------- Intro splash ---------------- */
+function IntroSplash({ onDone }) {
+  const [leaving, setLeaving] = useState(false);
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
+  useEffect(() => {
+    const t1 = setTimeout(() => setLeaving(true), 2150);
+    const t2 = setTimeout(() => doneRef.current(), 2700);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+  return (
+    <div className={'intro' + (leaving ? ' leaving' : '')} onClick={() => doneRef.current()}>
+      <div className="intro-glow" />
+      <div className="intro-emblem"><span>\u2726</span></div>
+      <div className="intro-name">{'DailyPoem'.split('').map((c, i) => <span key={i} style={{ animationDelay: (0.15 + i * 0.055) + 's' }}>{c}</span>)}</div>
+      <div className="intro-tag">SHAYARI \u2022 POETRY \u2022 REELS</div>
+      <div className="intro-sher" dir="rtl">\u0633\u062a\u0627\u0631\u0648\u06ba \u0633\u06d2 \u0622\u06af\u06d2 \u062c\u06c1\u0627\u06ba \u0627\u0648\u0631 \u0628\u06be\u06cc \u06c1\u06cc\u06ba</div>
+      <div className="intro-roman">Sitaaron se aage jahan aur bhi hain \u2014 Iqbal</div>
+      <div className="intro-bar"><span /></div>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState('home');
   const [favs, setFavs] = useState(loadFavs);
@@ -732,6 +756,7 @@ export default function App() {
   const [ownScene, setOwnScene] = useState(SCENES[0]);
   const [noorTab, setNoorTab] = useState('dua');
   const [theme, setTheme] = useState(() => { try { return localStorage.getItem('dailypoem_theme') || 'dark'; } catch { return 'dark'; } });
+  const [intro, setIntro] = useState(true);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -815,6 +840,7 @@ export default function App() {
 
   return (
     <div className="app">
+      {intro && <IntroSplash onDone={() => setIntro(false)} />}
       <header className="topbar">
         <div className="logo">
           <div className="logo-mark">🌙</div>
