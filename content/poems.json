@@ -214,14 +214,14 @@
    "id": "i2",
    "lang": "ur",
    "poet": "iqbal",
-   "category": "umeed",
+   "category": "sufi",
    "urdu": [
-    "خودی کو کر بلند اتنا کہ ہر تقدیر سے پہلے",
-    "خدا بندے سے خود پوچھے بتا تیری رضا کیا ہے"
+    "منا کہ تیری دید کے قابل نہیں ہوں میں",
+    "تو میرا شوق دیکھ مرا انتظار دیکھ"
    ],
    "roman": [
-    "Khudī ko kar buland itnā ke har taqdīr se pehle",
-    "Khudā bande se khud pūchhe, batā terī razā kyā hai"
+    "Manā ke terī dīd ke qābil nahīñ hūñ maiñ",
+    "Tū merā shauq dekh, merā intezār dekh"
    ]
   },
   {
@@ -620,14 +620,14 @@
    "id": "g16",
    "lang": "ur",
    "poet": "ghalib",
-   "category": "sufi",
+   "category": "zindagi",
    "urdu": [
-    "نہ تھا کچھ تو خدا تھا کچھ نہ ہوتا تو خدا ہوتا",
-    "ڈبویا مجھ کو ہونے نے نہ ہوتا میں تو کیا ہوتا"
+    "نہ گل نغمہ ہوں نہ پردۂ ساز",
+    "میں ہوں اپنی شکست کی آواز"
    ],
    "roman": [
-    "Na thā kuchh to Khudā thā, kuchh na hotā to Khudā hotā",
-    "Duboyā mujh ko hone ne, na hotā maiñ to kyā hotā"
+    "Na gul-e-naghma hūñ na parda-e-sāz",
+    "Maiñ hūñ apnī shikast kī āwāz"
    ]
   },
   {
@@ -648,14 +648,14 @@
    "id": "g18",
    "lang": "ur",
    "poet": "ghalib",
-   "category": "mohabbat",
+   "category": "zindagi",
    "urdu": [
-    "محبت میں نہیں ہے فرق جینے اور مرنے کا",
-    "اسی کو دیکھ کر جیتے ہیں جس کافر پہ دم نکلے"
+    "رنج سے خوگر ہوا انساں تو مٹ جاتا ہے رنج",
+    "مشکلیں مجھ پر پڑیں اتنی کہ آساں ہو گئیں"
    ],
    "roman": [
-    "Mohabbat meñ nahīñ hai farq jeene aur marne kā",
-    "Usī ko dekh kar jeete haiñ jis kāfir pe dam nikle"
+    "Ranj se khūgar huā insāñ to mit jātā hai ranj",
+    "Mushkileñ mujh par paṛīñ itnī ke āsāñ ho gaīñ"
    ]
   },
   {
@@ -664,12 +664,12 @@
    "poet": "ghalib",
    "category": "udaasi",
    "urdu": [
-    "دل ناداں تجھے ہوا کیا ہے",
-    "آخر اس درد کی دوا کیا ہے"
+    "درد دل لکھوں کب تک جاؤں ان کو دکھلا دوں",
+    "انگلیاں فگار اپنی خامہ خوں چکاں اپنا"
    ],
    "roman": [
-    "Dil-e-nādāñ tujhe huā kyā hai",
-    "Ākhir is dard kī dawā kyā hai"
+    "Dard-e-dil likhūñ kab tak, jāūñ un ko dikhlā dūñ",
+    "Ungliyāñ figār apnī, khāma khūñ-chakāñ apnā"
    ]
   },
   {
@@ -802,14 +802,14 @@
    "id": "i15",
    "lang": "ur",
    "poet": "iqbal",
-   "category": "umeed",
+   "category": "sufi",
    "urdu": [
-    "تو شاہیں ہے پرواز ہے کام تیرا",
-    "تیرے سامنے آسماں اور بھی ہیں"
+    "غریب و سادہ و رنگیں ہے داستان حرم",
+    "نہایت اس کی حسین ابتدا ہے اسمعیل"
    ],
    "roman": [
-    "Tū shāhīñ hai, parwāz hai kām terā",
-    "Tere sāmne āsmāñ aur bhī haiñ"
+    "Gharīb o sādā o rangīñ hai dāstān-e-haram",
+    "Nihāyat is kī Husain, ibtidā hai Ismāīl"
    ]
   },
   {
@@ -832,12 +832,12 @@
    "poet": "momin",
    "category": "mohabbat",
    "urdu": [
-    "وہ جو ہم میں تم میں قرار تھا تمھیں یاد ہو کہ نہ یاد ہو",
-    "وہی یعنی وعدہ نباہ کا تمھیں یاد ہو کہ نہ یاد ہو"
+    "الفت میں برابر ہے وفا ہو کہ جفا ہو",
+    "ہر بات میں لذت ہے اگر دل میں مزہ ہو"
    ],
    "roman": [
-    "Wo jo ham meñ tum meñ qarār thā tumheñ yād ho ke na yād ho",
-    "Wahī yaani wāda nibāh kā tumheñ yād ho ke na yād ho"
+    "Ulfat meñ barābar hai wafā ho ke jafā ho",
+    "Har bāt meñ lazzat hai agar dil meñ mazā ho"
    ]
   },
   {
