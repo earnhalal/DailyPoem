@@ -189,3 +189,21 @@ input, textarea { font-family: inherit; }
 .novel-p { font-family: 'Noto Nastaliq Urdu', serif; line-height: 2.35; color: var(--cream); margin: 0 0 14px; }
 .novel-brk { text-align: center; color: var(--gold); margin: 18px 0; letter-spacing: 6px; }
 .reader-end { text-align: center; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 16px; margin-top: 26px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+
+
+/* ---------- photo editor ---------- */
+.field { width: 100%; padding: 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); color: var(--cream); font-size: 14px; }
+select.field option { color: #1c1503; }
+.ph-preview { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); aspect-ratio: 4 / 5; background: #14100d; touch-action: none; cursor: grab; user-select: none; }
+.ph-bgimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ph-shade { position: absolute; inset: 0; background: #000; pointer-events: none; }
+.ph-text { position: absolute; left: 6%; right: 6%; transform: translateY(-50%); text-align: center; pointer-events: none; }
+.ph-name { position: absolute; left: 14px; bottom: 10px; font-size: 12px; opacity: .92; }
+.ph-brand { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 11px; opacity: .6; }
+.ph-label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--cream); }
+input[type='range'].slider { accent-color: var(--gold); height: 28px; }
+.swatch { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.swatch.on { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(212,175,55,.35); }
+.reel-export { position: absolute; left: 16px; right: 16px; bottom: 118px; background: rgba(10,8,7,.88); border: 1px solid var(--line); border-radius: 14px; padding: 14px; text-align: center; color: #f3ead8; z-index: 5; }
+.reel-export-bar { height: 8px; background: rgba(255,255,255,.15); border-radius: 99px; margin: 10px 0 6px; overflow: hidden; }
+.reel-export-bar span { display: block; height: 100%; background: #d4af37; }

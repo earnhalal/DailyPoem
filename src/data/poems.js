@@ -19,6 +19,8 @@ export const POETS = [
   { id: 'dagh', name: 'Dagh Dehlvi', urdu: 'داغ دہلوی', years: '1831–1905' },
   { id: 'momin', name: 'Momin Khan Momin', urdu: 'مومن خان مومن', years: '1800–1851' },
   { id: 'zafar', name: 'Bahadur Shah Zafar', urdu: 'بہادر شاہ ظفر', years: '1775–1862' },
+  { id: 'hasrat', name: 'Hasrat Mohani', urdu: 'حسرت موہانی', years: '1875–1951' },
+  { id: 'akbar', name: 'Akbar Allahabadi', urdu: 'اکبر الہ آبادی', years: '1846–1921' },
   { id: 'dailypoem', name: 'DailyPoem Originals', urdu: 'اوریجنل', years: 'English Poetry' },
 ];
 
@@ -243,6 +245,107 @@ export const POEMS = [
     urdu: ['نہ کسی کی آنکھ کا نور ہوں نہ کسی کے دل کا قرار ہوں', 'جو کسی کے کام نہ آ سکے میں وہ ایک مشت غبار ہوں'],
     roman: ['Na kisī kī ānkh kā nūr hūñ, na kisī ke dil kā qarār hūñ', 'Jo kisī ke kām na ā sake, maiñ wo ek musht-e-ghubār hūñ'],
   },
+  // ---------------- v0.5 mazeed classic ashaar ----------------
+  {
+    id: 'g15', lang: 'ur', poet: 'ghalib', category: 'udaasi',
+    urdu: ['رہیے اب ایسی جگہ چل کر جہاں کوئی نہ ہو', 'ہم سخن کوئی نہ ہو اور ہم زباں کوئی نہ ہو'],
+    roman: ['Rahiye ab aisī jagah chal kar jahāñ koī na ho', 'Ham-sukhan koī na ho aur ham-zabāñ koī na ho'],
+  },
+  {
+    id: 'g16', lang: 'ur', poet: 'ghalib', category: 'zindagi',
+    urdu: ['عشرت قطرہ ہے دریا میں فنا ہو جانا', 'درد کا حد سے گزرنا ہے دوا ہو جانا'],
+    roman: ['Ishrat-e-qatra hai dariyā meñ fanā ho jānā', 'Dard kā had se guzarnā hai dawā ho jānā'],
+  },
+  {
+    id: 'g17', lang: 'ur', poet: 'ghalib', category: 'attitude',
+    urdu: ['گو ہاتھ کو جنبش نہیں آنکھوں میں تو دم ہے', 'رہنے دو ابھی ساغر و مینا میرے آگے'],
+    roman: ['Go hāth ko jumbish nahīñ āñkhoñ meñ to dam hai', 'Rehne do abhī sāghar-o-mīnā mere āge'],
+  },
+  {
+    id: 'g18', lang: 'ur', poet: 'ghalib', category: 'zindagi',
+    urdu: ['بازیچۂ اطفال ہے دنیا میرے آگے', 'ہوتا ہے شب و روز تماشا میرے آگے'],
+    roman: ['Bāzīcha-e-atfāl hai duniyā mere āge', 'Hotā hai shab-o-roz tamāshā mere āge'],
+  },
+  {
+    id: 'g19', lang: 'ur', poet: 'ghalib', category: 'udaasi',
+    urdu: ['یہ نہ تھی ہماری قسمت کہ وصال یار ہوتا', 'اگر اور جیتے رہتے یہی انتظار ہوتا'],
+    roman: ['Ye na thī hamārī qismat ke visāl-e-yār hotā', 'Agar aur jīte rehte yahī intezār hotā'],
+  },
+  {
+    id: 'g20', lang: 'ur', poet: 'ghalib', category: 'zindagi',
+    urdu: ['سب کہاں کچھ لالہ و گل میں نمایاں ہو گئیں', 'خاک میں کیا صورتیں ہوں گی کہ پنہاں ہو گئیں'],
+    roman: ['Sab kahāñ kuchh lāla-o-gul meñ numāyāñ ho gaīñ', 'Khāk meñ kyā sūrateñ hoñgī ke pinhāñ ho gaīñ'],
+  },
+  {
+    id: 'g21', lang: 'ur', poet: 'ghalib', category: 'mohabbat',
+    urdu: ['مدت ہوئی ہے یار کو مہماں کیے ہوئے', 'جوش قدح سے بزم چراغاں کیے ہوئے'],
+    roman: ['Muddat huī hai yār ko mehmāñ kiye hue', 'Josh-e-qadah se bazm chirāghāñ kiye hue'],
+  },
+  {
+    id: 'm11', lang: 'ur', poet: 'mir', category: 'zindagi',
+    urdu: ['لے سانس بھی آہستہ کہ نازک ہے بہت کام', 'آفاق کی اس کارگہ شیشہ گری کا'],
+    roman: ['Le sāñs bhī āhista ke nāzuk hai bahut kām', 'Āfāq kī is kār-gah-e-shīsha-garī kā'],
+  },
+  {
+    id: 'm12', lang: 'ur', poet: 'mir', category: 'udaasi',
+    urdu: ['عرض نیاز عشق کے قابل نہیں رہا', 'جس دل پہ ناز تھا مجھے وہ دل نہیں رہا'],
+    roman: ['Arz-e-niyāz-e-ishq ke qābil nahīñ rahā', 'Jis dil pe nāz thā mujhe wo dil nahīñ rahā'],
+  },
+  {
+    id: 'm13', lang: 'ur', poet: 'mir', category: 'udaasi',
+    urdu: ['کیا کہوں تم سے میں کہ کیا ہے شب غم', 'بری بلا ہے مجھے یہ پہچانیے'],
+    roman: ['Kyā kahūñ tum se maiñ ke kyā hai shab-e-gham', 'Burī balā hai mujhe ye pehchāniye'],
+  },
+  {
+    id: 'i11', lang: 'ur', poet: 'iqbal', category: 'umeed',
+    urdu: ['ستاروں سے آگے جہاں اور بھی ہیں', 'ابھی عشق کے امتحاں اور بھی ہیں'],
+    roman: ['Sitāroñ se āge jahāñ aur bhī haiñ', 'Abhī ishq ke imtihāñ aur bhī haiñ'],
+  },
+  {
+    id: 'i12', lang: 'ur', poet: 'iqbal', category: 'attitude',
+    urdu: ['تو شاہین ہے پرواز ہے کام تیرا', 'تیرے سامنے آسماں اور بھی ہیں'],
+    roman: ['Tū shāheen hai parwāz hai kām terā', 'Tere sāmne āsmāñ aur bhī haiñ'],
+  },
+  {
+    id: 'i13', lang: 'ur', poet: 'iqbal', category: 'sufi',
+    urdu: ['عقل عیار ہے سو بھیس بنا لیتی ہے', 'عشق بے چارہ نہ ملا ہے نہ زاہد نہ حکیم'],
+    roman: ['Aqal ayyār hai sau bhes banā letī hai', 'Ishq bechāra na mullā hai na zāhid na hakīm'],
+  },
+  {
+    id: 'i14', lang: 'ur', poet: 'iqbal', category: 'mohabbat',
+    urdu: ['تیرے عشق کی انتہا چاہتا ہوں', 'میری سادگی دیکھ کیا چاہتا ہوں'],
+    roman: ['Tere ishq kī intehā chāhtā hūñ', 'Merī sādgī dekh kyā chāhtā hūñ'],
+  },
+  {
+    id: 'i15', lang: 'ur', poet: 'iqbal', category: 'umeed',
+    urdu: ['ہزاروں سال نرگس اپنی بے نوری پہ روتی ہے', 'بڑی مشکل سے ہوتا ہے چمن میں دیدہ ور پیدا'],
+    roman: ['Hazāroñ sāl nargis apnī be-nūrī pe rotī hai', 'Baṛī mushkil se hotā hai chaman meñ dīda-war paidā'],
+  },
+  {
+    id: 'd4', lang: 'ur', poet: 'dagh', category: 'mohabbat',
+    urdu: ['خاطر سے یا لحاظ سے میں مان تو گیا', 'جھوٹی قسم سے آپ کا ایمان تو گیا'],
+    roman: ['Khātir se yā lihāz se maiñ mān to gayā', 'Jhūṭī qasam se āp kā īmān to gayā'],
+  },
+  {
+    id: 'mo4', lang: 'ur', poet: 'momin', category: 'mohabbat',
+    urdu: ['وہ جو ہم میں تم میں قرار تھا تمھیں یاد ہو کہ نہ یاد ہو', 'وہی یعنی وعدہ نباہ کا تمھیں یاد ہو کہ نہ یاد ہو'],
+    roman: ['Wo jo ham meñ tum meñ qarār thā tumheñ yād ho ke na yād ho', 'Wahī yaani wāda nibāh kā tumheñ yād ho ke na yād ho'],
+  },
+  {
+    id: 'z4', lang: 'ur', poet: 'zafar', category: 'udaasi',
+    urdu: ['عمر دراز مانگ کے لائے تھے چار دن', 'دو آرزو میں کٹ گئے دو انتظار میں'],
+    roman: ['Umr-e-darāz māñg ke lāye thay chār din', 'Do ārzū meñ kaṭ gaye do intezār meñ'],
+  },
+  {
+    id: 'hm1', lang: 'ur', poet: 'hasrat', category: 'mohabbat',
+    urdu: ['چپکے چپکے رات دن آنسو بہانا یاد ہے', 'ہم کو اب تک عاشقی کا وہ زمانہ یاد ہے'],
+    roman: ['Chupke chupke rāt din āñsū bahānā yād hai', 'Ham ko ab tak āshiqī kā wo zamānā yād hai'],
+  },
+  {
+    id: 'ak1', lang: 'ur', poet: 'akbar', category: 'attitude',
+    urdu: ['ہنگامہ ہے کیوں برپا تھوڑی سی جو پی لی ہے', 'ڈاکہ تو نہیں ڈالا چوری تو نہیں کی ہے'],
+    roman: ['Hungāma hai kyūñ barpā thoṛī sī jo pī lī hai', 'Ḍāka to nahīñ ḍālā chorī to nahīñ kī hai'],
+  },
   // ---------------- English Originals (DailyPoem) ----------------
   {
     id: 'e1', lang: 'en', poet: 'dailypoem', audio: 'audio/e1.mp3', category: 'mohabbat', title: 'The Light I Chose',
@@ -371,6 +474,78 @@ export const POEMS = [
       'and hand it on, gentler than you found it.',
     ],
   },
+  {
+    id: 'e11', lang: 'en', poet: 'dailypoem', audio: 'audio/e11.mp3', category: 'udaasi', title: 'The Bench',
+    lines: [
+      'The bench by the gate still faces the road,',
+      'as if you might come back and sit down.',
+      'Two winters of rain have silvered its wood,',
+      'and the pigeons have claimed your side.',
+      'I still stop there on my way home —',
+      'not waiting, exactly.',
+      'Just keeping the seat of you warm in my memory.',
+    ],
+  },
+  {
+    id: 'e12', lang: 'en', poet: 'dailypoem', audio: 'audio/e12.mp3', category: 'mohabbat', title: 'Letters I Never Sent',
+    lines: [
+      'I have a drawer of letters I never sent,',
+      'each one braver than I was.',
+      'They say the things my mouth kept editing —',
+      'stay. I was wrong. The door was never locked.',
+      'If love is judged by what we manage to say,',
+      'then I loved you in drafts,',
+      'and the final version is still unwritten.',
+    ],
+  },
+  {
+    id: 'e13', lang: 'en', poet: 'dailypoem', audio: 'audio/e13.mp3', category: 'zindagi', title: 'Gravity of Kindness',
+    lines: [
+      'Kindness has its own gravity.',
+      'It does not shout; it pulls, quietly,',
+      'until strangers orbit a little closer',
+      'and enemies land softer than they planned.',
+      'Be the heaviest gentle thing in the room —',
+      'let the world fall toward you,',
+      'and call it coming home.',
+    ],
+  },
+  {
+    id: 'e14', lang: 'en', poet: 'dailypoem', audio: 'audio/e14.mp3', category: 'umeed', title: 'Half-Light',
+    lines: [
+      'There is an hour before the sunrise',
+      'when nothing is promised and everything is possible.',
+      'The dark has not left, but it has lost.',
+      'Stand in that half-light a moment longer —',
+      'most miracles are not loud arrivals.',
+      'They are the slow decision of the sky',
+      'to try again.',
+    ],
+  },
+  {
+    id: 'e15', lang: 'en', poet: 'dailypoem', audio: 'audio/e15.mp3', category: 'zindagi', title: 'The Guest Room',
+    lines: [
+      'My grandmother kept a guest room ready',
+      'for forty years — fresh sheets, folded towels,',
+      'for travellers who mostly never came.',
+      'When I asked why, she said: a house',
+      'should always expect mercy at the door.',
+      'She is gone now. The room is still ready.',
+      'I did not inherit furniture. I inherited a door kept open.',
+    ],
+  },
+  {
+    id: 'e16', lang: 'en', poet: 'dailypoem', audio: 'audio/e16.mp3', category: 'sufi', title: 'What Stays',
+    lines: [
+      'Empires keep their names on coins,',
+      'and the coins end up in museums, silent.',
+      'But a kind word spoken in a kitchen outlives marble.',
+      'Ask what stays when everything is taken:',
+      'not the gold, not the gate, not the name —',
+      'only the love that was given away,',
+      'and the prayer somebody still whispers for you.',
+    ],
+  },
 ];
 
 export const SCENES = [
@@ -384,8 +559,10 @@ export function poetOf(id) {
   return POETS.find(p => p.id === id) || POETS[0];
 }
 
-export function poemOfTheDay() {
+export const POEMS_REMOTE_URL = 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/content/poems.json';
+
+export function poemOfTheDay(list = POEMS) {
   const now = new Date();
   const dayIndex = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
-  return POEMS[dayIndex % POEMS.length];
+  return list[dayIndex % list.length];
 }

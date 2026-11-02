@@ -87,6 +87,48 @@ export const DUAS = [
     english: 'O Turner of the hearts, keep my heart firm upon Your religion.',
     source: 'Jami’ at-Tirmidhi 3522',
   },
+  {
+    id: 'dua13', title: 'Forgiveness for Parents & Believers', when: 'Any time',
+    arabic: 'رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ',
+    roman: 'Rabbanagh-fir li wa liwalidayya wa lil-mu\'minina yawma yaqumul-hisab',
+    english: 'Our Lord, forgive me and my parents and the believers on the Day when the account is established.',
+    source: 'Quran 14:41',
+  },
+  {
+    id: 'dua14', title: 'For Family', when: 'Any time',
+    arabic: 'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا',
+    roman: 'Rabbana hab lana min azwajina wa dhurriyyatina qurrata a\'yunin waj\'alna lil-muttaqina imama',
+    english: 'Our Lord, grant us from among our spouses and offspring comfort to our eyes, and make us leaders for the righteous.',
+    source: 'Quran 25:74',
+  },
+  {
+    id: 'dua15', title: 'Protection of Blessings', when: 'Morning & evening',
+    arabic: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ زَوَالِ نِعْمَتِكَ وَتَحَوُّلِ عَافِيَتِكَ وَفُجَاءَةِ نِقْمَتِكَ وَجَمِيعِ سَخَطِكَ',
+    roman: 'Allahumma inni a\'udhu bika min zawali ni\'matik, wa tahawwuli \'afiyatik, wa fuja\'ati niqmatik, wa jami\'i sakhatik',
+    english: 'O Allah, I seek refuge in You from the removal of Your blessing, the loss of the well-being You granted, Your sudden punishment, and all that earns Your displeasure.',
+    source: 'Sahih Muslim 2735',
+  },
+  {
+    id: 'dua16', title: 'Knowledge, Provision & Accepted Deeds', when: 'After Fajr',
+    arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلًا مُتَقَبَّلًا',
+    roman: 'Allahumma inni as\'aluka \'ilman nafi\'an, wa rizqan tayyiban, wa \'amalan mutaqabbalan',
+    english: 'O Allah, I ask You for beneficial knowledge, pure provision, and deeds that are accepted.',
+    source: 'Ibn Majah 925',
+  },
+  {
+    id: 'dua17', title: 'For Pardon & Well-being', when: 'Morning & evening',
+    arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ',
+    roman: 'Allahumma inni as\'alukal-\'afwa wal-\'afiyata fid-dunya wal-akhirah',
+    english: 'O Allah, I ask You for pardon and well-being in this world and the Hereafter.',
+    source: 'Ibn Majah 3871',
+  },
+  {
+    id: 'dua18', title: 'Trust in Allah', when: 'In difficulty',
+    arabic: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',
+    roman: 'Hasbunallahu wa ni\'mal-wakeel',
+    english: 'Allah is sufficient for us, and He is the best Disposer of affairs.',
+    source: 'Quran 3:173',
+  },
 ];
 
 export const HADEES = [
@@ -161,6 +203,42 @@ export const HADEES = [
     arabic: 'إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمُ الْعَمَلَ أَنْ يُتْقِنَهُ',
     english: 'Allah loves that when one of you does a work, he does it with excellence.',
     source: 'Musnad Abu Ya’la 4386',
+  },
+  {
+    id: 'h13',
+    arabic: 'انْصُرْ أَخَاكَ ظَالِمًا أَوْ مَظْلُومًا',
+    english: 'Help your brother, whether he is an oppressor or he is oppressed.',
+    source: 'Sahih al-Bukhari 2442',
+  },
+  {
+    id: 'h14',
+    arabic: 'يَسِّرُوا وَلَا تُعَسِّرُوا وَبَشِّرُوا وَلَا تُنَفِّرُوا',
+    english: 'Make things easy and do not make them difficult; give glad tidings and do not repel people.',
+    source: 'Sahih al-Bukhari 69',
+  },
+  {
+    id: 'h15',
+    arabic: 'إِذَا مَاتَ الْإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ إِلَّا مِنْ صَدَقَةٍ جَارِيَةٍ أَوْ عِلْمٍ يُنْتَفَعُ بِهِ أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ',
+    english: 'When a person dies, his deeds come to an end except for three: ongoing charity, knowledge that benefits others, or a righteous child who prays for him.',
+    source: 'Sahih Muslim 1631',
+  },
+  {
+    id: 'h16',
+    arabic: 'احْفَظِ اللَّهَ يَحْفَظْكَ احْفَظِ اللَّهَ تَجِدْهُ تُجَاهَكَ',
+    english: 'Be mindful of Allah and Allah will protect you. Be mindful of Allah and you will find Him before you.',
+    source: 'Tirmidhi 2515',
+  },
+  {
+    id: 'h17',
+    arabic: 'طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ',
+    english: 'Seeking knowledge is an obligation upon every Muslim.',
+    source: 'Ibn Majah 224',
+  },
+  {
+    id: 'h18',
+    arabic: 'كُلُّكُمْ رَاعٍ وَكُلُّكُمْ مَسْئُولٌ عَنْ رَعِيَّتِهِ',
+    english: 'Every one of you is a shepherd, and every one of you is responsible for his flock.',
+    source: 'Sahih al-Bukhari 893',
   },
 ];
 

@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { POEMS, POETS, CATEGORIES, SCENES, poetOf, poemOfTheDay } from './data/poems.js';
+import { POEMS, POETS, CATEGORIES, SCENES, poetOf, poemOfTheDay, POEMS_REMOTE_URL } from './data/poems.js';
 import { DUAS, HADEES, noorOfTheDay } from './data/noor.js';
 import { NOVEL_FALLBACK, NOVEL_REMOTE_URL } from './data/novel.js';
+import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 
 const FAV_KEY = 'dailypoem_favs_v1';
 
@@ -120,6 +121,219 @@ async function sharePoem(poem, scene, toast) {
   }
 }
 
+
+async function shareCanvasFile(canvas, toast, filename) {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      const data = canvas.toDataURL('image/png').split(',')[1];
+      const { uri } = await Filesystem.writeFile({ path: filename, data, directory: Directory.Cache });
+      await Share.share({ title: 'DailyPoem', files: [uri] });
+      return;
+    }
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const file = new File([blob], filename, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'DailyPoem' }); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('Image saved');
+  } catch { toast('Sharing is not available on this device'); }
+}
+
+async function shareBlobFile(blob, toast, filename) {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      const buf = await blob.arrayBuffer();
+      let bin = ''; const bytes = new Uint8Array(buf); const CH = 0x8000;
+      for (let i = 0; i < bytes.length; i += CH) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+      const { uri } = await Filesystem.writeFile({ path: filename, data: btoa(bin), directory: Directory.Cache });
+      await Share.share({ title: 'DailyPoem Reel', files: [uri] });
+      toast('Video ready — choose where to share');
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast('Video downloaded');
+  } catch { toast('Sharing is not available on this device'); }
+}
+
+/* ------------- Reel -> real MP4 video (WebCodecs) ------------- */
+async function exportReelVideo(poem, scene, toast, setProgress) {
+  if (!('VideoEncoder' in window)) { toast('Video export is not supported on this device yet'); return; }
+  try {
+    const W = 720, H = 1280, FPS = 24;
+    const lines = linesOf(poem);
+    let audioBuf = null;
+    if (poem.audio) {
+      try {
+        const resp = await fetch(poem.audio);
+        const ab = await resp.arrayBuffer();
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioBuf = await new AC().decodeAudioData(ab);
+      } catch { audioBuf = null; }
+    }
+    let dur = lines.length * 2.2 + 1.6;
+    if (audioBuf) dur = Math.min(40, audioBuf.duration + 0.6);
+    const per = dur / lines.length;
+    const img = new Image();
+    img.src = scene.img;
+    try { await img.decode(); } catch { /* proceed */ }
+    try { await document.fonts.load('40px "Noto Nastaliq Urdu"'); await document.fonts.load('33px "Playfair Display"'); } catch { /* fonts optional */ }
+    const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const drawFrame = (t) => {
+      ctx.fillStyle = '#0b0908'; ctx.fillRect(0, 0, W, H);
+      if (img && img.naturalWidth) {
+        const sc = 1 + 0.09 * (t / dur);
+        const base = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+        const w = img.naturalWidth * base * sc, h = img.naturalHeight * base * sc;
+        ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+      }
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, 'rgba(10,8,7,.42)'); g.addColorStop(0.55, 'rgba(10,8,7,.30)'); g.addColorStop(1, 'rgba(10,8,7,.80)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(0, 0, W, 5);
+      ctx.fillStyle = '#d4af37'; ctx.fillRect(0, 0, W * (t / dur), 5);
+      ctx.textAlign = 'center';
+      const isUr = poem.lang === 'ur';
+      const fs = isUr ? 40 : 33;
+      const step = isUr ? 98 : 50;
+      ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
+      const totalH = lines.length * step;
+      const y0 = (H - totalH) / 2 + step * 0.72;
+      lines.forEach((ln, i) => {
+        const at = 0.4 + i * per;
+        if (t < at) return;
+        ctx.globalAlpha = Math.min(1, (t - at) / 0.45);
+        ctx.fillStyle = '#fdf6e3';
+        ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 10;
+        ctx.fillText(ln, W / 2, y0 + i * step);
+        ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      });
+      ctx.fillStyle = '#d4af37'; ctx.font = '600 25px Inter, sans-serif';
+      ctx.fillText('\u2014 ' + (poem.customPoet || poetOf(poem.poet).name) + ' \u2014', W / 2, H - 84);
+      ctx.fillStyle = 'rgba(243,234,216,.65)'; ctx.font = '21px Inter, sans-serif';
+      ctx.fillText('DailyPoem', W / 2, H - 48);
+    };
+    const muxer = new Muxer({
+      target: new ArrayBufferTarget(),
+      video: { codec: 'avc', width: W, height: H },
+      audio: audioBuf ? { codec: 'aac', sampleRate: audioBuf.sampleRate, numberOfChannels: Math.min(2, audioBuf.numberOfChannels) } : undefined,
+      fastStart: 'in-memory', firstTimestampBehavior: 'offset',
+    });
+    const venc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: () => {} });
+    const vcfg = { codec: 'avc1.640028', width: W, height: H, bitrate: 2400000, framerate: FPS };
+    const sup = await VideoEncoder.isConfigSupported(vcfg);
+    if (!sup.supported) { toast('Video format is not supported on this device'); return; }
+    venc.configure(vcfg);
+    if (audioBuf && 'AudioEncoder' in window) {
+      try {
+        const aenc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: () => {} });
+        const ch = Math.min(2, audioBuf.numberOfChannels);
+        const acfg = { codec: 'mp4a.40.2', sampleRate: audioBuf.sampleRate, numberOfChannels: ch, bitrate: 128000 };
+        const asup = await AudioEncoder.isConfigSupported(acfg);
+        if (asup.supported) {
+          aenc.configure(acfg);
+          const chans = []; for (let c = 0; c < ch; c++) chans.push(audioBuf.getChannelData(c));
+          const CF = 1024;
+          for (let off = 0; off < audioBuf.length; off += CF) {
+            const n = Math.min(CF, audioBuf.length - off);
+            const buf = new ArrayBuffer(n * 4 * ch); const view = new Float32Array(buf);
+            for (let c = 0; c < ch; c++) view.set(chans[c].subarray(off, off + n), c * n);
+            const ad = new AudioData({ format: 'f32-planar', sampleRate: audioBuf.sampleRate, numberOfFrames: n, numberOfChannels: ch, timestamp: Math.round(off / audioBuf.sampleRate * 1e6), data: buf });
+            aenc.encode(ad); ad.close();
+          }
+          await aenc.flush(); aenc.close();
+        }
+      } catch { /* silent video */ }
+    }
+    const total = Math.floor(dur * FPS);
+    for (let f = 0; f <= total; f++) {
+      drawFrame(f / FPS);
+      const frame = new VideoFrame(canvas, { timestamp: Math.round(f * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
+      venc.encode(frame, { keyFrame: f % (FPS * 2) === 0 });
+      frame.close();
+      if (venc.encodeQueueSize > 5) await new Promise(r => setTimeout(r, 10));
+      if (f % 12 === 0) { setProgress(Math.round((f / total) * 100)); await new Promise(r => setTimeout(r, 0)); }
+    }
+    await venc.flush(); venc.close();
+    muxer.finalize();
+    setProgress(100);
+    await shareBlobFile(new Blob([muxer.target.buffer], { type: 'video/mp4' }), toast, 'dailypoem-reel.mp4');
+  } catch { toast('Video export failed on this device'); }
+}
+
+/* ------------- Photo card (editor state -> canvas) ------------- */
+async function makePhotoCard(o) {
+  const W = 1080, H = 1350;
+  const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const loadImg = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+  let bgImg = null;
+  if (o.bgMode === 'photo') bgImg = o.img;
+  else if (o.bgMode === 'scene') bgImg = await loadImg(o.scene.img);
+  if (bgImg && bgImg.naturalWidth) {
+    const base = Math.max(W / bgImg.naturalWidth, H / bgImg.naturalHeight);
+    const w = bgImg.naturalWidth * base, h = bgImg.naturalHeight * base;
+    ctx.drawImage(bgImg, (W - w) / 2, (H - h) / 2, w, h);
+  } else {
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, o.color.from); g.addColorStop(1, o.color.to);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,' + (o.shade * 0.75).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H);
+  const bg2 = ctx.createLinearGradient(0, H * 0.45, 0, H);
+  bg2.addColorStop(0, 'rgba(0,0,0,0)'); bg2.addColorStop(1, 'rgba(0,0,0,.35)');
+  ctx.fillStyle = bg2; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = o.color.light ? 'rgba(138,106,24,.5)' : 'rgba(212,175,55,.5)';
+  ctx.lineWidth = 3; ctx.strokeRect(30, 30, W - 60, H - 60);
+  ctx.textAlign = 'center';
+  const poet = poetOf(o.poem.poet);
+  const isUr = o.poem.lang === 'ur';
+  const lines = linesOf(o.poem);
+  const gold = o.color.light ? '#8a6a18' : '#d4af37';
+  ctx.fillStyle = gold; ctx.font = '600 30px Inter, sans-serif';
+  ctx.fillText('\u2726 DAILYPOEM \u2726', W / 2, 108);
+  try { await document.fonts.load('60px "Noto Nastaliq Urdu"'); await document.fonts.load('54px "Playfair Display"'); } catch { /* fonts optional */ }
+  let fs = (isUr ? 62 : 56) * o.scale;
+  ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
+  const maxW = () => Math.max(...lines.map(l => ctx.measureText(l).width));
+  while (maxW() > 940 && fs > 26) { fs -= 3; ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif'; }
+  const step = fs * (isUr ? 2.05 : 1.5);
+  const roman = isUr ? (o.poem.roman || []) : [];
+  const rStep = 50;
+  const titleH = !isUr && o.poem.title ? 74 : 0;
+  const blockH = titleH + lines.length * step + (roman.length ? roman.length * rStep + 16 : 0) + 84;
+  let y = (o.posY / 100) * H - blockH / 2;
+  if (!isUr && o.poem.title) {
+    ctx.fillStyle = gold; ctx.font = 'italic 600 40px "Playfair Display", serif';
+    ctx.fillText(o.poem.title, W / 2, y + 44); y += titleH;
+  }
+  ctx.fillStyle = o.tcHex;
+  ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
+  lines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + fs * (isUr ? 1.42 : 1.05) + i * step));
+  y += lines.length * step;
+  if (roman.length) {
+    ctx.fillStyle = o.tcHex; ctx.globalAlpha = 0.88;
+    ctx.font = 'italic 34px "Cormorant Garamond", serif';
+    roman.forEach((ln, i) => ctx.fillText(ln, W / 2, y + 16 + 36 + i * rStep));
+    ctx.globalAlpha = 1; y += roman.length * rStep + 16;
+  }
+  ctx.fillStyle = gold; ctx.font = '600 38px Inter, sans-serif';
+  ctx.fillText('\u2014 ' + (o.poem.customPoet || poet.name) + ' \u2014', W / 2, y + 58);
+  if (o.name) {
+    ctx.textAlign = 'left'; ctx.globalAlpha = 0.92; ctx.fillStyle = o.tcHex;
+    ctx.font = '30px Inter, sans-serif';
+    ctx.fillText('\u270D ' + o.name, 56, H - 58);
+    ctx.globalAlpha = 1; ctx.textAlign = 'center';
+  }
+  ctx.fillStyle = o.color.light ? 'rgba(42,31,16,.6)' : 'rgba(243,234,216,.55)';
+  ctx.font = '24px Inter, sans-serif';
+  ctx.fillText('DailyPoem \u2014 Shayari & Poetry Reels', W / 2, H - 58);
+  return canvas;
+}
+
 async function copyPoem(poem, toast) {
   const poet = poetOf(poem.poet);
   const lines = linesOf(poem).join('\n');
@@ -145,6 +359,7 @@ function ReelPlayer({ poem, scene, onClose, toast }) {
   const hasAudio = !!poem.audio;
   const [voice, setVoice] = useState(hasAudio);
   const [pace, setPace] = useState(2100);
+  const [exporting, setExporting] = useState(0);
   const audioRef = useRef(null);
   const poet = poetOf(poem.poet);
 
@@ -223,12 +438,20 @@ function ReelPlayer({ poem, scene, onClose, toast }) {
       </div>
       <div className="reel-poet">— {poem.customPoet || poet.name}</div>
       <div className="progress"><i style={{ width: `${(shown / lines.length) * 100}%` }} /></div>
+      {exporting > 0 && (
+        <div className="reel-export">
+          <div>Rendering video\u2026 {exporting}%</div>
+          <div className="reel-export-bar"><span style={{ width: exporting + '%' }} /></div>
+          <small>Keep the app open while it renders</small>
+        </div>
+      )}
       <div className="reel-controls">
         {shown >= lines.length
           ? <button className="btn" onClick={restart}>↺ Replay</button>
           : <button className="btn" onClick={() => setPlaying(p => !p)}>{playing ? '⏸ Pause' : '▶ Play'}</button>}
         <button className="btn" onClick={toggleVoice}>{voice ? '🔊 Voice On' : '🔇 Voice'}</button>
         <button className="btn" onClick={() => sharePoem(poem, scene, toast)}>📤 Share</button>
+        <button className="btn" onClick={async () => { if (exporting) return; setPlaying(false); setExporting(1); await exportReelVideo(poem, scene, toast, setExporting); setExporting(0); }}>🎬 Video</button>
       </div>
     </div>
   );
@@ -343,6 +566,160 @@ function NovelScreen() {
   );
 }
 
+
+/* ---------------- Photo Shayari Editor ---------------- */
+const PHOTO_COLORS = [
+  { id: 'maroon', name: 'Maroon', from: '#3d0f16', to: '#170608', css: 'linear-gradient(160deg,#3d0f16,#170608)' },
+  { id: 'emerald', name: 'Emerald', from: '#0d2b21', to: '#04120d', css: 'linear-gradient(160deg,#0d2b21,#04120d)' },
+  { id: 'royal', name: 'Royal', from: '#12294d', to: '#050d1d', css: 'linear-gradient(160deg,#12294d,#050d1d)' },
+  { id: 'charcoal', name: 'Charcoal', from: '#262626', to: '#090909', css: 'linear-gradient(160deg,#262626,#090909)' },
+  { id: 'sunset', name: 'Sunset', from: '#5c2a10', to: '#1d0d04', css: 'linear-gradient(160deg,#5c2a10,#1d0d04)' },
+  { id: 'plum', name: 'Plum', from: '#351840', to: '#12061a', css: 'linear-gradient(160deg,#351840,#12061a)' },
+  { id: 'paper', name: 'Paper', from: '#f7f0de', to: '#e7d9b8', css: 'linear-gradient(160deg,#f7f0de,#e7d9b8)', light: true },
+];
+const TEXT_COLORS = [
+  { id: 'cream', hex: '#f3ead8', name: 'Cream' },
+  { id: 'gold', hex: '#f0c95c', name: 'Gold' },
+  { id: 'white', hex: '#ffffff', name: 'White' },
+  { id: 'ink', hex: '#2a1f10', name: 'Ink' },
+];
+
+function PhotoCardMaker({ poems, toast }) {
+  const [imgUrl, setImgUrl] = useState(null);
+  const imgRef = useRef(null);
+  const fileRef = useRef(null);
+  const [bgMode, setBgMode] = useState('color');
+  const [colorId, setColorId] = useState('maroon');
+  const [sceneId, setSceneId] = useState(SCENES[0].id);
+  const [poemId, setPoemId] = useState('');
+  const [name, setName] = useState('');
+  const [posY, setPosY] = useState(62);
+  const [scale, setScale] = useState(1);
+  const [textColor, setTextColor] = useState('cream');
+  const [shade, setShade] = useState(55);
+  const [busy, setBusy] = useState(false);
+  const dragging = useRef(false);
+
+  const poem = poems.find(p => p.id === poemId) || poems[0];
+  const color = PHOTO_COLORS.find(c => c.id === colorId) || PHOTO_COLORS[0];
+  const tc = TEXT_COLORS.find(t => t.id === textColor) || TEXT_COLORS[0];
+  const scene = SCENES.find(x => x.id === sceneId) || SCENES[0];
+  const goldHex = color.light ? '#8a6a18' : '#d4af37';
+  if (!poem) return null;
+  const lines = linesOf(poem);
+
+  const onPick = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    const im = new Image();
+    im.onload = () => { imgRef.current = im; setImgUrl(url); setBgMode('photo'); };
+    im.src = url;
+  };
+  const dragTo = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const y = ((e.clientY - r.top) / r.height) * 100;
+    setPosY(Math.max(14, Math.min(88, Math.round(y))));
+  };
+  const generate = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const canvas = await makePhotoCard({ poem, bgMode, img: imgRef.current, color, scene, name: name.trim(), posY, scale, tcHex: tc.hex, shade: shade / 100 });
+      await shareCanvasFile(canvas, toast, 'dailypoem-photo.png');
+    } catch { toast('Could not create the photo card'); }
+    setBusy(false);
+  };
+
+  return (
+    <div style={{ marginTop: 26 }}>
+      <div className="section-title"><h2>🖼️ Poetry Photo</h2><small>Your photo, your sher</small></div>
+      <p className="muted" style={{ fontSize: 13, margin: '0 0 12px' }}>Put any poem on your own photo — or on a colour background — then share it anywhere.</p>
+
+      <div className="ph-preview"
+        onPointerDown={(e) => { dragging.current = true; dragTo(e); }}
+        onPointerMove={(e) => { if (dragging.current) dragTo(e); }}
+        onPointerUp={() => { dragging.current = false; }}
+        onPointerLeave={() => { dragging.current = false; }}>
+        {bgMode === 'photo' && imgUrl && <img className="ph-bgimg" src={imgUrl} alt="" />}
+        {bgMode === 'scene' && <img className="ph-bgimg" src={scene.img} alt="" />}
+        {bgMode === 'color' && <div className="ph-bgimg" style={{ background: color.css }} />}
+        <div className="ph-shade" style={{ opacity: (shade / 100) * 0.75 }} />
+        <div style={{ position: 'absolute', top: 10, left: 0, right: 0, textAlign: 'center', color: goldHex, fontSize: 11, fontWeight: 700, letterSpacing: 2 }}>✦ DAILYPOEM ✦</div>
+        <div className="ph-text" style={{ top: posY + '%', color: tc.hex }}>
+          {poem.lang === 'en' && poem.title && <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 600, fontSize: 15, color: goldHex, marginBottom: 6 }}>{poem.title}</div>}
+          {poem.lang === 'ur'
+            ? <div className="urdu" style={{ fontSize: 19 * scale, color: tc.hex }}>{lines.map((l, i) => <div key={i}>{l}</div>)}</div>
+            : <div className="en-lines" style={{ fontSize: 18 * scale, color: tc.hex }}>{lines.map((l, i) => <div key={i}>{l}</div>)}</div>}
+          {poem.lang === 'ur' && poem.roman && <div className="roman" style={{ fontSize: 12, opacity: 0.88, color: tc.hex }}>{poem.roman.map((l, i) => <div key={i}>{l}</div>)}</div>}
+          <div style={{ color: goldHex, fontWeight: 600, fontSize: 13, marginTop: 8 }}>— {poem.customPoet || poetOf(poem.poet).name} —</div>
+        </div>
+        {name.trim() && <div className="ph-name" style={{ color: tc.hex }}>✍ {name.trim()}</div>}
+        <div className="ph-brand" style={{ color: tc.hex }}>DailyPoem — Shayari & Poetry Reels</div>
+      </div>
+      <p className="muted" style={{ fontSize: 12, textAlign: 'center', margin: '8px 0 0' }}>Tip: drag the text on the photo to move it up or down</p>
+
+      <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+        <button className="btn btn-gold" onClick={() => fileRef.current && fileRef.current.click()}>📷 Choose Photo</button>
+        <button className={'btn' + (bgMode === 'color' ? ' btn-gold' : '')} onClick={() => setBgMode('color')}>🎨 Colours</button>
+        <button className={'btn' + (bgMode === 'scene' ? ' btn-gold' : '')} onClick={() => setBgMode('scene')}>🌆 Scenes</button>
+        {imgUrl && <button className={'btn' + (bgMode === 'photo' ? ' btn-gold' : '')} onClick={() => setBgMode('photo')}>🖼️ My Photo</button>}
+        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPick} />
+      </div>
+
+      {bgMode === 'color' && (
+        <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+          {PHOTO_COLORS.map(c => (
+            <button key={c.id} className={'swatch' + (colorId === c.id ? ' on' : '')} style={{ background: c.css }} title={c.name} onClick={() => { setColorId(c.id); if (c.light) setTextColor('ink'); }} />
+          ))}
+          <span className="muted" style={{ fontSize: 12.5 }}>{color.name}</span>
+        </div>
+      )}
+      {bgMode === 'scene' && (
+        <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
+          {SCENES.map(sc => (
+            <button key={sc.id} className={'swatch' + (sceneId === sc.id ? ' on' : '')} style={{ backgroundImage: 'url(' + sc.img + ')', backgroundSize: 'cover', width: 46, height: 46 }} title={sc.name} onClick={() => setSceneId(sc.id)} />
+          ))}
+        </div>
+      )}
+
+      <div style={{ marginTop: 14, display: 'grid', gap: 10 }}>
+        <select className="field" value={poem.id} onChange={(e) => setPoemId(e.target.value)}>
+          {poems.map(p => <option key={p.id} value={p.id}>{p.lang === 'en' ? p.title : (p.roman ? p.roman[0] : p.id)} — {poetOf(p.poet).name}</option>)}
+        </select>
+        <input className="field" placeholder="Your name on the card (optional)" value={name} maxLength={30} onChange={(e) => setName(e.target.value)} />
+      </div>
+
+      <div style={{ marginTop: 14, display: 'grid', gap: 12 }}>
+        <label className="ph-label">Text position
+          <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button className="btn" onClick={() => setPosY(v => Math.max(14, v - 4))}>↑ Up</button>
+            <input type="range" className="slider" min={14} max={88} value={posY} onChange={(e) => setPosY(parseInt(e.target.value, 10))} style={{ flex: 1 }} />
+            <button className="btn" onClick={() => setPosY(v => Math.min(88, v + 4))}>↓ Down</button>
+          </span>
+        </label>
+        <label className="ph-label">Text size
+          <input type="range" className="slider" min={80} max={135} value={Math.round(scale * 100)} onChange={(e) => setScale(parseInt(e.target.value, 10) / 100)} />
+        </label>
+        <label className="ph-label">Background darkness
+          <input type="range" className="slider" min={0} max={95} value={shade} onChange={(e) => setShade(parseInt(e.target.value, 10))} />
+        </label>
+        <div className="ph-label">Text colour
+          <span style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+            {TEXT_COLORS.map(t => (
+              <button key={t.id} className={'btn' + (textColor === t.id ? ' btn-gold' : '')} onClick={() => setTextColor(t.id)}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: t.hex, border: '1px solid rgba(128,128,128,.5)', marginRight: 6 }} />{t.name}</button>
+            ))}
+          </span>
+        </div>
+      </div>
+
+      <button className="btn btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: 16, padding: '14px' }} onClick={generate} disabled={busy}>
+        {busy ? 'Creating…' : '📤 Share / Save Photo'}
+      </button>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState('home');
   const [favs, setFavs] = useState(loadFavs);
@@ -369,7 +746,16 @@ export default function App() {
     toastTimer.current = setTimeout(() => setToastMsg(''), 2400);
   };
 
-  const today = useMemo(() => poemOfTheDay(), []);
+  const [poems, setPoems] = useState(() => { try { return JSON.parse(localStorage.getItem('dailypoem_poems_cache')) || POEMS; } catch { return POEMS; } });
+  useEffect(() => {
+    let live = true;
+    fetch(POEMS_REMOTE_URL, { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => { if (live && j && Array.isArray(j.poems) && j.poems.length) { setPoems(j.poems); try { localStorage.setItem('dailypoem_poems_cache', JSON.stringify(j.poems)); } catch { /* noop */ } } })
+      .catch(() => {});
+    return () => { live = false; };
+  }, []);
+  const today = useMemo(() => poemOfTheDay(poems), [poems]);
   const noorToday = useMemo(() => noorOfTheDay(), []);
   const todayScene = SCENES[new Date().getDate() % SCENES.length];
 
@@ -398,7 +784,7 @@ export default function App() {
   const openReel = poem => setReel({ poem, scene: SCENES[Math.floor(Math.random() * SCENES.length)] });
 
   const filtered = useMemo(() => {
-    let list = POEMS;
+    let list = poems;
     if (catFilter !== 'all') list = list.filter(p => p.category === catFilter);
     if (poetFilter) list = list.filter(p => p.poet === poetFilter);
     if (query.trim()) {
@@ -412,7 +798,7 @@ export default function App() {
     return list;
   }, [catFilter, poetFilter, query]);
 
-  const favPoems = POEMS.filter(p => favs.has(p.id));
+  const favPoems = poems.filter(p => favs.has(p.id));
 
   const ownPoem = () => {
     const lines = ownText.split('\n').map(s => s.trim()).filter(Boolean);
@@ -441,7 +827,7 @@ export default function App() {
           <button className="btn" style={{ padding: '8px 12px', fontSize: 13 }} onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}>
             {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
           </button>
-          <span className="tag">{POEMS.length} poems</span>
+          <span className="tag">{poems.length} poems</span>
         </span>
       </header>
 
@@ -485,7 +871,7 @@ export default function App() {
                   <span className="urdu-sm">{c.urdu}</span>
                   <span className="ic">{c.icon}</span>
                   <h3>{c.label}</h3>
-                  <p>{POEMS.filter(p => p.category === c.id).length} poems</p>
+                  <p>{poems.filter(p => p.category === c.id).length} poems</p>
                 </button>
               ))}
             </div>
@@ -570,7 +956,9 @@ export default function App() {
           </>
         )}
 
-        {tab === 'novel' && <NovelScreen />}
+        {tab === 'create' && <PhotoCardMaker poems={poems} toast={toast} />}
+
+      {tab === 'novel' && <NovelScreen />}
 
         {tab === 'noor' && (
           <>
