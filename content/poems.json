@@ -883,6 +883,342 @@
    ]
   },
   {
+   "id": "g22",
+   "lang": "ur",
+   "poet": "ghalib",
+   "category": "mohabbat",
+   "urdu": [
+    "آہ کو چاہیے اک عمر اثر ہونے تک",
+    "کون جیتا ہے تیری زلف کے سر ہونے تک"
+   ],
+   "roman": [
+    "Āh ko chāhiye ik umr asar hone tak",
+    "Kaun jītā hai terī zulf ke sar hone tak"
+   ]
+  },
+  {
+   "id": "g23",
+   "lang": "ur",
+   "poet": "ghalib",
+   "category": "udaasi",
+   "urdu": [
+    "درد منت کش دوا نہ ہوا",
+    "میں نہ اچھا ہوا نہ برا ہوا"
+   ],
+   "roman": [
+    "Dard minnat-kash-e-dawā na huā",
+    "Maiñ na achhā huā na burā huā"
+   ]
+  },
+  {
+   "id": "g24",
+   "lang": "ur",
+   "poet": "ghalib",
+   "category": "zindagi",
+   "urdu": [
+    "ہم کو معلوم ہے جنت کی حقیقت لیکن",
+    "دل کے خوش رکھنے کو غالب خیال اچھا ہے"
+   ],
+   "roman": [
+    "Ham ko mālūm hai jannat kī haqīqat lekin",
+    "Dil ke khush rakhne ko Ghālib khayāl achhā hai"
+   ]
+  },
+  {
+   "id": "g25",
+   "lang": "ur",
+   "poet": "ghalib",
+   "category": "udaasi",
+   "urdu": [
+    "حیراں ہوں دل کو روؤں کہ پیٹوں جگر کو میں",
+    "مقدور ہو تو ساتھ رکھوں نوحہ گر کو میں"
+   ],
+   "roman": [
+    "Hairāñ hūñ dil ko roūñ ke pīṭūñ jigar ko maiñ",
+    "Maqdūr ho to sāth rakhūñ nauha-gar ko maiñ"
+   ]
+  },
+  {
+   "id": "g26",
+   "lang": "ur",
+   "poet": "ghalib",
+   "category": "mohabbat",
+   "urdu": [
+    "آئینہ دیکھ اپنا سا منہ لے کے رہ گئے",
+    "صاحب کو دل نہ دینے پہ کتنا غرور تھا"
+   ],
+   "roman": [
+    "Āīna dekh apnā sā muñh le ke reh gaye",
+    "Sāhib ko dil na dene pe kitnā ghuroor thā"
+   ]
+  },
+  {
+   "id": "m14",
+   "lang": "ur",
+   "poet": "mir",
+   "category": "udaasi",
+   "urdu": [
+    "دیکھ تو دل کہ جاں سے اٹھتا ہے",
+    "یہ دھواں سا کہاں سے اٹھتا ہے"
+   ],
+   "roman": [
+    "Dekh to dil ke jāñ se uṭhtā hai",
+    "Ye dhuāñ sā kahāñ se uṭhtā hai"
+   ]
+  },
+  {
+   "id": "m15",
+   "lang": "ur",
+   "poet": "mir",
+   "category": "mohabbat",
+   "urdu": [
+    "ہم ہوئے تم ہوئے کہ میر ہوئے",
+    "اس کی زلفوں کے سب اسیر ہوئے"
+   ],
+   "roman": [
+    "Ham hue tum hue ke Mīr hue",
+    "Us kī zulfoñ ke sab asīr hue"
+   ]
+  },
+  {
+   "id": "m16",
+   "lang": "ur",
+   "poet": "mir",
+   "category": "zindagi",
+   "urdu": [
+    "دلی جو ایک شہر تھا عالم میں انتخاب",
+    "رہتے تھے منتخب ہی جہاں روزگار کے"
+   ],
+   "roman": [
+    "Dillī jo ek sheher thā ālam meñ intekhāb",
+    "Rehte thay muntakhab hī jahāñ rozgār ke"
+   ]
+  },
+  {
+   "id": "m17",
+   "lang": "ur",
+   "poet": "mir",
+   "category": "mohabbat",
+   "urdu": [
+    "میر ان نیم باز آنکھوں میں",
+    "ساری مستی شراب کی سی ہے"
+   ],
+   "roman": [
+    "Mīr in nīm-bāz āñkhoñ meñ",
+    "Sārī mastī sharāb kī sī hai"
+   ]
+  },
+  {
+   "id": "m18",
+   "lang": "ur",
+   "poet": "mir",
+   "category": "zindagi",
+   "urdu": [
+    "جس سر کو غرور آج ہے یاں تاجوری کا",
+    "کل اس پہ یہیں شور ہے پھر نوحہ گری کا"
+   ],
+   "roman": [
+    "Jis sar ko ghuroor āj hai yāñ tājwarī kā",
+    "Kal us pe yahīñ shor hai phir nauha-garī kā"
+   ]
+  },
+  {
+   "id": "i16",
+   "lang": "ur",
+   "poet": "iqbal",
+   "category": "attitude",
+   "urdu": [
+    "اپنے بھی خفا مجھ سے ہیں بیگانے بھی ناخوش",
+    "میں زہر ہلاہل کو کبھی کہہ نہ سکا قند"
+   ],
+   "roman": [
+    "Apne bhī khafā mujh se haiñ begāne bhī nākhush",
+    "Maiñ zahr-e-halāhal ko kabhī keh na sakā qand"
+   ]
+  },
+  {
+   "id": "i17",
+   "lang": "ur",
+   "poet": "iqbal",
+   "category": "umeed",
+   "urdu": [
+    "افراد کے ہاتھوں میں ہے اقوام کی تقدیر",
+    "ہر فرد ہے ملت کے مقدر کا ستارہ"
+   ],
+   "roman": [
+    "Afrād ke hāthoñ meñ hai aqwām kī taqdīr",
+    "Har fard hai millat ke muqaddar kā sitāra"
+   ]
+  },
+  {
+   "id": "i18",
+   "lang": "ur",
+   "poet": "iqbal",
+   "category": "zindagi",
+   "urdu": [
+    "ترے آزاد بندوں کی نہ یہ دنیا نہ وہ دنیا",
+    "یہاں مرنے کی پابندی وہاں جینے کی پابندی"
+   ],
+   "roman": [
+    "Tere āzād bandoñ kī na ye duniyā na wo duniyā",
+    "Yahāñ marne kī pābandī wahāñ jeene kī pābandī"
+   ]
+  },
+  {
+   "id": "i19",
+   "lang": "ur",
+   "poet": "iqbal",
+   "category": "umeed",
+   "urdu": [
+    "تو ابھی رہ گزر میں ہے قید مقام سے گزر",
+    "مصر و حجاز سے گزر پارس و شام سے گزر"
+   ],
+   "roman": [
+    "Tū abhī rah-guzar meñ hai qaid-e-maqām se guzar",
+    "Misr-o-Hijāz se guzar Pāras-o-Shām se guzar"
+   ]
+  },
+  {
+   "id": "i20",
+   "lang": "ur",
+   "poet": "iqbal",
+   "category": "sufi",
+   "urdu": [
+    "قوت عشق سے ہر پست کو بالا کر دے",
+    "دہر میں اسم محمد سے اجالا کر دے"
+   ],
+   "roman": [
+    "Quwwat-e-ishq se har past ko bālā kar de",
+    "Dahr meñ ism-e-Muhammad se ujālā kar de"
+   ]
+  },
+  {
+   "id": "d5",
+   "lang": "ur",
+   "poet": "dagh",
+   "category": "udaasi",
+   "urdu": [
+    "زمانہ بڑے شوق سے سن رہا تھا",
+    "ہمیں سو گئے داستاں کہتے کہتے"
+   ],
+   "roman": [
+    "Zamāna baṛe shauq se sun rahā thā",
+    "Hamīñ so gaye dāstāñ kehte kehte"
+   ]
+  },
+  {
+   "id": "d6",
+   "lang": "ur",
+   "poet": "dagh",
+   "category": "mohabbat",
+   "urdu": [
+    "رنج کی جب گفتگو ہونے لگی",
+    "آپ سے تم تم سے تو ہونے لگی"
+   ],
+   "roman": [
+    "Ranj kī jab guftagū hone lagī",
+    "Āp se tum tum se tū hone lagī"
+   ]
+  },
+  {
+   "id": "d7",
+   "lang": "ur",
+   "poet": "dagh",
+   "category": "mohabbat",
+   "urdu": [
+    "خوب پردہ ہے کہ چلمن سے لگے بیٹھے ہیں",
+    "صاف چھپتے بھی نہیں سامنے آتے بھی نہیں"
+   ],
+   "roman": [
+    "Khoob parda hai ke chilman se lage baiṭhe haiñ",
+    "Sāf chhupte bhī nahīñ sāmne āte bhī nahīñ"
+   ]
+  },
+  {
+   "id": "mo5",
+   "lang": "ur",
+   "poet": "momin",
+   "category": "attitude",
+   "urdu": [
+    "شب جو مسجد میں جا پھنسے مومن",
+    "رات کاٹی خدا خدا کر کے"
+   ],
+   "roman": [
+    "Shab jo masjid meñ jā phanse Momin",
+    "Rāt kāṭī Khudā Khudā kar ke"
+   ]
+  },
+  {
+   "id": "mo6",
+   "lang": "ur",
+   "poet": "momin",
+   "category": "mohabbat",
+   "urdu": [
+    "کچھ اس ادا سے آج وہ پہلو نشیں رہے",
+    "جب تک ہمارے پاس رہے ہم نہیں رہے"
+   ],
+   "roman": [
+    "Kuchh is adā se āj wo pehlu-nashīñ rahe",
+    "Jab tak hamāre pās rahe ham nahīñ rahe"
+   ]
+  },
+  {
+   "id": "z5",
+   "lang": "ur",
+   "poet": "zafar",
+   "category": "mohabbat",
+   "urdu": [
+    "بات کرنی مجھے مشکل کبھی ایسی تو نہ تھی",
+    "جیسی اب ہے تیری محفل کبھی ایسی تو نہ تھی"
+   ],
+   "roman": [
+    "Bāt karnī mujhe mushkil kabhī aisī to na thī",
+    "Jaisī ab hai terī mehfil kabhī aisī to na thī"
+   ]
+  },
+  {
+   "id": "z6",
+   "lang": "ur",
+   "poet": "zafar",
+   "category": "sufi",
+   "urdu": [
+    "ظفر آدمی اس کو نہ جانیے گا ہو وہ کسی حال میں",
+    "جسے عیش میں یاد خدا نہ رہی جسے طیش میں خوف خدا نہ رہا"
+   ],
+   "roman": [
+    "Zafar ādmī us ko na jāniye gā ho wo kisī hāl meñ",
+    "Jise aish meñ yād-e-Khudā na rahī jise taish meñ khauf-e-Khudā na rahā"
+   ]
+  },
+  {
+   "id": "hm2",
+   "lang": "ur",
+   "poet": "hasrat",
+   "category": "mohabbat",
+   "urdu": [
+    "نگاہ ناز جسے آشناۓ راز کرے",
+    "وہ اپنی خوبی قسمت پہ کیوں نہ ناز کرے"
+   ],
+   "roman": [
+    "Nigāh-e-nāz jise āshnā-e-rāz kare",
+    "Wo apnī khoobī-e-qismat pe kyūñ na nāz kare"
+   ]
+  },
+  {
+   "id": "ak2",
+   "lang": "ur",
+   "poet": "akbar",
+   "category": "attitude",
+   "urdu": [
+    "ہم آہ بھی کرتے ہیں تو ہو جاتے ہیں بدنام",
+    "وہ قتل بھی کرتے ہیں تو چرچا نہیں ہوتا"
+   ],
+   "roman": [
+    "Ham āh bhī karte haiñ to ho jāte haiñ badnām",
+    "Wo qatl bhī karte haiñ to charchā nahīñ hotā"
+   ]
+  },
+  {
    "id": "e1",
    "lang": "en",
    "poet": "dailypoem",
