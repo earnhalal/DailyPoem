@@ -4,7 +4,8 @@ import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { POEMS, POETS, CATEGORIES, SCENES, poetOf, poemOfTheDay, POEMS_REMOTE_URL } from './data/poems.js';
 import { DUAS, HADEES, noorOfTheDay } from './data/noor.js';
-import { NOVEL_FALLBACK, NOVEL_REMOTE_URL } from './data/novel.js';
+import { NOVEL_FALLBACK as LEGACY_NOVEL_FALLBACK, NOVEL_REMOTE_URL as LEGACY_NOVEL_REMOTE_URL } from './data/novel.js';
+import { NOVELS_FALLBACK, NOVELS_REMOTE_URL } from './data/novels-data.js';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 
 const FAV_KEY = 'dailypoem_favs_v1';
@@ -43,11 +44,60 @@ function sanitizePoems(list) {
   return out.length ? out : null;
 }
 
-function sanitizeNovel(d) {
-  if (!d || !d.novel || typeof d.novel.title !== 'string' || !Array.isArray(d.episodes)) return null;
+/* ---------------- Novels (multi-novel library) ----------------
+   Data shape: { novels: [ { id, title, urduTitle, author, synopsis, plannedEpisodes, genre, episodes } ] }.
+   Legacy single-novel shape { novel, episodes } bhi accept hota hai (purani novel.json aur
+   purana cache, transition ke doran) — wo hamesha 'aakhri-sajda' ban kar wrap ho jata hai. */
+const LEGACY_NOVEL_ID = 'aakhri-sajda';
+const NOVELS_CACHE_KEY = 'dailypoem_novels_cache';
+const LEGACY_NOVEL_CACHE_KEY = 'dailypoem_novel_cache';
+
+function sanitizeNovelEntry(d) {
+  if (!d || typeof d.title !== 'string' || !Array.isArray(d.episodes)) return null;
   const eps = d.episodes.filter(e => e && typeof e.n === 'number' && Array.isArray(e.body) && e.body.length);
   if (!eps.length) return null;
-  return { novel: { ...NOVEL_FALLBACK.novel, ...d.novel }, episodes: eps };
+  const id = typeof d.id === 'string' && d.id ? d.id : LEGACY_NOVEL_ID;
+  const base = id === LEGACY_NOVEL_ID ? LEGACY_NOVEL_FALLBACK.novel : {};
+  return { ...base, ...d, id, episodes: eps };
+}
+
+function sanitizeNovels(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  if (Array.isArray(raw.novels)) {
+    const out = [];
+    const seen = new Set();
+    for (const n of raw.novels) {
+      const clean = sanitizeNovelEntry(n);
+      if (clean && !seen.has(clean.id)) { out.push(clean); seen.add(clean.id); }
+    }
+    return out.length ? { novels: out } : null;
+  }
+  if (raw.novel && Array.isArray(raw.episodes)) {
+    const clean = sanitizeNovelEntry({ ...raw.novel, id: LEGACY_NOVEL_ID, episodes: raw.episodes });
+    return clean ? { novels: [clean] } : null;
+  }
+  return null;
+}
+
+/* Pehle launch par novels data: naya cache -> purana (legacy shape) cache -> bundled fallback */
+function loadNovelsInitial() {
+  return sanitizeNovels(lsJson(NOVELS_CACHE_KEY, null))
+    || sanitizeNovels(lsJson(LEGACY_NOVEL_CACHE_KEY, null))
+    || NOVELS_FALLBACK;
+}
+
+/* Per-novel progress keys: 'aakhri-sajda' ke liye PURANI keys hi rehti hain taake maujooda
+   users ki reading progress / bookmarks zaya na hon; baqi novels ke liye wohi keys + ':' + id. */
+function novelKeySuffix(id) { return id === LEGACY_NOVEL_ID ? '' : ':' + id; }
+const novelReadKey = id => 'dailypoem_novel_read' + novelKeySuffix(id);
+const novelPosKey = id => 'dailypoem_novel_pos' + novelKeySuffix(id);
+const novelBmKey = id => 'dailypoem_novel_bookmarks' + novelKeySuffix(id);
+const novelFavKey = id => 'dailypoem_novel_fav' + novelKeySuffix(id);
+
+/* Ek novel ke published episodes — publishAt ka ehtiram, n ke hisaab se sorted */
+function publishedOf(nv) {
+  const now = Date.now();
+  return [...(nv.episodes || [])].sort((a, b) => a.n - b.n).filter(e => epPublishMs(e) <= now);
 }
 
 function linesOf(poem) {
@@ -929,7 +979,7 @@ async function scheduleEpAlert(LN) {
   await LN.schedule({
     notifications: [{
       id: EP_ALERT_ID,
-      title: 'Aakhri Sajda — DailyPoem',
+      title: 'DailyPoem — New Episode',
       body: 'A new episode is live — tap to read.',
       schedule: { every: 'day', on: { hour: 20, minute: 0 } },
       extra: { tab: 'novel' },
@@ -1090,34 +1140,120 @@ function novelLastPos(publishedEps, posMap) {
   return lastPos;
 }
 
-function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
+/* Library card ki progress — kisi novel ki reading halat usi ki apni keys se:
+   mukammal parhe episodes + sab se zyada adhoori position ka hissa */
+function novelProgressOf(nv, published) {
+  const readRaw = lsJson(novelReadKey(nv.id), []);
+  const readArr = Array.isArray(readRaw) ? readRaw : [];
+  const posRaw = lsJson(novelPosKey(nv.id), {});
+  const posMap = posRaw && typeof posRaw === 'object' && !Array.isArray(posRaw) ? posRaw : {};
+  let done = 0, partial = 0;
+  for (const ep of published) {
+    const p = posMap[ep.n];
+    const pct = p ? p.pct || 0 : 0;
+    if (readArr.includes(ep.n) || pct >= 0.85) done++;
+    else if (pct > partial) partial = pct;
+  }
+  const lastPos = novelLastPos(published, posMap);
+  return {
+    frac: published.length ? (done + partial) / published.length : 0,
+    has: done > 0 || partial > 0.01 || !!lastPos,
+    lastPos,
+  };
+}
+
+function NovelScreen({ toast, novels, openRequest, onConsumeOpenRequest }) {
   const notify = toast || (() => {});
-  const [data, setData] = useState(() => sanitizeNovel(lsJson('dailypoem_novel_cache', null)) || NOVEL_FALLBACK);
-  const [view, setView] = useState('home'); // 'home' | 'details'
+  const [activeId, setActiveId] = useState(null);
+  const [pendingOpen, setPendingOpen] = useState(null); // { novelId, n } — detail khulte hi episode kholna hai
+  const epAlerts = useAlertToggle('ep', notify, { on: 'Episode alerts on — daily at 8:00 PM', off: 'Episode alerts turned off' });
+
+  /* Bahar se (Home Continue Reading / search / Featured) kisi novel ya us ki episode ko
+     seedha kholne ki request — active novel set karo, episode pending rakho, parent ki
+     request consume kar do taake Novels tab dobara khulne par purani request na chale */
+  useEffect(() => {
+    if (!openRequest) return;
+    const novelId = openRequest.novelId || LEGACY_NOVEL_ID;
+    setActiveId(novelId);
+    if (openRequest.n) setPendingOpen({ novelId, n: openRequest.n });
+    if (onConsumeOpenRequest) onConsumeOpenRequest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openRequest]);
+
+  const active = novels.find(nv => nv.id === activeId) || null;
+
+  if (active) {
+    return (
+      <NovelDetail
+        key={active.id}
+        toast={toast}
+        novel={active}
+        onBack={() => { setPendingOpen(null); setActiveId(null); }}
+        openN={pendingOpen && pendingOpen.novelId === active.id ? pendingOpen.n : null}
+        onConsumeOpen={() => setPendingOpen(null)}
+      />
+    );
+  }
+
+  return (
+    <div>
+      <div className="section-title" style={{ marginTop: 18 }}><h2>Novels</h2><small>{novels.length} stories</small></div>
+      {novels.map(nv => {
+        const published = publishedOf(nv);
+        const prog = novelProgressOf(nv, published);
+        return (
+          <div key={nv.id} className="ncover ncover-tap lib-card" onClick={() => setActiveId(nv.id)}>
+            {nv.id === 'qaidi-e-baras' && <span className="feat-badge">✦ New</span>}
+            <div className="ncover-urdu" dir="rtl">{nv.urduTitle}</div>
+            <div className="ncover-title">{nv.title}</div>
+            <span className="tag">{nv.genre || 'Drama'}</span>
+            <p className="ncover-syn clamp2">{nv.synopsis}</p>
+            <div className="ncover-meta">{published.length} episodes · {nv.status || 'Ongoing'} · Tap to read ›</div>
+            {prog.has && (
+              <div className="lib-prog">
+                <div className="cont-bar"><span style={{ width: Math.round(prog.frac * 100) + '%' }} /></div>
+                <div className="muted" style={{ fontSize: 12, marginTop: 6 }}>{Math.round(prog.frac * 100)}% read{prog.lastPos ? ' — Continue Episode ' + prog.lastPos.ep.n : ''}</div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      <div className="alert-row">
+        <div style={{ flex: 1 }}>
+          <b style={{ fontSize: 14 }}>🔔 Episode alerts</b>
+          <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>A gentle daily reminder at 8:00 PM, when the new episode lands.</div>
+          {epAlerts.on && epAlerts.state === 'blocked' && (
+            <button className="alert-warn" onClick={() => notify(NOTIF_BLOCKED_MSG)}>⚠ Blocked by phone settings — tap to learn how</button>
+          )}
+        </div>
+        <button className={'chip' + (epAlerts.on ? ' on' : '')} disabled={epAlerts.busy} onClick={epAlerts.toggle}>{epAlerts.on ? 'On' : 'Off'}</button>
+      </div>
+
+      <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 14 }}>Episodes appear here automatically when published — no app update needed.<br />⬇ On device means the episode is saved inside the app and also opens offline.</p>
+    </div>
+  );
+}
+
+/* Ek novel ki tafseel + reader. Progress / bookmarks / favourite isi novel ki apni
+   storage keys par rehte hain (aakhri-sajda = purani legacy keys, baqi = ':' + id suffix),
+   aur component ko novel id se key kar ke mount kiya jata hai taake har novel ki
+   reading state saaf taur par alag load ho. */
+function NovelDetail({ toast, novel: nv, onBack, openN, onConsumeOpen }) {
+  const notify = toast || (() => {});
   const [reading, setReading] = useState(null);
-  const [readSet, setReadSet] = useState(() => { const v = lsJson('dailypoem_novel_read', []); return Array.isArray(v) ? v : []; });
-  const [posMap, setPosMap] = useState(() => { const v = lsJson('dailypoem_novel_pos', {}); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; });
-  const [bookmarks, setBookmarks] = useState(() => { const v = lsJson('dailypoem_novel_bookmarks', []); return Array.isArray(v) ? v : []; });
-  const [novelFav, setNovelFav] = useState(() => lsGet('dailypoem_novel_fav', '') === '1');
+  const [readSet, setReadSet] = useState(() => { const v = lsJson(novelReadKey(nv.id), []); return Array.isArray(v) ? v : []; });
+  const [posMap, setPosMap] = useState(() => { const v = lsJson(novelPosKey(nv.id), {}); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; });
+  const [bookmarks, setBookmarks] = useState(() => { const v = lsJson(novelBmKey(nv.id), []); return Array.isArray(v) ? v : []; });
+  const [novelFav, setNovelFav] = useState(() => lsGet(novelFavKey(nv.id), '') === '1');
   const [fs, setFs] = useState(() => { const v = parseInt(lsGet('dailypoem_novel_fs', '19'), 10); return isNaN(v) ? 19 : v; });
   const [ls, setLs] = useState(() => { const v = parseInt(lsGet('dailypoem_novel_ls', '2'), 10); return [1, 2, 3].includes(v) ? v : 2; });
   const [rTheme, setRTheme] = useState(() => lsGet('dailypoem_reader_theme', 'dark'));
   const [prog, setProg] = useState(0);
-  const epAlerts = useAlertToggle('ep', notify, { on: 'Episode alerts on — daily at 8:00 PM', off: 'Episode alerts turned off' });
   const readerRef = useRef(null);
   const saveTimer = useRef(null);
 
-  useEffect(() => {
-    let live = true;
-    fetch(NOVEL_REMOTE_URL, { cache: 'no-store' })
-      .then(r => (r.ok ? r.json() : null))
-      .then(j => { const clean = sanitizeNovel(j); if (live && clean) { setData(clean); lsSet('dailypoem_novel_cache', JSON.stringify(clean)); } })
-      .catch(() => {});
-    return () => { live = false; };
-  }, []);
-
-  const nv = data.novel;
-  const allEps = [...data.episodes].sort((a, b) => a.n - b.n);
+  const allEps = [...nv.episodes].sort((a, b) => a.n - b.n);
   const nowMs = Date.now();
   const published = allEps.filter(e => epPublishMs(e) <= nowMs);
   const nextScheduled = allEps.find(e => epPublishMs(e) > nowMs) || null;
@@ -1131,7 +1267,7 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
   const markRead = n => setReadSet(prev => {
     if (prev.includes(n)) return prev;
     const nr = [...prev, n];
-    lsSet('dailypoem_novel_read', JSON.stringify(nr));
+    lsSet(novelReadKey(nv.id), JSON.stringify(nr));
     return nr;
   });
 
@@ -1141,16 +1277,14 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
     setReading(ep);
   };
 
-  /* Bahar se (Home Continue Reading / search) kisi episode ko seedha kholne ki request —
-     consume karke parent ko clear karne ko keh do, taake Novels tab dobara khulne par
-     purani request reader phir se na khol de */
+  /* Library / Home se seedha kisi episode ko kholne ki pending request */
   useEffect(() => {
-    if (!openRequest || !openRequest.n) return;
-    const ep = published.find(e => e.n === openRequest.n);
+    if (!openN) return;
+    const ep = published.find(e => e.n === openN);
     if (ep) openEp(ep);
-    if (onConsumeOpenRequest) onConsumeOpenRequest();
+    if (onConsumeOpen) onConsumeOpen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openRequest]);
+  }, [openN]);
 
   const changeFs = d => {
     const v = Math.min(24, Math.max(16, fs + d));
@@ -1164,10 +1298,10 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
   });
   const toggleBookmark = n => setBookmarks(prev => {
     const nb = prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n];
-    lsSet('dailypoem_novel_bookmarks', JSON.stringify(nb));
+    lsSet(novelBmKey(nv.id), JSON.stringify(nb));
     return nb;
   });
-  const toggleNovelFav = () => setNovelFav(f => { lsSet('dailypoem_novel_fav', f ? '0' : '1'); return !f; });
+  const toggleNovelFav = () => setNovelFav(f => { lsSet(novelFavKey(nv.id), f ? '0' : '1'); return !f; });
 
   /* Reader khule to saved position par wapas — aur scroll par progress + position save (throttled) */
   useEffect(() => {
@@ -1199,7 +1333,7 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
       saveTimer.current = null;
       setPosMap(prev => {
         const nm = { ...prev, [reading.n]: { pct, ts: Date.now() } };
-        lsSet('dailypoem_novel_pos', JSON.stringify(nm));
+        lsSet(novelPosKey(nv.id), JSON.stringify(nm));
         return nm;
       });
     }, 700);
@@ -1219,7 +1353,7 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
   };
 
   /* ---- Episode alerts: roz 8:00 PM local notification (device time) ----
-     Toggle shared useAlertToggle se hota hai (panel/Settings bhi wahi) —
+     Toggle shared useAlertToggle se hota hai (panel/Settings/Library bhi wahi) —
      switch foran on hota hai, permission/schedule background mein, aur app
      start par App-level rescheduleAlerts() schedule zinda rakhta hai. */
 
@@ -1283,81 +1417,37 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
     );
   }
 
-  if (view === 'details') {
-    const firstUnread = published.find(e => !readSet.includes(e.n) && !(posMap[e.n] && posMap[e.n].pct >= 0.85)) || published[0];
-    const latest = published[published.length - 1];
-    const latestDate = latest ? (latest.publishAt ? fmtPkDate(epPublishMs(latest)) : (latest.date || '')) : '';
-    return (
-      <div>
-        <div style={{ marginTop: 14 }}>
-          <button className="btn" onClick={() => setView('home')}>← Novel Library</button>
-        </div>
-        <div className="ncover" style={{ marginTop: 12 }}>
-          <div className="ncover-urdu" dir="rtl">{nv.urduTitle}</div>
-          <div className="ncover-title">{nv.title}</div>
-          <span className="tag">MintNest Studio Originals</span>
-          <p className="ncover-syn">{nv.synopsis}</p>
-          <button className={'btn' + (novelFav ? ' active-fav' : '')} onClick={toggleNovelFav}>{novelFav ? '❤️ Favourite' : '🤍 Add to Favourites'}</button>
-        </div>
-        <div className="nd-meta">
-          <div className="nd-row"><span>Author</span><b>{nv.author}</b></div>
-          <div className="nd-row"><span>Genre</span><b>{genre}</b></div>
-          <div className="nd-row"><span>Status</span><b>{status}</b></div>
-          <div className="nd-row"><span>Episodes</span><b>{published.length} of {planned} published</b></div>
-          {latest && <div className="nd-row"><span>Latest</span><b>Episode {latest.n} — {latest.title}{latestDate ? ' · ' + latestDate : ''}</b></div>}
-        </div>
-        <div style={{ display: 'flex', gap: 9, marginTop: 14, flexWrap: 'wrap' }}>
-          {firstUnread && <button className="btn btn-gold" style={{ flex: '0 1 auto' }} onClick={() => openEp(firstUnread)}>▶ Start Reading</button>}
-          {lastPos && <button className="btn" onClick={() => openEp(lastPos.ep)}>Continue · Episode {lastPos.ep.n} ({Math.round(lastPos.pct * 100)}%)</button>}
-        </div>
-        <div className="section-title"><h2>Episodes</h2><small>{published.length} live</small></div>
-        {published.map(epRow)}
-      </div>
-    );
-  }
-
+  const firstUnread = published.find(e => !readSet.includes(e.n) && !(posMap[e.n] && posMap[e.n].pct >= 0.85)) || published[0];
+  const latest = published[published.length - 1];
+  const latestDate = latest ? (latest.publishAt ? fmtPkDate(epPublishMs(latest)) : (latest.date || '')) : '';
   return (
     <div>
-      <div className="section-title" style={{ marginTop: 18 }}><h2>Novel Library</h2><small>Featured</small></div>
-      <div className="ncover ncover-tap" onClick={() => setView('details')}>
+      <div style={{ marginTop: 14 }}>
+        <button className="btn" onClick={onBack}>← Novels</button>
+      </div>
+      <div className="ncover" style={{ marginTop: 12 }}>
         <div className="ncover-urdu" dir="rtl">{nv.urduTitle}</div>
         <div className="ncover-title">{nv.title}</div>
         <span className="tag">MintNest Studio Originals</span>
         <p className="ncover-syn">{nv.synopsis}</p>
-        <div className="ncover-meta">{published.length} of {planned} episodes live • {status} • {genre} • New episode daily at 8:00 PM</div>
-        <div className="muted" style={{ fontSize: 12, marginTop: 8 }}>Tap for details & the full episode list ›</div>
+        <button className={'btn' + (novelFav ? ' active-fav' : '')} onClick={toggleNovelFav}>{novelFav ? '❤️ Favourite' : '🤍 Add to Favourites'}</button>
       </div>
-
-      {lastPos && (
-        <div className="cont-card" onClick={() => openEp(lastPos.ep)}>
-          <div style={{ fontSize: 22 }}>📖</div>
-          <div style={{ flex: 1 }}>
-            <b style={{ fontSize: 14.5 }}>Continue Reading</b>
-            <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>Episode {lastPos.ep.n} — {lastPos.ep.title} • {Math.round(lastPos.pct * 100)}% read</div>
-            <div className="cont-bar"><span style={{ width: (lastPos.pct * 100) + '%' }} /></div>
-          </div>
-          <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
-        </div>
-      )}
-
+      <div className="nd-meta">
+        <div className="nd-row"><span>Author</span><b>{nv.author}</b></div>
+        <div className="nd-row"><span>Genre</span><b>{genre}</b></div>
+        <div className="nd-row"><span>Status</span><b>{status}</b></div>
+        <div className="nd-row"><span>Episodes</span><b>{published.length} of {planned} published</b></div>
+        {latest && <div className="nd-row"><span>Latest</span><b>Episode {latest.n} — {latest.title}{latestDate ? ' · ' + latestDate : ''}</b></div>}
+      </div>
+      <div style={{ display: 'flex', gap: 9, marginTop: 14, flexWrap: 'wrap' }}>
+        {firstUnread && <button className="btn btn-gold" style={{ flex: '0 1 auto' }} onClick={() => openEp(firstUnread)}>▶ Start Reading</button>}
+        {lastPos && <button className="btn" onClick={() => openEp(lastPos.ep)}>Continue · Episode {lastPos.ep.n} ({Math.round(lastPos.pct * 100)}%)</button>}
+      </div>
       {nextScheduled && (
         <div className="sched-card">🕗 <b>Episode {nextScheduled.n}</b>&nbsp;arrives {fmtPkDate(epPublishMs(nextScheduled))} — right here in the app, no update needed.</div>
       )}
-
-      <div className="alert-row">
-        <div style={{ flex: 1 }}>
-          <b style={{ fontSize: 14 }}>🔔 Episode alerts</b>
-          <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>A gentle daily reminder at 8:00 PM, when the new episode lands.</div>
-          {epAlerts.on && epAlerts.state === 'blocked' && (
-            <button className="alert-warn" onClick={() => notify(NOTIF_BLOCKED_MSG)}>⚠ Blocked by phone settings — tap to learn how</button>
-          )}
-        </div>
-        <button className={'chip' + (epAlerts.on ? ' on' : '')} disabled={epAlerts.busy} onClick={epAlerts.toggle}>{epAlerts.on ? 'On' : 'Off'}</button>
-      </div>
-
       <div className="section-title"><h2>Episodes</h2><small>{published.length} live</small></div>
       {published.map(epRow)}
-      <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 14 }}>Episodes appear here automatically when published — no app update needed.<br />⬇ On device means the episode is saved inside the app and also opens offline.</p>
     </div>
   );
 }
@@ -2747,7 +2837,7 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.11</b></div>
+        <div className="nd-row"><span>Version</span><b>0.12</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
         <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>
@@ -2790,7 +2880,7 @@ function NotifPanel({ toast, nextEpText, onClose }) {
           <button className="icon-btn" onClick={onClose} aria-label="Close">✕</button>
         </div>
         <div className="nd-meta" style={{ marginTop: 4 }}>
-          <AlertToggleRow icon="📖" title="Episode Alerts" sub="Daily 8:00 PM reminder when the new Aakhri Sajda episode lands" ctl={epAlerts} toast={toast} />
+          <AlertToggleRow icon="📖" title="Episode Alerts" sub="Daily 8:00 PM reminder when a new episode lands" ctl={epAlerts} toast={toast} />
           <AlertToggleRow icon="✦" title="Daily Poem Reminder" sub="Your Poem of the Day, every morning at 9:00 AM" ctl={poemAlerts} toast={toast} />
         </div>
         <p className="muted" style={{ fontSize: 12.5, marginTop: 12 }}>{nextEpText}</p>
@@ -2850,21 +2940,25 @@ export default function App() {
   const noorToday = useMemo(() => noorOfTheDay(), []);
   const todayScene = SCENES[new Date().getDate() % SCENES.length];
 
-  /* Novel data App level par bhi — Home ke Continue Reading / Featured Novel / search ke liye.
-     Wahi cache key aur wahi remote file jo NovelScreen istemal karta hai. */
-  const [novelData, setNovelData] = useState(() => sanitizeNovel(lsJson('dailypoem_novel_cache', null)) || NOVEL_FALLBACK);
+  /* Novels data App level par — Home ke Continue Reading / Featured Novel / search aur
+     Novels tab (library) dono ke liye ek hi source. Pehle novels.json try hota hai;
+     na mile to legacy novel.json ko sanitizeNovels wrap kar leta hai (transition). */
+  const [novels, setNovels] = useState(loadNovelsInitial);
   useEffect(() => {
     let live = true;
-    fetch(NOVEL_REMOTE_URL, { cache: 'no-store' })
-      .then(r => (r.ok ? r.json() : null))
-      .then(j => { const clean = sanitizeNovel(j); if (live && clean) { setNovelData(clean); lsSet('dailypoem_novel_cache', JSON.stringify(clean)); } })
-      .catch(() => {});
+    (async () => {
+      const get = async url => { try { const r = await fetch(url, { cache: 'no-store' }); return r.ok ? await r.json() : null; } catch { return null; } };
+      const clean = sanitizeNovels(await get(NOVELS_REMOTE_URL)) || sanitizeNovels(await get(LEGACY_NOVEL_REMOTE_URL));
+      if (live && clean) { setNovels(clean.novels); lsSet(NOVELS_CACHE_KEY, JSON.stringify(clean)); }
+    })();
     return () => { live = false; };
   }, []);
-  const novelPublished = useMemo(
-    () => [...novelData.episodes].sort((a, b) => a.n - b.n).filter(e => epPublishMs(e) <= Date.now()),
-    [novelData],
+  const novelsPub = useMemo(
+    () => novels.map(nv => ({ nv, published: publishedOf(nv) })),
+    [novels],
   );
+  const aakhriPub = (novelsPub.find(x => x.nv.id === LEGACY_NOVEL_ID) || novelsPub[0] || { published: [] }).published;
+  const totalEpCount = novelsPub.reduce((s, x) => s + x.published.length, 0);
 
   /* Home ki Trending Reels strip ke liye reels list — ReelsFeed wali hi cache/remote */
   const [homeReels, setHomeReels] = useState(() => { try { return JSON.parse(localStorage.getItem(REELS_CACHE_KEY)) || REELS_FALLBACK; } catch { return REELS_FALLBACK; } });
@@ -2918,8 +3012,10 @@ export default function App() {
   /* More tab ke andar kisi section ko kholo */
   const goMore = view => { setMoreView(view); setTab('more'); };
 
-  /* Novels tab khol kar seedha kisi episode ke reader mein jao (saved position khud lag jati hai) */
-  const openNovelEpisode = n => { setNovelOpenReq({ n, ts: Date.now() }); setTab('novel'); };
+  /* Novels tab khol kar seedha kisi novel ki episode ke reader mein jao (saved position khud lag jati hai) */
+  const openNovelEpisode = (novelId, n) => { setNovelOpenReq({ novelId, n, ts: Date.now() }); setTab('novel'); };
+  /* Novels tab mein seedha kisi novel ki detail kholo (bina episode khole) */
+  const openNovelDetail = novelId => { setNovelOpenReq({ novelId, n: null, ts: Date.now() }); setTab('novel'); };
 
   /* Episode alert notification par tap -> seedha Novel tab */
   useEffect(() => {
@@ -2964,16 +3060,32 @@ export default function App() {
     return poet.includes(hq) || text.includes(hq) || (p.urdu || []).join(' ').includes(hqRaw) || (p.hi || []).join(' ').includes(hqRaw);
   }).slice(0, 6) : [];
   const homeMoodHits = hq ? CATEGORIES.filter(c => c.label.toLowerCase().includes(hq) || c.id.includes(hq) || (c.urdu || '').includes(hqRaw)) : [];
-  const homeEpHits = hq ? novelPublished.filter(e => (e.title || '').toLowerCase().includes(hq) || (e.urduTitle || '').includes(hqRaw)).slice(0, 4) : [];
-  const homeNovelHit = !!hq && ((novelData.novel.title || '').toLowerCase().includes(hq) || (novelData.novel.urduTitle || '').includes(hqRaw));
-  const homeHasHits = homePoemHits.length > 0 || homeMoodHits.length > 0 || homeEpHits.length > 0 || homeNovelHit;
+  const homeEpHits = hq ? novelsPub.flatMap(({ nv, published }) => published
+    .filter(e => (e.title || '').toLowerCase().includes(hq) || (e.urduTitle || '').includes(hqRaw))
+    .map(e => ({ nv, e }))).slice(0, 4) : [];
+  const homeNovelHits = hq ? novels.filter(nv => (nv.title || '').toLowerCase().includes(hq) || (nv.urduTitle || '').includes(hqRaw)) : [];
+  const homeHasHits = homePoemHits.length > 0 || homeMoodHits.length > 0 || homeEpHits.length > 0 || homeNovelHits.length > 0;
 
-  /* Continue Reading — NovelScreen wali hi dailypoem_novel_pos key + shared helper */
-  const homeLastPos = novelLastPos(novelPublished, lsJson('dailypoem_novel_pos', {}));
-  const latestEp = novelPublished[novelPublished.length - 1] || null;
+  /* Continue Reading — har novel ki apni pos key + shared helper; jis novel mein
+     adhoori reading hai, us ki ek row banti hai */
+  const homeContRows = novelsPub
+    .map(({ nv, published }) => ({ nv, lastPos: novelLastPos(published, lsJson(novelPosKey(nv.id), {})) }))
+    .filter(x => x.lastPos);
+
+  /* Featured Novel = sab se taaza episode wala novel (sab se bari latest publishAt);
+     kisi episode par date na ho to novels ki list mein sab se aakhir wala (jo novel sab
+     se naya shamil hua) featured rehta hai. */
+  const featuredEntry = novelsPub.reduce((best, x) => {
+    const latestMs = x.published.length ? epPublishMs(x.published[x.published.length - 1]) : -1;
+    return !best || latestMs >= best.latestMs ? { ...x, latestMs } : best;
+  }, null);
+  const featuredNv = featuredEntry ? featuredEntry.nv : null;
+  const featuredPub = featuredEntry ? featuredEntry.published : [];
+  const featuredLatest = featuredPub[featuredPub.length - 1] || null;
+  const featuredLastPos = featuredNv ? novelLastPos(featuredPub, lsJson(novelPosKey(featuredNv.id), {})) : null;
   /* "New Episode" badge sirf tab jab latest episode asal mein pichle 48 ghante mein publish hua ho
      (publishAt maujood ho tab hi pata chalta hai; warna koi badge nahi — andaza nahi lagate) */
-  const latestAgeMs = latestEp && latestEp.publishAt ? Date.now() - epPublishMs(latestEp) : null;
+  const latestAgeMs = featuredLatest && featuredLatest.publishAt ? Date.now() - epPublishMs(featuredLatest) : null;
   const latestIsNew = latestAgeMs != null && latestAgeMs >= 0 && latestAgeMs < 48 * 3600 * 1000;
 
   const ownPoem = () => {
@@ -2996,8 +3108,15 @@ export default function App() {
       {notifOpen && (
         <NotifPanel toast={toast} onClose={() => setNotifOpen(false)}
           nextEpText={(() => {
-            const nxt = [...novelData.episodes].sort((a, b) => a.n - b.n).find(e => epPublishMs(e) > Date.now());
-            return nxt ? `🕗 Episode ${nxt.n} arrives ${fmtPkDate(epPublishMs(nxt))} — right here in the app.` : 'Episodes 1–5 are live now — a new episode arrives daily at 8:00 PM.';
+            let nxt = null;
+            for (const nv of novels) {
+              for (const e of nv.episodes) {
+                const ms = epPublishMs(e);
+                if (ms > Date.now() && (!nxt || ms < nxt.ms)) nxt = { nv, e, ms };
+              }
+            }
+            if (nxt) return `🕗 ${nxt.nv.title} — Episode ${nxt.e.n} arrives ${fmtPkDate(nxt.ms)} — right here in the app.`;
+            return featuredLatest ? `📖 ${featuredNv.title} — Episode ${featuredLatest.n} is the latest, live now. New episodes arrive daily at 8:00 PM.` : 'New episodes arrive daily at 8:00 PM.';
           })()} />
       )}
       <header className="topbar">
@@ -3020,7 +3139,7 @@ export default function App() {
           <>
             <HomeSlider
               today={today} todayScene={todayScene} poems={poems} lang={lang || 'ur'}
-              novelCount={novelPublished.length}
+              novelCount={aakhriPub.length}
               isFav={favs.has(today.id)} onToggleFav={() => toggleFav(today.id)}
               onOpenReel={() => setReel({ poem: today, scene: todayScene })}
               onShare={() => sharePoem(today, todayScene, toast)}
@@ -3065,19 +3184,22 @@ export default function App() {
                     ))}
                   </>
                 )}
-                {(homeNovelHit || homeEpHits.length > 0) && (
+                {(homeNovelHits.length > 0 || homeEpHits.length > 0) && (
                   <>
-                    <div className="sr-label">Novel</div>
-                    {homeNovelHit && (
-                      <button className="sr-row" onClick={() => { setHomeQuery(''); setTab('novel'); }}>
-                        <span className="sr-main">📖 {novelData.novel.title}</span>
-                        <span className="sr-sub">Novel · {novelPublished.length} episodes</span>
-                      </button>
-                    )}
-                    {homeEpHits.map(e => (
-                      <button key={e.n} className="sr-row" onClick={() => { setHomeQuery(''); openNovelEpisode(e.n); }}>
+                    <div className="sr-label">Novels</div>
+                    {homeNovelHits.map(nv => {
+                      const pub = (novelsPub.find(x => x.nv.id === nv.id) || {}).published || [];
+                      return (
+                        <button key={nv.id} className="sr-row" onClick={() => { setHomeQuery(''); openNovelDetail(nv.id); }}>
+                          <span className="sr-main">📖 {nv.title}</span>
+                          <span className="sr-sub">Novel · {pub.length} episodes</span>
+                        </button>
+                      );
+                    })}
+                    {homeEpHits.map(({ nv, e }) => (
+                      <button key={nv.id + '-' + e.n} className="sr-row" onClick={() => { setHomeQuery(''); openNovelEpisode(nv.id, e.n); }}>
                         <span className="sr-main">Episode {e.n} — {e.title}</span>
-                        <span className="sr-sub">Episode</span>
+                        <span className="sr-sub">{nv.title} · Episode</span>
                       </button>
                     ))}
                   </>
@@ -3102,40 +3224,46 @@ export default function App() {
               })}
             </div>
 
-            {homeLastPos ? (
+            {homeContRows.length > 0 ? (
               <>
-                <div className="section-title"><h2>Continue Reading</h2><small>{novelData.novel.title}</small></div>
-                <div className="cont-card" style={{ marginTop: 0 }} onClick={() => openNovelEpisode(homeLastPos.ep.n)}>
-                  <div style={{ fontSize: 22 }}>📖</div>
-                  <div style={{ flex: 1 }}>
-                    <b style={{ fontSize: 14.5 }}>Episode {homeLastPos.ep.n} — {homeLastPos.ep.title}</b>
-                    <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>{Math.round(homeLastPos.pct * 100)}% read</div>
-                    <div className="cont-bar"><span style={{ width: (homeLastPos.pct * 100) + '%' }} /></div>
+                <div className="section-title"><h2>Continue Reading</h2><small>{homeContRows.length === 1 ? homeContRows[0].nv.title : 'Your novels'}</small></div>
+                {homeContRows.map(({ nv, lastPos }, i) => (
+                  <div key={nv.id} className="cont-card" style={{ marginTop: i === 0 ? 0 : 10 }} onClick={() => openNovelEpisode(nv.id, lastPos.ep.n)}>
+                    <div style={{ fontSize: 22 }}>📖</div>
+                    <div style={{ flex: 1 }}>
+                      <b style={{ fontSize: 14.5 }}>Episode {lastPos.ep.n} — {lastPos.ep.title}</b>
+                      <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>{nv.title} · {Math.round(lastPos.pct * 100)}% read</div>
+                      <div className="cont-bar"><span style={{ width: (lastPos.pct * 100) + '%' }} /></div>
+                    </div>
+                    <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
                   </div>
-                  <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
-                </div>
+                ))}
               </>
-            ) : novelPublished.length > 0 && (
-              <div className="cont-card" onClick={() => openNovelEpisode(novelPublished[0].n)}>
+            ) : featuredPub.length > 0 && (
+              <div className="cont-card" onClick={() => openNovelEpisode(featuredNv.id, featuredPub[0].n)}>
                 <div style={{ fontSize: 22 }}>📖</div>
                 <div style={{ flex: 1 }}>
-                  <b style={{ fontSize: 14.5 }}>Start {novelData.novel.title}</b>
+                  <b style={{ fontSize: 14.5 }}>Start {featuredNv.title}</b>
                   <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>Episode 1 is ready — a new episode arrives daily at 8:00 PM.</div>
                 </div>
                 <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
               </div>
             )}
 
-            <div className="section-title"><h2>Featured Novel</h2><small>Original</small></div>
-            <div className="ncover ncover-tap" onClick={() => (homeLastPos ? openNovelEpisode(homeLastPos.ep.n) : setTab('novel'))}>
-              {latestIsNew && <span className="feat-badge">✦ New Episode</span>}
-              <div className="ncover-urdu" dir="rtl">{novelData.novel.urduTitle}</div>
-              <div className="ncover-title">{novelData.novel.title}</div>
-              <span className="tag">{novelData.novel.genre || 'Roohani Drama'}</span>
-              <p className="ncover-syn">{novelData.novel.synopsis}</p>
-              <div className="ncover-meta">Episodes {novelPublished.length} of {novelData.novel.plannedEpisodes || novelPublished.length} · {novelData.novel.status || 'Ongoing'}</div>
-              <span className="slide-chip">{homeLastPos ? 'Continue Reading →' : 'Read Now →'}</span>
-            </div>
+            {featuredNv && (
+              <>
+                <div className="section-title"><h2>Featured Novel</h2><small>Original</small></div>
+                <div className="ncover ncover-tap" onClick={() => (featuredLastPos ? openNovelEpisode(featuredNv.id, featuredLastPos.ep.n) : openNovelDetail(featuredNv.id))}>
+                  {latestIsNew && <span className="feat-badge">✦ New Episode</span>}
+                  <div className="ncover-urdu" dir="rtl">{featuredNv.urduTitle}</div>
+                  <div className="ncover-title">{featuredNv.title}</div>
+                  <span className="tag">{featuredNv.genre || 'Drama'}</span>
+                  <p className="ncover-syn">{featuredNv.synopsis}</p>
+                  <div className="ncover-meta">Episodes {featuredPub.length} of {featuredNv.plannedEpisodes || featuredPub.length} · {featuredNv.status || 'Ongoing'}</div>
+                  <span className="slide-chip">{featuredLastPos ? 'Continue Reading →' : 'Read Now →'}</span>
+                </div>
+              </>
+            )}
 
             <div className="section-title"><h2>Trending Reels</h2><button className="link-btn" onClick={() => { setReelsJump({ index: 0, nonce: Date.now() }); setTab('reels'); }}>View All →</button></div>
             <div className="hstrip">
@@ -3240,7 +3368,7 @@ export default function App() {
             <div style={{ marginTop: 14 }}><button className="btn" onClick={() => setMoreView('menu')}>← More</button></div>
             <SettingsScreen theme={theme} onToggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
               reelAnim={reelAnim} onReelAnim={setReelAnim} toast={toast}
-              poemsCount={poems.length} novelCount={novelPublished.length}
+              poemsCount={poems.length} novelCount={totalEpCount}
               lang={lang || 'ur'} onLang={pickLang} />
           </>
         )}
@@ -3287,7 +3415,7 @@ export default function App() {
 
         {tab === 'more' && moreView === 'create' && <PhotoCardMaker poems={poems} toast={toast} />}
 
-      {tab === 'novel' && <NovelScreen toast={toast} openRequest={novelOpenReq} onConsumeOpenRequest={() => setNovelOpenReq(null)} />}
+      {tab === 'novel' && <NovelScreen toast={toast} novels={novels} openRequest={novelOpenReq} onConsumeOpenRequest={() => setNovelOpenReq(null)} />}
 
         {tab === 'more' && moreView === 'noor' && (
           <>
