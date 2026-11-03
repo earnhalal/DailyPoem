@@ -27,15 +27,8 @@ jobs:
         run: npx cap sync android
       - name: Apply launcher icon
         run: |
-          cd android/app/src/main/res
-          SRC=$GITHUB_WORKSPACE/public/brand/app-icon-1024.png
-          FG=$GITHUB_WORKSPACE/public/brand/symbol.png
-          for spec in "mdpi 48" "hdpi 72" "xhdpi 96" "xxhdpi 144" "xxxhdpi 192"; do set -- $spec; mkdir -p mipmap-$1; convert "$SRC" -resize ${2}x${2} mipmap-$1/ic_launcher.png; cp mipmap-$1/ic_launcher.png mipmap-$1/ic_launcher_round.png; done
-          mkdir -p mipmap-anydpi-v26 values
-          printf '%s\n' '<?xml version="1.0" encoding="utf-8"?>' '<resources><color name="ic_launcher_background">#120F0C</color></resources>' > values/ic_launcher_background.xml
-          for spec in "mdpi 108" "hdpi 162" "xhdpi 216" "xxhdpi 324" "xxxhdpi 432"; do set -- $spec; convert -size ${2}x${2} xc:"#120F0C" "$FG" -resize $(( ${2}*60/100 ))x$(( ${2}*60/100 )) -gravity center -composite mipmap-$1/ic_launcher_foreground.png; done
-          printf '%s\n' '<?xml version="1.0" encoding="utf-8"?>' '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">' '<background android:drawable="@color/ic_launcher_background"/>' '<foreground android:drawable="@mipmap/ic_launcher_foreground"/>' '</adaptive-icon>' > mipmap-anydpi-v26/ic_launcher.xml
-          cp mipmap-anydpi-v26/ic_launcher.xml mipmap-anydpi-v26/ic_launcher_round.xml
+          python3 -m pip install -q pillow
+          python3 tools/make_launcher_icons.py
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug
