@@ -1,1 +1,133 @@
-{"reels":[{"id":"reel-e1","poemId":"e1","poet":"DailyPoem Originals","title":"The Light I Chose","video":"https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e1.mp4"},{"id":"reel-e2","poemId":"e2","poet":"DailyPoem Originals","title":"The Room I Kept","video":"https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e2.mp4"},{"id":"reel-e3","poemId":"e3","poet":"DailyPoem Originals","title":"Unposted","video":"https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e3.mp4"}]}
+{
+ "reels": [
+  {
+   "id": "reel-e1",
+   "poemId": "e1",
+   "poet": "DailyPoem Originals",
+   "title": "The Light I Chose",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e1.mp4"
+  },
+  {
+   "id": "reel-e2",
+   "poemId": "e2",
+   "poet": "DailyPoem Originals",
+   "title": "The Room I Kept",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e2.mp4"
+  },
+  {
+   "id": "reel-e3",
+   "poemId": "e3",
+   "poet": "DailyPoem Originals",
+   "title": "Unposted",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e3.mp4"
+  },
+  {
+   "id": "u1",
+   "poemId": "g3",
+   "title": "Mohabbat meñ nahīñ hai farq jeene aur marne kā",
+   "poet": "Mirza Ghalib",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u1.mp4",
+   "poster": "/scenes/gulab.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u2",
+   "poemId": "hm1",
+   "title": "Chupke chupke rāt din āñsū bahānā yād hai",
+   "poet": "Hasrat Mohani",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u2.mp4",
+   "poster": "/scenes/gulab.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u3",
+   "poemId": "g1",
+   "title": "Hazāroñ khwāhishen aisī ke har khwāhish pe dam nikle",
+   "poet": "Mirza Ghalib",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u3.mp4",
+   "poster": "/scenes/baarish.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u4",
+   "poemId": "z1",
+   "title": "Lagtā nahīñ hai dil merā ujṛe dayār meñ",
+   "poet": "Bahadur Shah Zafar",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u4.mp4",
+   "poster": "/scenes/baarish.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u5",
+   "poemId": "i5",
+   "title": "Hazāroñ sāl nargis apnī benūrī pe rotī hai",
+   "poet": "Allama Iqbal",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u5.mp4",
+   "poster": "/scenes/chaand.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u6",
+   "poemId": "g4",
+   "title": "Bāzīcha-e-atfāl hai duniyā mere āge",
+   "poet": "Mirza Ghalib",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u6.mp4",
+   "poster": "/scenes/mehfil.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u7",
+   "poemId": "i11",
+   "title": "Sitāroñ se āge jahāñ aur bhī haiñ",
+   "poet": "Allama Iqbal",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u7.mp4",
+   "poster": "/scenes/chaand.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u8",
+   "poemId": "i1",
+   "title": "Khudī ko kar buland itnā ke har taqdīr se pehle",
+   "poet": "Allama Iqbal",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u8.mp4",
+   "poster": "/scenes/chaand.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u9",
+   "poemId": "m1",
+   "title": "Hastī apnī hubāb kī sī hai",
+   "poet": "Mir Taqi Mir",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u9.mp4",
+   "poster": "/scenes/mehfil.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u10",
+   "poemId": "g13",
+   "title": "Na thā kuchh to Khudā thā, kuchh na hotā to Khudā hotā",
+   "poet": "Mirza Ghalib",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u10.mp4",
+   "poster": "/scenes/mehfil.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u11",
+   "poemId": "i4",
+   "title": "Nahīñ terā nasheman qasr-e-sultānī ke gumbad par",
+   "poet": "Allama Iqbal",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u11.mp4",
+   "poster": "/scenes/gulab.jpg",
+   "lang": "ur"
+  },
+  {
+   "id": "u12",
+   "poemId": "ak2",
+   "title": "Ham āh bhī karte haiñ to ho jāte haiñ badnām",
+   "poet": "Akbar Allahabadi",
+   "video": "https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-u12.mp4",
+   "poster": "/scenes/baarish.jpg",
+   "lang": "ur"
+  }
+ ]
+}

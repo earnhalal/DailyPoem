@@ -11,6 +11,7 @@ const FAV_KEY = 'dailypoem_favs_v1';
 
 /* ---------------- Reels — vertical video feed ---------------- */
 const REELS_REMOTE_URL = 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/content/reels.json';
+const MUSIC_REMOTE_BASE = 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/music/';
 const REELS_CACHE_KEY = 'dailypoem_reels_cache';
 const REELS_FALLBACK = [
   { id: 'reel-e1', poemId: 'e1', video: 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e1.mp4', title: 'The Light I Chose', poet: 'DailyPoem Originals' },
@@ -32,7 +33,7 @@ function sanitizePoems(list) {
     if (!p || typeof p.id !== 'string' || seen.has(p.id)) continue;
     if (p.lang === 'ur') {
       if (!Array.isArray(p.urdu) || !p.urdu.length) continue;
-      out.push({ ...p, roman: Array.isArray(p.roman) ? p.roman : [] });
+      out.push({ ...p, roman: Array.isArray(p.roman) ? p.roman : [], hi: Array.isArray(p.hi) ? p.hi : [], english: Array.isArray(p.english) ? p.english : [] });
     } else if (p.lang === 'en') {
       if (!Array.isArray(p.lines) || !p.lines.length) continue;
       out.push(p);
@@ -52,6 +53,43 @@ function sanitizeNovel(d) {
 function linesOf(poem) {
   if (poem.lang === 'ur') return poem.urdu;
   return poem.lines;
+}
+
+/* ---------------- Poetry display language ----------------
+   Sirf TEEN options: 'ur' Urdu script, 'hi' Hindi (Devanagari), 'en' English.
+   Roman Urdu sirf data ke andar transliteration source hai — UI mein KABHI
+   render nahi hota (owner ka hukum). Secondary line ka usool:
+   ur -> koi secondary nahi (sirf Urdu, bara) · hi -> poem.hi (na ho to english)
+   en -> poem.english (na ho to hi). English poems par secondary hamesha hidden. */
+const LANG_KEY = 'dailypoem_lang';
+const LANG_OPTIONS = [
+  { id: 'ur', name: 'اردو', label: 'Urdu', sample: 'ہزاروں خواہشیں ایسی کہ ہر خواہش پہ دم نکلے' },
+  { id: 'hi', name: 'हिन्दी', label: 'Hindi', sample: 'हज़ारों ख़्वाहिशें ऐसी कि हर ख़्वाहिश पे दम निकले' },
+  { id: 'en', name: 'English', label: 'English', sample: 'A thousand desires, each one worth dying for' },
+];
+function loadLang() {
+  try {
+    const v = localStorage.getItem(LANG_KEY);
+    return LANG_OPTIONS.some(o => o.id === v) ? v : null;
+  } catch { return null; }
+}
+/* Canvas wale hisay (share card) React state se bahir hain — unke liye module mirror */
+let DISPLAY_LANG = loadLang() || 'ur';
+function setDisplayLang(v) { DISPLAY_LANG = v; }
+
+function secondaryOf(poem, lang) {
+  if (!poem || poem.lang !== 'ur' || !lang || lang === 'ur') return null;
+  const pick = a => (Array.isArray(a) && a.length ? a : null);
+  let src = null, kind = null;
+  if (lang === 'hi') { src = pick(poem.hi); kind = 'hindi'; if (!src) { src = pick(poem.english); kind = 'english'; } }
+  else if (lang === 'en') { src = pick(poem.english); kind = 'english'; if (!src) { src = pick(poem.hi); kind = 'hindi'; } }
+  return src ? { lines: src, kind } : null;
+}
+/* Secondary line ka JSX — roman class hi istemal hoti hai, hindi par font badal jata hai */
+function SecLines({ sec, single = false }) {
+  if (!sec) return null;
+  const lines = single ? sec.lines.slice(0, 1) : sec.lines;
+  return <div className={'roman' + (sec.kind === 'hindi' ? ' hindi' : '')}>{lines.map((l, i) => <div key={i}>{l}</div>)}</div>;
 }
 
 function speak(text, lang) {
@@ -110,11 +148,13 @@ function wrapTextLines(ctx, lines, maxW) {
 /* Poora sher/nazm card par fit karo: font size step by step kam karo jab tak saari
    lines (wrap ke baad) width mein bhi aur total height mein bhi jagah par na aa jayen.
    Canvas render aur editor preview dono yahi layout istemal karte hain. */
-function fitPoemText({ poem, maxW, availH, scale = 1, fontStack = null, baseFs = null, stepF = null, weight = '', italic = false, letterSpacing = 0 }) {
+function fitPoemText({ poem, maxW, availH, scale = 1, fontStack = null, baseFs = null, stepF = null, weight = '', italic = false, letterSpacing = 0, secLines = null, secKind = null }) {
   const isUr = poem.lang === 'ur';
   const ctx = measureCtx();
   const src = linesOf(poem);
-  const romanSrc = isUr && Array.isArray(poem.roman) ? poem.roman : [];
+  /* secLines diya jaye to secondary wahi hoga (language system); warna purana roman.
+     Share card hamesha secLines bhejta hai taake card par roman kabhi na aaye. */
+  const romanSrc = secLines != null ? secLines : (isUr && Array.isArray(poem.roman) ? poem.roman : []);
   const hasTitle = !isUr && !!poem.title;
   const base = Math.round((baseFs || (isUr ? 64 : 58)) * scale);
   const floor = isUr ? 20 : 16;
@@ -129,14 +169,14 @@ function fitPoemText({ poem, maxW, availH, scale = 1, fontStack = null, baseFs =
     const main = wrapTextLines(ctx, src, maxW);
     const step = fs * (stepF || (isUr ? 2.15 : 1.42));
     const rFs = Math.max(17, Math.round(fs * 0.54));
-    ctx.font = 'italic ' + rFs + 'px "Cormorant Garamond", serif';
+    ctx.font = secKind === 'hindi' ? rFs + 'px "Noto Sans Devanagari", Inter, sans-serif' : 'italic ' + rFs + 'px "Cormorant Garamond", serif';
     if (useLS) { try { ctx.letterSpacing = '0px'; } catch { /* noop */ } }
     const fontRoman = ctx.font;
     const rom = romanSrc.length ? wrapTextLines(ctx, romanSrc, maxW) : { lines: [], widest: 0 };
     const rStep = rFs * 1.45;
     const titleH = hasTitle ? fs * 1.5 : 0;
     const blockH = titleH + main.lines.length * step + (rom.lines.length ? 14 + rom.lines.length * rStep : 0);
-    best = { isUr, hasTitle, titleH, fs, step, lines: main.lines, roman: rom.lines, rFs, rStep, blockH, fontMain, fontRoman };
+    best = { isUr, hasTitle, titleH, fs, step, lines: main.lines, roman: rom.lines, rFs, rStep, blockH, fontMain, fontRoman, secKind };
     if (blockH <= availH && main.widest <= maxW + 6 && rom.widest <= maxW + 6) break;
   }
   return best;
@@ -182,7 +222,14 @@ async function makeShareCard(poem, scene) {
     await document.fonts.load('italic 30px "Cormorant Garamond"');
   } catch { /* fonts optional */ }
   const poet = poetOf(poem.poet);
-  const L = fitPoemText({ poem, maxW: W - 170, availH: H - 560, scale: 1 });
+  /* Share card ki secondary line bhi display language ke hisaab se — roman kabhi nahi.
+     Urdu mode mein card sirf Urdu ka hoga (secLines = []). */
+  const sec = secondaryOf(poem, DISPLAY_LANG);
+  const L = fitPoemText({
+    poem, maxW: W - 170, availH: H - 560, scale: 1,
+    secLines: poem.lang === 'ur' ? (sec ? sec.lines : []) : undefined,
+    secKind: sec ? sec.kind : null,
+  });
   let y = 250 + Math.max(0, (H - 560 - L.blockH) / 2);
   if (L.hasTitle) {
     ctx.fillStyle = '#d4af37';
@@ -196,7 +243,7 @@ async function makeShareCard(poem, scene) {
   y += L.lines.length * L.step;
   if (L.roman.length) {
     ctx.fillStyle = '#d9cdb6';
-    ctx.font = 'italic ' + L.rFs + 'px "Cormorant Garamond", serif';
+    ctx.font = L.secKind === 'hindi' ? L.rFs + 'px "Noto Sans Devanagari", Inter, sans-serif' : 'italic ' + L.rFs + 'px "Cormorant Garamond", serif';
     L.roman.forEach((ln, i) => ctx.fillText(ln, W / 2, y + 14 + L.rStep * 0.72 + i * L.rStep));
   }
   ctx.fillStyle = '#d4af37';
@@ -292,24 +339,118 @@ async function exportReelVideo(poem, scene, toast, setProgress, opts = {}) {
     }
     let dur = lines.length * 2.2 + 1.6;
     if (audioBuf) dur = Math.min(40, audioBuf.duration + 0.6);
+    /* Bundled voice nahi hai (Urdu / apni poetry) to mood ki background music lagao:
+       reel ki poori duration tak loop, halki awaaz (gain 0.6), aakhir mein fade-out.
+       Music na mile to video khamosh export hogi aur aakhir mein toast se bata denge. */
+    let musicMissed = false;
+    if (!audioBuf && poem.category) {
+      try {
+        const resp = await fetch(MUSIC_REMOTE_BASE + poem.category + '.mp3');
+        if (!resp.ok) throw new Error('music http ' + resp.status);
+        const ab = await resp.arrayBuffer();
+        const AC2 = window.AudioContext || window.webkitAudioContext;
+        const ac2 = new AC2();
+        try {
+          const mb = await ac2.decodeAudioData(ab);
+          const sr = mb.sampleRate, ch = Math.min(2, mb.numberOfChannels);
+          const frames = Math.max(1, Math.floor(dur * sr));
+          const fade = Math.min(frames, Math.floor(sr * 0.8));
+          const lb = ac2.createBuffer(ch, frames, sr);
+          for (let c = 0; c < ch; c++) {
+            const src = mb.getChannelData(Math.min(c, mb.numberOfChannels - 1));
+            const dst = lb.getChannelData(c);
+            for (let i = 0; i < frames; i++) {
+              let v = src[i % src.length] * 0.6;
+              if (fade > 0 && i >= frames - fade) v *= (frames - i) / fade;
+              dst[i] = v;
+            }
+          }
+          audioBuf = lb;
+        } finally { ac2.close().catch(() => {}); }
+      } catch { musicMissed = true; }
+    }
     const per = dur / lines.length;
+    /* User ki photo (template) pehle load karo — scene sirf tab load hota hai jab photo na ho */
+    let photoImg = null;
+    if (opts.photo && opts.photo.dataUrl) {
+      const pim = new Image();
+      pim.src = opts.photo.dataUrl;
+      try { await pim.decode(); } catch { /* proceed */ }
+      if (pim.naturalWidth) photoImg = pim;
+    }
+    const tpl = photoImg ? (['full', 'framed', 'split'].indexOf(opts.photo.template) >= 0 ? opts.photo.template : 'full') : 'scene';
+    const darkness = photoImg ? Math.min(0.8, Math.max(0, Number(opts.photo.darkness) || 0)) : 0;
     const img = new Image();
-    img.src = scene.img;
-    try { await img.decode(); } catch { /* proceed */ }
+    if (!photoImg) {
+      img.src = scene.img;
+      try { await img.decode(); } catch { /* proceed */ }
+    }
     try { await document.fonts.load('40px "Noto Nastaliq Urdu"'); await document.fonts.load('33px "Playfair Display"'); } catch { /* fonts optional */ }
     const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
+    /* Photo templates ke liye cover-fit draw — har hissa isi hisaab se banta hai,
+       taake export aur preview ki layout ek jaisi rahe */
+    const drawCover = (im, x, y, w, h, zoom = 1) => {
+      const base = Math.max(w / im.naturalWidth, h / im.naturalHeight) * zoom;
+      const dw = im.naturalWidth * base, dh = im.naturalHeight * base;
+      ctx.drawImage(im, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+    };
+    const rrPath = (x, y, w, h, r) => {
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') ctx.roundRect(x, y, w, h, r);
+      else ctx.rect(x, y, w, h);
+    };
     const drawFrame = (t) => {
       ctx.fillStyle = '#0b0908'; ctx.fillRect(0, 0, W, H);
-      if (img && img.naturalWidth) {
-        const sc = 1 + 0.09 * (t / dur);
-        const base = Math.max(W / img.naturalWidth, H / img.naturalHeight);
-        const w = img.naturalWidth * base * sc, h = img.naturalHeight * base * sc;
-        ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+      if (tpl === 'scene') {
+        if (img && img.naturalWidth) {
+          const sc = 1 + 0.09 * (t / dur);
+          const base = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+          const w = img.naturalWidth * base * sc, h = img.naturalHeight * base * sc;
+          ctx.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+        }
+        const g = ctx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, 'rgba(10,8,7,.42)'); g.addColorStop(0.55, 'rgba(10,8,7,.30)'); g.addColorStop(1, 'rgba(10,8,7,.80)');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      } else if (tpl === 'full') {
+        drawCover(photoImg, 0, 0, W, H, 1 + 0.09 * (t / dur));
+        const g = ctx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, 'rgba(10,8,7,.42)'); g.addColorStop(0.55, 'rgba(10,8,7,.30)'); g.addColorStop(1, 'rgba(10,8,7,.80)');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        if (darkness > 0) { ctx.fillStyle = 'rgba(0,0,0,' + (darkness * 0.85).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); }
+      } else if (tpl === 'framed') {
+        /* Dhundli (blurred) badi photo peeche, asli photo gold frame mein upar.
+           ctx.filter har WebView mein nahi hota — pehle parakh lo; na ho to
+           halki alpha wali badi copy + gehre saye ka fallback istemal karo. */
+        let blurred = false;
+        try {
+          ctx.filter = 'blur(' + Math.round(22 * K) + 'px) brightness(' + (0.62 - darkness * 0.3).toFixed(2) + ')';
+          blurred = String(ctx.filter).indexOf('blur') >= 0;
+          if (blurred) drawCover(photoImg, 0, 0, W, H, 1.18);
+          ctx.filter = 'none';
+        } catch { try { ctx.filter = 'none'; } catch { /* noop */ } }
+        if (!blurred) {
+          ctx.globalAlpha = 0.55; drawCover(photoImg, 0, 0, W, H, 1.18); ctx.globalAlpha = 1;
+          ctx.fillStyle = 'rgba(5,4,3,' + (0.35 + darkness * 0.3).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H);
+        }
+        const fx = W * 0.11, fw = W * 0.78, fy = H * 0.05, fh = H * 0.55;
+        ctx.save(); rrPath(fx, fy, fw, fh, 14 * K); ctx.clip();
+        drawCover(photoImg, fx, fy, fw, fh, 1);
+        ctx.restore();
+        ctx.strokeStyle = '#d4af37'; ctx.lineWidth = Math.max(2, 3 * K);
+        rrPath(fx, fy, fw, fh, 14 * K); ctx.stroke();
+        const g2 = ctx.createLinearGradient(0, H * 0.58, 0, H);
+        g2.addColorStop(0, 'rgba(0,0,0,0)'); g2.addColorStop(1, 'rgba(0,0,0,.5)');
+        ctx.fillStyle = g2; ctx.fillRect(0, H * 0.58, W, H * 0.42);
+      } else { /* split — photo upar 55%, gehra panel neeche */
+        const ph = H * 0.55;
+        ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, ph); ctx.clip();
+        drawCover(photoImg, 0, 0, W, ph, 1);
+        ctx.restore();
+        if (darkness > 0) { ctx.fillStyle = 'rgba(0,0,0,' + (darkness * 0.5).toFixed(3) + ')'; ctx.fillRect(0, 0, W, ph); }
+        ctx.fillStyle = '#0d0a08'; ctx.fillRect(0, ph, W, H - ph);
+        ctx.fillStyle = '#d4af37'; ctx.fillRect(0, ph - K, W, 2 * K);
       }
-      const g = ctx.createLinearGradient(0, 0, 0, H);
-      g.addColorStop(0, 'rgba(10,8,7,.42)'); g.addColorStop(0.55, 'rgba(10,8,7,.30)'); g.addColorStop(1, 'rgba(10,8,7,.80)');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
       const barH = Math.max(3, Math.round(5 * K));
       ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(0, 0, W, barH);
       ctx.fillStyle = '#d4af37'; ctx.fillRect(0, 0, W * (t / dur), barH);
@@ -319,7 +460,12 @@ async function exportReelVideo(poem, scene, toast, setProgress, opts = {}) {
       const step = (isUr ? 98 : 50) * K;
       ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
       const totalH = lines.length * step;
-      const y0 = (H - totalH) / 2 + step * 0.72;
+      /* Lines ka region: scene/full mein poora frame (purani layout), framed mein
+         frame ke neeche, split mein neeche wale panel mein — preview bhi yahi karti hai */
+      const rg = tpl === 'framed' ? { top: H * 0.63, bottom: H * 0.955 }
+        : tpl === 'split' ? { top: H * 0.565, bottom: H * 0.96 }
+        : { top: 0, bottom: H };
+      const y0 = rg.top + ((rg.bottom - rg.top) - totalH) / 2 + step * 0.72;
       lines.forEach((ln, i) => {
         const at = 0.4 + i * per;
         if (t < at) return;
@@ -330,7 +476,10 @@ async function exportReelVideo(poem, scene, toast, setProgress, opts = {}) {
         ctx.shadowBlur = 0; ctx.globalAlpha = 1;
       });
       ctx.fillStyle = '#d4af37'; ctx.font = '600 ' + Math.round(25 * K) + 'px Inter, sans-serif';
-      ctx.fillText('\u2014 ' + (poem.customPoet || poetOf(poem.poet).name) + ' \u2014', W / 2, H - 84 * K);
+      const poetY = (tpl === 'framed' || tpl === 'split')
+        ? Math.min(H - 36 * K, y0 + totalH + 30 * K)
+        : H - 84 * K;
+      ctx.fillText('\u2014 ' + (poem.customPoet || poetOf(poem.poet).name) + ' \u2014', W / 2, poetY);
       if (watermark) {
         ctx.textAlign = 'right';
         ctx.fillStyle = 'rgba(243,234,216,.75)'; ctx.font = Math.round(20 * K) + 'px Inter, sans-serif';
@@ -386,6 +535,7 @@ async function exportReelVideo(poem, scene, toast, setProgress, opts = {}) {
     muxer.finalize();
     setProgress(100);
     await shareBlobFile(new Blob([muxer.target.buffer], { type: 'video/mp4' }), toast, 'dailypoem-reel.mp4');
+    if (musicMissed) toast('Exported without music (music unavailable)');
   } catch { toast('Video export failed on this device'); }
 }
 
@@ -480,8 +630,16 @@ const REEL_ANIMS = [
   { id: 'slide', label: 'Slide' },
 ];
 
-function ReelPlayer({ poem, scene, onClose, toast, anim = 'rise', onAnimChange }) {
+/* Apni photo par reel banane ke templates — preview aur MP4 export dono yahi layout rakhte hain */
+const PHOTO_TPLS = [
+  { id: 'full', label: 'Full Photo' },
+  { id: 'framed', label: 'Framed' },
+  { id: 'split', label: 'Split' },
+];
+
+function ReelPlayer({ poem, scene, onClose, toast, anim = 'rise', onAnimChange, lang }) {
   const lines = linesOf(poem);
+  const sec = secondaryOf(poem, lang);
   const [shown, setShown] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [sc, setSc] = useState(scene);
@@ -493,6 +651,12 @@ function ReelPlayer({ poem, scene, onClose, toast, anim = 'rise', onAnimChange }
   const [wm, setWm] = useState(() => { try { return localStorage.getItem('dailypoem_export_wm') !== '0'; } catch { return true; } });
   const audioRef = useRef(null);
   const cancelRef = useRef(false);
+  /* Apni photo wala background — photo sirf phone par rehti hai, kahin upload nahi hoti */
+  const [photo, setPhoto] = useState(null);
+  const [bgMode, setBgMode] = useState('scene'); // 'scene' | 'photo'
+  const [tpl, setTpl] = useState('full');
+  const [dark, setDark] = useState(35);
+  const photoRef = useRef(null);
   const poet = poetOf(poem.poet);
 
   useEffect(() => { setSc(scene); }, [scene]);
@@ -556,30 +720,80 @@ function ReelPlayer({ poem, scene, onClose, toast, anim = 'rise', onAnimChange }
   const pickQ = q => { setExpQ(q); try { localStorage.setItem('dailypoem_export_q', q); } catch { /* noop */ } };
   const toggleWm = () => setWm(w => { const n = !w; try { localStorage.setItem('dailypoem_export_wm', n ? '1' : '0'); } catch { /* noop */ } return n; });
 
+  const onPickPhoto = e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const MAX = 1440;
+        const s = Math.min(1, MAX / Math.max(im.naturalWidth, im.naturalHeight));
+        const c = document.createElement('canvas');
+        c.width = Math.round(im.naturalWidth * s);
+        c.height = Math.round(im.naturalHeight * s);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        setPhoto(c.toDataURL('image/jpeg', 0.86));
+        setBgMode('photo');
+        toast('Photo added — it stays on your device');
+      } catch { toast('That photo could not be loaded'); }
+      URL.revokeObjectURL(url);
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); toast('That photo could not be loaded'); };
+    im.src = url;
+    e.target.value = '';
+  };
+
   const startExport = async () => {
     if (exporting) return;
     cancelRef.current = false;
     setPlaying(false);
     setExporting(1);
-    await exportReelVideo(poem, sc, toast, setExporting, { height: expQ === '1080' ? 1920 : 1280, watermark: wm, cancelRef });
+    await exportReelVideo(poem, sc, toast, setExporting, {
+      height: expQ === '1080' ? 1920 : 1280, watermark: wm, cancelRef,
+      photo: bgMode === 'photo' && photo ? { dataUrl: photo, template: tpl, darkness: dark / 100 } : null,
+    });
     setExporting(0);
   };
 
   return (
     <div className="reel">
-      <div className="reel-bg"><img src={sc.img} alt="" /></div>
-      <div className="reel-shade" />
+      {bgMode === 'photo' && photo ? (
+        tpl === 'full' ? (
+          <>
+            <div className="reel-bg"><img src={photo} alt="" /></div>
+            <div className="reel-shade" />
+            <div className="reel-darklayer" style={{ opacity: (dark / 100 * 0.85).toFixed(2) }} />
+          </>
+        ) : tpl === 'framed' ? (
+          <div className="reel-tpl">
+            <div className="tpl-back" style={{ backgroundImage: `url("${photo}")`, filter: `blur(16px) brightness(${(0.62 - (dark / 100) * 0.3).toFixed(2)})` }} />
+            <div className="tpl-frame"><img src={photo} alt="" /></div>
+            <div className="tpl-shadeb" />
+          </div>
+        ) : (
+          <div className="reel-tpl">
+            <div className="tpl-top"><img src={photo} alt="" /><span style={{ background: `rgba(0,0,0,${(dark / 100 * 0.5).toFixed(2)})` }} /></div>
+            <div className="tpl-panel" />
+          </div>
+        )
+      ) : (
+        <>
+          <div className="reel-bg"><img src={sc.img} alt="" /></div>
+          <div className="reel-shade" />
+        </>
+      )}
       {hasAudio && <audio ref={audioRef} src={poem.audio} preload="auto" />}
       <div className="reel-top">
         <span className="reel-brand">✦ DailyPoem Reel</span>
         <button className="reel-close" onClick={onClose} aria-label="Close">✕</button>
       </div>
-      <div className="reel-mid">
+      <div className={'reel-mid' + (bgMode === 'photo' && photo && tpl !== 'full' ? ' low' : '')}>
         {lines.map((ln, i) => (
-          <div key={i} className={`reel-line ${poem.lang === 'ur' ? 'ur' : 'en'} anim-${anim} ${i < shown ? 'show' : ''}`}>{ln}</div>
+          <div key={i} className={`reel-line ${poem.lang === 'ur' ? 'ur' : 'en'}${!sec && poem.lang === 'ur' ? ' big' : ''} anim-${anim} ${i < shown ? 'show' : ''}`}>{ln}</div>
         ))}
-        {poem.lang === 'ur' && poem.roman && (
-          <div className={`reel-line rm ${shown >= lines.length ? 'show' : ''}`}>{poem.roman.join(' · ')}</div>
+        {sec && (
+          <div className={`reel-line rm${sec.kind === 'hindi' ? ' hindi' : ''} ${shown >= lines.length ? 'show' : ''}`}>{sec.lines.join(' · ')}</div>
         )}
       </div>
       <div className="reel-poet">— {poem.customPoet || poet.name}</div>
@@ -613,9 +827,32 @@ function ReelPlayer({ poem, scene, onClose, toast, anim = 'rise', onAnimChange }
           <div className="reel-opts-row">
             <span className="reel-opts-label">Scene</span>
             {SCENES.map(s => (
-              <button key={s.id} className={'reel-scene' + (sc.id === s.id ? ' on' : '')} onClick={() => setSc(s)} title={s.label} aria-label={s.label}><img src={s.img} alt="" /></button>
+              <button key={s.id} className={'reel-scene' + (bgMode === 'scene' && sc.id === s.id ? ' on' : '')} onClick={() => { setSc(s); setBgMode('scene'); }} title={s.label} aria-label={s.label}><img src={s.img} alt="" /></button>
             ))}
+            <button className={'reel-chip' + (bgMode === 'photo' ? ' on' : '')}
+              onClick={() => { if (photo) setBgMode('photo'); else if (photoRef.current) photoRef.current.click(); }}>
+              {photo && <img className="thumb" src={photo} alt="" />}📷 My Photo
+            </button>
+            <input ref={photoRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPickPhoto} />
           </div>
+          {bgMode === 'photo' && photo && (
+            <>
+              <div className="reel-opts-row">
+                <span className="reel-opts-label">Template</span>
+                {PHOTO_TPLS.map(t => (
+                  <button key={t.id} className={'reel-chip' + (tpl === t.id ? ' on' : '')} onClick={() => setTpl(t.id)}>{t.label}</button>
+                ))}
+                <button className="reel-chip" onClick={() => { if (photoRef.current) photoRef.current.click(); }}>↺ Change</button>
+                <button className="reel-chip" onClick={() => { setPhoto(null); setBgMode('scene'); }}>✕ Remove</button>
+              </div>
+              <div className="reel-opts-row">
+                <span className="reel-opts-label">Darkness</span>
+                <input className="reel-range" type="range" min="0" max="80" step="1" value={dark}
+                  onChange={e => setDark(Number(e.target.value))} aria-label="Photo darkness" />
+                <span className="reel-photonote">🔒 Your photo stays on your device</span>
+              </div>
+            </>
+          )}
           <div className="reel-opts-row">
             <span className="reel-opts-label">Export</span>
             <button className={'reel-chip' + (expQ === '720' ? ' on' : '')} onClick={() => pickQ('720')}>720p</button>
@@ -629,15 +866,16 @@ function ReelPlayer({ poem, scene, onClose, toast, anim = 'rise', onAnimChange }
 }
 
 /* ---------------- Poem card ---------------- */
-function PoemCard({ poem, isFav, onFav, onReel, toast }) {
+function PoemCard({ poem, isFav, onFav, onReel, toast, lang }) {
   const poet = poetOf(poem.poet);
   const cat = CATEGORIES.find(c => c.id === poem.category);
+  const sec = secondaryOf(poem, lang);
   return (
     <div className="pcard">
       {poem.lang === 'ur' ? (
         <>
-          <div className="urdu">{poem.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
-          <div className="roman">{poem.roman.map((l, i) => <div key={i}>{l}</div>)}</div>
+          <div className={'urdu' + (!sec ? ' only' : '')}>{poem.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
+          <SecLines sec={sec} />
         </>
       ) : (
         <div className="en-lines">{poem.lines.slice(0, 4).map((l, i) => <div key={i}>{l}</div>)}{poem.lines.length > 4 && <div>…</div>}</div>
@@ -685,8 +923,6 @@ function loadLN() {
   if (!_lnPromise) _lnPromise = import('@capacitor/local-notifications').then(m => m.LocalNotifications).catch(() => null);
   return _lnPromise;
 }
-const EP_ALERT_ID = 8001;
-
 /* Episode alert schedule — Novel tab aur Settings dono yahi istemal karte hain,
    taake ek hi notification (id 8001) aur ek hi pref key (dailypoem_ep_alerts) rahe. */
 async function scheduleEpAlert(LN) {
@@ -700,20 +936,123 @@ async function scheduleEpAlert(LN) {
     }],
   });
 }
-/* Settings ke liye: on/off apply karo, result string wapas: 'on' | 'off' | 'blocked' | 'unavailable' */
-async function applyEpAlerts(on) {
-  const LN = await loadLN();
-  if (!LN) return 'unavailable';
-  if (on) {
-    const perm = await LN.requestPermissions();
-    if (!perm || perm.display !== 'granted') return 'blocked';
-    await scheduleEpAlert(LN);
-    lsSet('dailypoem_ep_alerts', '1');
-    return 'on';
+/* ---------- Notifications: shared pref + toggle system ----------
+   Pref format: JSON { on: bool, state: 'on'|'off'|'blocked' } — purani '1'/'0'
+   values bhi read ho jati hain (readAlertPref). Toggle ka usool (owner ki
+   shikayat par rework): switch FORAN on ho jata hai (optimistic), permission
+   aur schedule background mein; permission denied ho to switch ON rehta hai
+   magar state 'blocked' save hota hai aur warning line dikhti hai. */
+const EP_ALERT_ID = 8001;
+const POEM_ALERT_ID = 8002;
+const NOTIF_BLOCKED_MSG = 'Notifications are blocked for DailyPoem — allow them in your phone Settings › Apps › DailyPoem › Notifications';
+const ALERT_DEFS = {
+  ep: { pref: 'dailypoem_ep_alerts', id: EP_ALERT_ID },
+  poem: { pref: 'dailypoem_poem_alerts', id: POEM_ALERT_ID },
+};
+function readAlertPref(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw == null) return { on: false, state: 'off' };
+    if (raw === '1') return { on: true, state: 'on' };
+    if (raw === '0') return { on: false, state: 'off' };
+    const v = JSON.parse(raw);
+    if (v && typeof v === 'object') return { on: !!v.on, state: v.state || (v.on ? 'on' : 'off') };
+  } catch { /* noop */ }
+  return { on: false, state: 'off' };
+}
+function writeAlertPref(key, on, state) {
+  try { localStorage.setItem(key, JSON.stringify({ on: !!on, state })); } catch { /* noop */ }
+}
+async function schedulePoemAlert(LN) {
+  await LN.schedule({
+    notifications: [{
+      id: POEM_ALERT_ID,
+      title: 'DailyPoem',
+      body: 'Your Poem of the Day is waiting ✦',
+      schedule: { every: 'day', on: { hour: 9, minute: 0 } },
+      extra: { tab: 'home' },
+    }],
+  });
+}
+async function scheduleAlert(LN, kind) {
+  if (kind === 'ep') await scheduleEpAlert(LN); else await schedulePoemAlert(LN);
+}
+/* Ek hi jagah se on/off — panel, Settings aur Novel tab teeno yahi istemal karte hain.
+   Return: { on, state } jahan state = 'on' | 'off' | 'blocked' | 'unavailable' */
+async function setAlert(kind, on) {
+  const def = ALERT_DEFS[kind];
+  if (!on) {
+    writeAlertPref(def.pref, false, 'off');
+    const LN = await loadLN();
+    if (LN) { try { await LN.cancel({ notifications: [{ id: def.id }] }); } catch { /* noop */ } }
+    return { on: false, state: 'off' };
   }
-  await LN.cancel({ notifications: [{ id: EP_ALERT_ID }] });
-  lsSet('dailypoem_ep_alerts', '0');
-  return 'off';
+  writeAlertPref(def.pref, true, 'on'); // optimistic — switch pehle on, baqi baad mein
+  const LN = await loadLN();
+  if (!LN) return { on: true, state: 'unavailable' };
+  try {
+    const perm = await LN.requestPermissions();
+    if (!perm || perm.display !== 'granted') {
+      writeAlertPref(def.pref, true, 'blocked');
+      return { on: true, state: 'blocked' };
+    }
+    await scheduleAlert(LN, kind);
+    writeAlertPref(def.pref, true, 'on');
+    return { on: true, state: 'on' };
+  } catch { return { on: true, state: 'unavailable' }; }
+}
+/* App start par: jo prefs ON hain (aur blocked nahi) un ki schedule zinda rakho */
+async function rescheduleAlerts() {
+  const LN = await loadLN();
+  if (!LN) return;
+  try {
+    const pending = await LN.getPending();
+    const ids = new Set((((pending && pending.notifications) || [])).map(n => n.id));
+    for (const kind of Object.keys(ALERT_DEFS)) {
+      const def = ALERT_DEFS[kind];
+      const p = readAlertPref(def.pref);
+      if (p.on && p.state !== 'blocked' && !ids.has(def.id)) {
+        const perm = await LN.checkPermissions();
+        if (perm && perm.display === 'granted') await scheduleAlert(LN, kind);
+      }
+    }
+  } catch { /* noop */ }
+}
+/* Teeno jagah (panel / Settings / Novel) ke liye ek hi toggle hook */
+function useAlertToggle(kind, toast, labels) {
+  // initializer hi pref parhta hai; teeno jagah (panel/Settings/Novel) mount par
+  // render hoti hain, is liye har dafa fresh state milta hai — toggles sync rehte hain.
+  const [st, setSt] = useState(() => readAlertPref(ALERT_DEFS[kind].pref));
+  const [busy, setBusy] = useState(false);
+  const toggle = async () => {
+    if (busy) return;
+    const target = !st.on;
+    setSt({ on: target, state: target ? 'on' : 'off' }); // visual state foran
+    setBusy(true);
+    try {
+      const r = await setAlert(kind, target);
+      setSt({ on: r.on, state: r.state });
+      if (!target) toast(labels.off);
+      else if (r.state === 'on') toast(labels.on);
+      else if (r.state === 'blocked') toast(NOTIF_BLOCKED_MSG);
+      else toast('Notifications work in the installed app');
+    } catch { toast('Notifications work in the installed app'); }
+    finally { setBusy(false); }
+  };
+  return { on: st.on, state: st.state, busy, toggle };
+}
+/* Toggle wali row — blocked ho to neeche warning line bhi */
+function AlertToggleRow({ icon, title, sub, ctl, toast }) {
+  return (
+    <div className="nd-row" style={{ alignItems: 'flex-start' }}>
+      <span style={{ flex: 1 }}>{icon} {title}<span className="set-sub">{sub}</span>
+        {ctl.on && ctl.state === 'blocked' && (
+          <button className="alert-warn" onClick={() => toast(NOTIF_BLOCKED_MSG)}>⚠ Blocked by phone settings — tap to learn how</button>
+        )}
+      </span>
+      <button className={'chip' + (ctl.on ? ' on' : '')} disabled={ctl.busy} onClick={ctl.toggle}>{ctl.on ? 'On' : 'Off'}</button>
+    </div>
+  );
 }
 
 /* Shayar ki lifespan — sirf woh 8 classical shayar jinki tareekhen verified hain.
@@ -764,8 +1103,7 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
   const [ls, setLs] = useState(() => { const v = parseInt(lsGet('dailypoem_novel_ls', '2'), 10); return [1, 2, 3].includes(v) ? v : 2; });
   const [rTheme, setRTheme] = useState(() => lsGet('dailypoem_reader_theme', 'dark'));
   const [prog, setProg] = useState(0);
-  const [alertsOn, setAlertsOn] = useState(() => lsGet('dailypoem_ep_alerts', '') === '1');
-  const [alertBusy, setAlertBusy] = useState(false);
+  const epAlerts = useAlertToggle('ep', notify, { on: 'Episode alerts on — daily at 8:00 PM', off: 'Episode alerts turned off' });
   const readerRef = useRef(null);
   const saveTimer = useRef(null);
 
@@ -881,46 +1219,9 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
   };
 
   /* ---- Episode alerts: roz 8:00 PM local notification (device time) ----
-     Schedule module-level scheduleEpAlert se hota hai — Settings bhi wahi istemal karti hai. */
-  const toggleAlerts = async () => {
-    if (alertBusy) return;
-    setAlertBusy(true);
-    try {
-      const LN = await loadLN();
-      if (!LN) { notify('Episode alerts are not available on this device yet'); return; }
-      if (alertsOn) {
-        await LN.cancel({ notifications: [{ id: EP_ALERT_ID }] });
-        setAlertsOn(false); lsSet('dailypoem_ep_alerts', '0');
-        notify('Episode alerts turned off');
-      } else {
-        const perm = await LN.requestPermissions();
-        if (!perm || perm.display !== 'granted') { notify('Notifications are blocked — allow them in system settings'); return; }
-        await scheduleEpAlert(LN);
-        setAlertsOn(true); lsSet('dailypoem_ep_alerts', '1');
-        notify('Episode alerts on — daily at 8:00 PM');
-      }
-    } catch { notify('Episode alerts are not available on this device yet'); }
-    finally { setAlertBusy(false); }
-  };
-  /* Pref on hai to schedule zinda rakho (masalan phone restart ke baad) */
-  useEffect(() => {
-    if (!alertsOn) return undefined;
-    let live = true;
-    (async () => {
-      try {
-        const LN = await loadLN();
-        if (!LN || !live) return;
-        const pending = await LN.getPending();
-        const has = pending && pending.notifications && pending.notifications.some(n => n.id === EP_ALERT_ID);
-        if (!has) {
-          const perm = await LN.checkPermissions();
-          if (perm && perm.display === 'granted') await scheduleEpAlert(LN);
-        }
-      } catch { /* noop */ }
-    })();
-    return () => { live = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+     Toggle shared useAlertToggle se hota hai (panel/Settings bhi wahi) —
+     switch foran on hota hai, permission/schedule background mein, aur app
+     start par App-level rescheduleAlerts() schedule zinda rakhta hai. */
 
   const epRow = ep => {
     const p = posMap[ep.n];
@@ -1047,8 +1348,11 @@ function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
         <div style={{ flex: 1 }}>
           <b style={{ fontSize: 14 }}>🔔 Episode alerts</b>
           <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>A gentle daily reminder at 8:00 PM, when the new episode lands.</div>
+          {epAlerts.on && epAlerts.state === 'blocked' && (
+            <button className="alert-warn" onClick={() => notify(NOTIF_BLOCKED_MSG)}>⚠ Blocked by phone settings — tap to learn how</button>
+          )}
         </div>
-        <button className={'chip' + (alertsOn ? ' on' : '')} disabled={alertBusy} onClick={toggleAlerts}>{alertsOn ? 'On' : 'Off'}</button>
+        <button className={'chip' + (epAlerts.on ? ' on' : '')} disabled={epAlerts.busy} onClick={epAlerts.toggle}>{epAlerts.on ? 'On' : 'Off'}</button>
       </div>
 
       <div className="section-title"><h2>Episodes</h2><small>{published.length} live</small></div>
@@ -2035,11 +2339,10 @@ function IntroSplash({ onDone }) {
   return (
     <div className={'intro' + (leaving ? ' leaving' : '')} onClick={() => doneRef.current()}>
       <div className="intro-glow" />
-      <div className="intro-emblem"><span>✦</span></div>
+      <div className="intro-emblem"><img src="/brand/symbol.png" alt="DailyPoem" style={{ height: '1.15em', width: 'auto' }} /></div>
       <div className="intro-name">{'DailyPoem'.split('').map((c, i) => <span key={i} style={{ animationDelay: (0.15 + i * 0.055) + 's' }}>{c}</span>)}</div>
       <div className="intro-tag">SHAYARI • POETRY • REELS</div>
       <div className="intro-sher" dir="rtl">ستاروں سے آگے جہاں اور بھی ہیں</div>
-      <div className="intro-roman">Sitaaron se aage jahan aur bhi hain — Iqbal</div>
       <div className="intro-bar"><span /></div>
     </div>
   );
@@ -2047,7 +2350,7 @@ function IntroSplash({ onDone }) {
 
 
 /* ---------------- Home slider ---------------- */
-function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, onOpenReel, onShare, onGo, onOpenPoem }) {
+function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, onOpenReel, onShare, onGo, onOpenPoem, lang }) {
   const ref = useRef(null);
   const [idx, setIdx] = useState(0);
   const pauseUntil = useRef(0);
@@ -2073,8 +2376,8 @@ function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, 
         <span className="kicker">{label}</span>
         {p.lang === 'ur' ? (
           <>
-            <div className="urdu">{p.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
-            <div className="roman">{p.roman.map((l, i) => <div key={i}>{l}</div>)}</div>
+            <div className={'urdu' + (!secondaryOf(p, lang) ? ' only' : '')}>{p.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
+            <SecLines sec={secondaryOf(p, lang)} />
           </>
         ) : (
           <>
@@ -2097,8 +2400,8 @@ function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, 
             <span className="kicker">✦ Poem of the Day</span>
             {today.lang === 'ur' ? (
               <>
-                <div className="urdu">{today.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
-                <div className="roman">{today.roman.map((l, i) => <div key={i}>{l}</div>)}</div>
+                <div className={'urdu' + (!secondaryOf(today, lang) ? ' only' : '')}>{today.urdu.map((l, i) => <div key={i}>{l}</div>)}</div>
+                <SecLines sec={secondaryOf(today, lang)} />
               </>
             ) : (
               <div className="en-lines" style={{ marginTop: 18 }}>{today.lines.slice(0, 4).map((l, i) => <div key={i}>{l}</div>)}</div>
@@ -2139,7 +2442,8 @@ function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, 
   );
 }
 
-function ReelsFeed({ startIndex = 0, onCreate }) {
+function ReelsFeed({ startIndex = 0, onCreate, favs, onFav, toast }) {
+  const notify = toast || (() => {});
   const [reels, setReels] = useState(() => { try { return JSON.parse(localStorage.getItem(REELS_CACHE_KEY)) || REELS_FALLBACK; } catch { return REELS_FALLBACK; } });
   const [muted, setMuted] = useState(() => { try { return localStorage.getItem('dailypoem_reels_muted') !== '0'; } catch { return true; } });
   const [active, setActive] = useState(() => Math.max(0, startIndex || 0));
@@ -2155,6 +2459,33 @@ function ReelsFeed({ startIndex = 0, onCreate }) {
   const didStartScroll = useRef(false);
   const pausedRef = useRef(null);
   const hiddenRef = useRef(false);
+  /* Likes sirf isi phone par save hote hain (server nahi) — is liye koi global count nahi dikhate */
+  const [likes, setLikes] = useState(() => {
+    try { const v = JSON.parse(localStorage.getItem('dailypoem_reel_likes') || '[]'); return new Set(Array.isArray(v) ? v.filter(x => typeof x === 'string') : []); }
+    catch { return new Set(); }
+  });
+  const toggleLike = id => setLikes(prev => {
+    const n = new Set(prev);
+    if (n.has(id)) n.delete(id); else n.add(id);
+    try { localStorage.setItem('dailypoem_reel_likes', JSON.stringify([...n])); } catch { /* noop */ }
+    return n;
+  });
+  const shareReel = async (e, r) => {
+    e.stopPropagation();
+    const text = (r.title || 'A DailyPoem reel') + (r.poet ? ' — ' + r.poet : '') + '\n' + r.video;
+    try {
+      if (Capacitor.isNativePlatform()) {
+        await Share.share({ title: 'DailyPoem Reel', text, url: r.video, dialogTitle: 'Share this reel' });
+        return;
+      }
+      if (navigator.share) { await navigator.share({ title: 'DailyPoem Reel', text, url: r.video }); return; }
+      throw new Error('share unavailable');
+    } catch (err) {
+      if (err && /cancel/i.test(err.message || '')) return; // user ne sheet band ki — error nahi
+      try { await navigator.clipboard.writeText(text); notify('🔗 Reel link copied'); }
+      catch { notify('Sharing is not available on this device'); }
+    }
+  };
 
   useEffect(() => {
     let live = true;
@@ -2334,6 +2665,18 @@ function ReelsFeed({ startIndex = 0, onCreate }) {
             <div className="vfeed-progress"><span ref={el => { progRefs.current[r.id] = el; }} /></div>
             <button className="vfeed-act vfeed-replay" onClick={e => restart(e, r.id)} aria-label="Replay">↻</button>
             <button className="vfeed-act vfeed-mute" onClick={e => { e.stopPropagation(); toggleMute(); }} aria-label="Mute or unmute">{muted ? '🔇' : '🔊'}</button>
+            <button className={'vfeed-act vfeed-like' + (likes.has(r.id) ? ' on' : '')}
+              onClick={e => { e.stopPropagation(); toggleLike(r.id); }} aria-label="Like">{likes.has(r.id) ? '❤️' : '🤍'}</button>
+            {r.poemId && favs && (
+              <button className={'vfeed-act vfeed-save' + (favs.has(r.poemId) ? ' on' : '')}
+                onClick={e => {
+                  e.stopPropagation();
+                  const was = favs.has(r.poemId);
+                  if (onFav) onFav(r.poemId);
+                  notify(was ? 'Removed from Saved' : 'Saved to your favourites');
+                }} aria-label="Save poem">🔖</button>
+            )}
+            <button className="vfeed-act vfeed-share" onClick={e => shareReel(e, r)} aria-label="Share reel">📤</button>
             <div className="vfeed-meta">
               <div className="vfeed-title">{r.title}</div>
               <div className="vfeed-poet">{r.poet}</div>
@@ -2371,22 +2714,9 @@ function MoreMenu({ onOpen }) {
   );
 }
 
-function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poemsCount, novelCount }) {
+function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poemsCount, novelCount, lang, onLang }) {
   const notify = toast || (() => {});
-  const [alertsOn, setAlertsOn] = useState(() => lsGet('dailypoem_ep_alerts', '') === '1');
-  const [alertBusy, setAlertBusy] = useState(false);
-  const toggleAlerts = async () => {
-    if (alertBusy) return;
-    setAlertBusy(true);
-    try {
-      const r = await applyEpAlerts(!alertsOn);
-      if (r === 'on') { setAlertsOn(true); notify('Episode alerts on — daily at 8:00 PM'); }
-      else if (r === 'off') { setAlertsOn(false); notify('Episode alerts turned off'); }
-      else if (r === 'blocked') notify('Notifications are blocked — allow them in system settings');
-      else notify('Episode alerts are not available on this device yet');
-    } catch { notify('Episode alerts are not available on this device yet'); }
-    finally { setAlertBusy(false); }
-  };
+  const epAlerts = useAlertToggle('ep', notify, { on: 'Episode alerts on — daily at 8:00 PM', off: 'Episode alerts turned off' });
   return (
     <div>
       <div className="section-title" style={{ marginTop: 18 }}><h2>Settings</h2><small>Preferences</small></div>
@@ -2395,10 +2725,15 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
           <span>Theme</span>
           <button className="btn" style={{ padding: '7px 13px', fontSize: 12.5 }} onClick={onToggleTheme}>{theme === 'dark' ? '🌙 Dark' : '☀️ Light'}</button>
         </div>
-        <div className="nd-row">
-          <span>Episode alerts<span className="set-sub">Daily reminder at 8:00 PM</span></span>
-          <button className={'chip' + (alertsOn ? ' on' : '')} disabled={alertBusy} onClick={toggleAlerts}>{alertsOn ? 'On' : 'Off'}</button>
+        <div className="nd-row" style={{ alignItems: 'flex-start' }}>
+          <span>Poetry Language<span className="set-sub">The script your poetry is shown in</span></span>
+          <span className="chips" style={{ paddingBottom: 0 }}>
+            {LANG_OPTIONS.map(o => (
+              <button key={o.id} className={`chip ${lang === o.id ? 'on' : ''}`} onClick={() => onLang(o.id)}>{o.name}</button>
+            ))}
+          </span>
         </div>
+        <AlertToggleRow icon="🔔" title="Episode alerts" sub="Daily reminder at 8:00 PM" ctl={epAlerts} toast={notify} />
         <div className="nd-row" style={{ alignItems: 'flex-start' }}>
           <span>Reel animation<span className="set-sub">How poetry lines appear</span></span>
           <span className="chips" style={{ paddingBottom: 0 }}>
@@ -2412,9 +2747,54 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.10</b></div>
+        <div className="nd-row"><span>Version</span><b>0.11</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
+        <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>
+      </div>
+    </div>
+  );
+}
+
+/* Pehli dafa app khulne par zaban ka intekhab — ek hi bar dikhta hai,
+   dailypoem_lang save hone ke baad kabhi nahi. */
+function LangChooser({ onPick }) {
+  return (
+    <div className="lang-pick">
+      <div className="intro-emblem"><img src="/brand/symbol.png" alt="DailyPoem" style={{ height: '1.15em', width: 'auto' }} /></div>
+      <h2 className="lang-title">Choose your language</h2>
+      <div className="lang-title-ur" dir="rtl">اپنی زبان منتخب کریں</div>
+      <p className="lang-sub">Poetry will be shown in this script. You can change it anytime in Settings.</p>
+      <div className="lang-opts">
+        {LANG_OPTIONS.map(o => (
+          <button key={o.id} className="lang-opt" onClick={() => onPick(o.id)}>
+            <span className="lang-name">{o.name}</span>
+            <span className="lang-label">{o.label}</span>
+            <span className={'lang-sample' + (o.id === 'ur' ? ' ur' : o.id === 'hi' ? ' hi' : '')} dir={o.id === 'ur' ? 'rtl' : 'ltr'}>{o.sample}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* Bell icon se khulne wala Notifications panel — dono reminders ek jagah */
+function NotifPanel({ toast, nextEpText, onClose }) {
+  const epAlerts = useAlertToggle('ep', toast, { on: 'Episode alerts on — daily at 8:00 PM', off: 'Episode alerts turned off' });
+  const poemAlerts = useAlertToggle('poem', toast, { on: 'Daily poem reminder on — every morning at 9:00 AM', off: 'Daily poem reminder turned off' });
+  return (
+    <div className="sheet-wrap" onClick={onClose}>
+      <div className="sheet" onClick={e => e.stopPropagation()}>
+        <div className="sheet-head">
+          <b>🔔 Notifications</b>
+          <button className="icon-btn" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+        <div className="nd-meta" style={{ marginTop: 4 }}>
+          <AlertToggleRow icon="📖" title="Episode Alerts" sub="Daily 8:00 PM reminder when the new Aakhri Sajda episode lands" ctl={epAlerts} toast={toast} />
+          <AlertToggleRow icon="✦" title="Daily Poem Reminder" sub="Your Poem of the Day, every morning at 9:00 AM" ctl={poemAlerts} toast={toast} />
+        </div>
+        <p className="muted" style={{ fontSize: 12.5, marginTop: 12 }}>{nextEpText}</p>
+        <button className="btn btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: 10 }} onClick={onClose}>Done</button>
       </div>
     </div>
   );
@@ -2438,6 +2818,11 @@ export default function App() {
   const [novelOpenReq, setNovelOpenReq] = useState(null);
   const [theme, setTheme] = useState(() => { try { return localStorage.getItem('dailypoem_theme') || 'dark'; } catch { return 'dark'; } });
   const [intro, setIntro] = useState(true);
+  /* Poetry display language — null matlab abhi tak choose nahi hui (chooser dikhao) */
+  const [lang, setLang] = useState(loadLang);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const pickLang = v => { lsSet(LANG_KEY, v); setDisplayLang(v); setLang(v); };
+  useEffect(() => { rescheduleAlerts(); }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -2544,7 +2929,10 @@ export default function App() {
       try {
         const m = await import('@capacitor/local-notifications');
         if (!live) return;
-        sub = await m.LocalNotifications.addListener('localNotificationActionPerformed', () => setTab('novel'));
+        sub = await m.LocalNotifications.addListener('localNotificationActionPerformed', action => {
+          const dest = (action && action.notification && action.notification.extra && action.notification.extra.tab) || 'novel';
+          if (dest === 'home') { setTab('home'); } else setTab('novel');
+        });
       } catch { /* web/dev par plugin nahi — khamoshi se skip */ }
     })();
     return () => { live = false; if (sub && sub.remove) { try { const r = sub.remove(); if (r && r.catch) r.catch(() => {}); } catch { /* noop */ } } };
@@ -2572,8 +2960,8 @@ export default function App() {
   const hq = hqRaw.toLowerCase();
   const homePoemHits = hq ? poems.filter(p => {
     const poet = poetOf(p.poet).name.toLowerCase();
-    const text = [...(p.urdu || []), ...(p.roman || []), ...(p.lines || []), p.title || ''].join(' ').toLowerCase();
-    return poet.includes(hq) || text.includes(hq) || (p.urdu || []).join(' ').includes(hqRaw);
+    const text = [...(p.urdu || []), ...(p.hi || []), ...(p.english || []), ...(p.lines || []), p.title || ''].join(' ').toLowerCase();
+    return poet.includes(hq) || text.includes(hq) || (p.urdu || []).join(' ').includes(hqRaw) || (p.hi || []).join(' ').includes(hqRaw);
   }).slice(0, 6) : [];
   const homeMoodHits = hq ? CATEGORIES.filter(c => c.label.toLowerCase().includes(hq) || c.id.includes(hq) || (c.urdu || '').includes(hqRaw)) : [];
   const homeEpHits = hq ? novelPublished.filter(e => (e.title || '').toLowerCase().includes(hq) || (e.urduTitle || '').includes(hqRaw)).slice(0, 4) : [];
@@ -2604,6 +2992,14 @@ export default function App() {
   return (
     <div className="app">
       {intro && <IntroSplash onDone={() => setIntro(false)} />}
+      {!intro && lang === null && <LangChooser onPick={pickLang} />}
+      {notifOpen && (
+        <NotifPanel toast={toast} onClose={() => setNotifOpen(false)}
+          nextEpText={(() => {
+            const nxt = [...novelData.episodes].sort((a, b) => a.n - b.n).find(e => epPublishMs(e) > Date.now());
+            return nxt ? `🕗 Episode ${nxt.n} arrives ${fmtPkDate(epPublishMs(nxt))} — right here in the app.` : 'Episodes 1–5 are live now — a new episode arrives daily at 8:00 PM.';
+          })()} />
+      )}
       <header className="topbar">
         <div className="logo">
           <div className="logo-mark">🌙</div>
@@ -2615,7 +3011,7 @@ export default function App() {
         <span style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
           <span className="tag">{poems.length} poems</span>
           <button className="btn top-ic" onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))} aria-label="Toggle light or dark theme" title="Theme">{theme === 'dark' ? '☀️' : '🌙'}</button>
-          <button className="btn top-ic" onClick={() => goMore('settings')} aria-label="Settings and notifications" title="Settings">🔔</button>
+          <button className="btn top-ic" onClick={() => setNotifOpen(true)} aria-label="Notifications" title="Notifications">🔔</button>
         </span>
       </header>
 
@@ -2623,7 +3019,7 @@ export default function App() {
         {tab === 'home' && (
           <>
             <HomeSlider
-              today={today} todayScene={todayScene} poems={poems}
+              today={today} todayScene={todayScene} poems={poems} lang={lang || 'ur'}
               novelCount={novelPublished.length}
               isFav={favs.has(today.id)} onToggleFav={() => toggleFav(today.id)}
               onOpenReel={() => setReel({ poem: today, scene: todayScene })}
@@ -2642,14 +3038,20 @@ export default function App() {
                 {homePoemHits.length > 0 && (
                   <>
                     <div className="sr-label">Poems</div>
-                    {homePoemHits.map(p => (
-                      <button key={p.id} className="sr-row" onClick={() => { setHomeQuery(''); openReel(p); }}>
-                        {p.lang === 'ur'
-                          ? <span className="sr-urdu" dir="rtl">{p.urdu[0]}</span>
-                          : <span className="sr-main">{p.title || p.lines[0]}</span>}
-                        <span className="sr-sub">{poetOf(p.poet).name} · Poem</span>
-                      </button>
-                    ))}
+                    {homePoemHits.map(p => {
+                      const ssec = secondaryOf(p, lang || 'ur');
+                      return (
+                        <button key={p.id} className="sr-row" onClick={() => { setHomeQuery(''); openReel(p); }}>
+                          <span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                            {p.lang === 'ur'
+                              ? <span className="sr-urdu" dir="rtl" style={{ textAlign: 'right' }}>{p.urdu[0]}</span>
+                              : <span className="sr-main">{p.title || p.lines[0]}</span>}
+                            {ssec && <span className={'sr-sec' + (ssec.kind === 'hindi' ? ' hindi' : '')}>{ssec.lines[0]}</span>}
+                          </span>
+                          <span className="sr-sub">{poetOf(p.poet).name} · Poem</span>
+                        </button>
+                      );
+                    })}
                   </>
                 )}
                 {homeMoodHits.length > 0 && (
@@ -2767,11 +3169,13 @@ export default function App() {
             <div className="hstrip">
               {[...poems].slice(-8).reverse().map(p => {
                 const cat = CATEGORIES.find(c => c.id === p.category);
+                const rsec = secondaryOf(p, lang || 'ur');
                 return (
                   <button key={p.id} className="recent-card" onClick={() => openReel(p)}>
                     {p.lang === 'ur'
                       ? <span className="recent-urdu" dir="rtl">{p.urdu[0]}</span>
                       : <span className="recent-en">{p.title || p.lines[0]}</span>}
+                    {rsec && <span className={'recent-sec' + (rsec.kind === 'hindi' ? ' hindi' : '')}>{rsec.lines[0]}</span>}
                     <span className="recent-meta">{poetOf(p.poet).name}</span>
                     {cat && <span className="tag" style={{ alignSelf: 'flex-start' }}>{cat.icon} {cat.label}</span>}
                   </button>
@@ -2822,12 +3226,12 @@ export default function App() {
               </div>
             )}
             {filtered.map(p => (
-              <PoemCard key={p.id} poem={p} isFav={favs.has(p.id)} onFav={toggleFav} onReel={openReel} toast={toast} />
+              <PoemCard key={p.id} poem={p} isFav={favs.has(p.id)} onFav={toggleFav} onReel={openReel} toast={toast} lang={lang || 'ur'} />
             ))}
           </>
         )}
 
-        {tab === 'reels' && <ReelsFeed key={reelsJump.nonce} startIndex={reelsJump.index} onCreate={() => goMore('create')} />}
+        {tab === 'reels' && <ReelsFeed key={reelsJump.nonce} startIndex={reelsJump.index} onCreate={() => goMore('create')} favs={favs} onFav={toggleFav} toast={toast} />}
 
         {tab === 'more' && moreView === 'menu' && <MoreMenu onOpen={setMoreView} />}
 
@@ -2836,7 +3240,8 @@ export default function App() {
             <div style={{ marginTop: 14 }}><button className="btn" onClick={() => setMoreView('menu')}>← More</button></div>
             <SettingsScreen theme={theme} onToggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
               reelAnim={reelAnim} onReelAnim={setReelAnim} toast={toast}
-              poemsCount={poems.length} novelCount={novelPublished.length} />
+              poemsCount={poems.length} novelCount={novelPublished.length}
+              lang={lang || 'ur'} onLang={pickLang} />
           </>
         )}
 
@@ -2951,7 +3356,7 @@ export default function App() {
               </div>
             )}
             {favPoems.map(p => (
-              <PoemCard key={p.id} poem={p} isFav onFav={toggleFav} onReel={openReel} toast={toast} />
+              <PoemCard key={p.id} poem={p} isFav onFav={toggleFav} onReel={openReel} toast={toast} lang={lang || 'ur'} />
             ))}
           </>
         )}
@@ -2966,7 +3371,7 @@ export default function App() {
       </nav>
 
       {toastMsg && <div className="toast">{toastMsg}</div>}
-      {reel && <ReelPlayer poem={reel.poem} scene={reel.scene} onClose={() => { setReel(null); stopSpeak(); }} toast={toast} anim={reelAnim} onAnimChange={setReelAnim} />}
+      {reel && <ReelPlayer poem={reel.poem} scene={reel.scene} onClose={() => { setReel(null); stopSpeak(); }} toast={toast} anim={reelAnim} onAnimChange={setReelAnim} lang={lang || 'ur'} />}
     </div>
   );
 }
