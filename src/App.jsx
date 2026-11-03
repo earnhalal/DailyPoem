@@ -110,26 +110,33 @@ function wrapTextLines(ctx, lines, maxW) {
 /* Poora sher/nazm card par fit karo: font size step by step kam karo jab tak saari
    lines (wrap ke baad) width mein bhi aur total height mein bhi jagah par na aa jayen.
    Canvas render aur editor preview dono yahi layout istemal karte hain. */
-function fitPoemText({ poem, maxW, availH, scale = 1 }) {
+function fitPoemText({ poem, maxW, availH, scale = 1, fontStack = null, baseFs = null, stepF = null, weight = '', italic = false, letterSpacing = 0 }) {
   const isUr = poem.lang === 'ur';
   const ctx = measureCtx();
   const src = linesOf(poem);
   const romanSrc = isUr && Array.isArray(poem.roman) ? poem.roman : [];
   const hasTitle = !isUr && !!poem.title;
-  const base = Math.round((isUr ? 64 : 58) * scale);
-  const floor = isUr ? 22 : 18;
+  const base = Math.round((baseFs || (isUr ? 64 : 58)) * scale);
+  const floor = isUr ? 20 : 16;
+  const useLS = !!letterSpacing;
   let best = null;
   for (let fs = base; fs >= floor; fs -= 2) {
-    ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
+    ctx.font = fontStack
+      ? weight + (italic ? 'italic ' : '') + fs + 'px ' + fontStack
+      : (isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif');
+    if (useLS) { try { ctx.letterSpacing = letterSpacing + 'px'; } catch { /* purani WebView */ } }
+    const fontMain = ctx.font;
     const main = wrapTextLines(ctx, src, maxW);
-    const step = fs * (isUr ? 2.15 : 1.42);
+    const step = fs * (stepF || (isUr ? 2.15 : 1.42));
     const rFs = Math.max(17, Math.round(fs * 0.54));
     ctx.font = 'italic ' + rFs + 'px "Cormorant Garamond", serif';
+    if (useLS) { try { ctx.letterSpacing = '0px'; } catch { /* noop */ } }
+    const fontRoman = ctx.font;
     const rom = romanSrc.length ? wrapTextLines(ctx, romanSrc, maxW) : { lines: [], widest: 0 };
     const rStep = rFs * 1.45;
     const titleH = hasTitle ? fs * 1.5 : 0;
     const blockH = titleH + main.lines.length * step + (rom.lines.length ? 14 + rom.lines.length * rStep : 0);
-    best = { isUr, hasTitle, titleH, fs, step, lines: main.lines, roman: rom.lines, rFs, rStep, blockH };
+    best = { isUr, hasTitle, titleH, fs, step, lines: main.lines, roman: rom.lines, rFs, rStep, blockH, fontMain, fontRoman };
     if (blockH <= availH && main.widest <= maxW + 6 && rom.widest <= maxW + 6) break;
   }
   return best;
@@ -265,10 +272,13 @@ async function shareBlobFile(blob, toast, filename) {
 }
 
 /* ------------- Reel -> real MP4 video (WebCodecs) ------------- */
-async function exportReelVideo(poem, scene, toast, setProgress) {
+/* opts: { height: 1280|1920, watermark: bool, cancelRef: {current:bool} } */
+async function exportReelVideo(poem, scene, toast, setProgress, opts = {}) {
   if (!('VideoEncoder' in window)) { toast('Video export is not supported on this device yet'); return; }
   try {
-    const W = 720, H = 1280, FPS = 24;
+    const H = opts.height === 1920 ? 1920 : 1280, W = Math.round(H * 9 / 16), FPS = 24;
+    const K = H / 1280; // 720p par 1, 1080p par 1.5 — font/bar sizes isi se scale hote hain
+    const watermark = opts.watermark !== false;
     const lines = linesOf(poem);
     let audioBuf = null;
     if (poem.audio) {
@@ -300,12 +310,13 @@ async function exportReelVideo(poem, scene, toast, setProgress) {
       const g = ctx.createLinearGradient(0, 0, 0, H);
       g.addColorStop(0, 'rgba(10,8,7,.42)'); g.addColorStop(0.55, 'rgba(10,8,7,.30)'); g.addColorStop(1, 'rgba(10,8,7,.80)');
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(0, 0, W, 5);
-      ctx.fillStyle = '#d4af37'; ctx.fillRect(0, 0, W * (t / dur), 5);
+      const barH = Math.max(3, Math.round(5 * K));
+      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(0, 0, W, barH);
+      ctx.fillStyle = '#d4af37'; ctx.fillRect(0, 0, W * (t / dur), barH);
       ctx.textAlign = 'center';
       const isUr = poem.lang === 'ur';
-      const fs = isUr ? 40 : 33;
-      const step = isUr ? 98 : 50;
+      const fs = (isUr ? 40 : 33) * K;
+      const step = (isUr ? 98 : 50) * K;
       ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
       const totalH = lines.length * step;
       const y0 = (H - totalH) / 2 + step * 0.72;
@@ -314,14 +325,18 @@ async function exportReelVideo(poem, scene, toast, setProgress) {
         if (t < at) return;
         ctx.globalAlpha = Math.min(1, (t - at) / 0.45);
         ctx.fillStyle = '#fdf6e3';
-        ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 10 * K;
         ctx.fillText(ln, W / 2, y0 + i * step);
         ctx.shadowBlur = 0; ctx.globalAlpha = 1;
       });
-      ctx.fillStyle = '#d4af37'; ctx.font = '600 25px Inter, sans-serif';
-      ctx.fillText('\u2014 ' + (poem.customPoet || poetOf(poem.poet).name) + ' \u2014', W / 2, H - 84);
-      ctx.fillStyle = 'rgba(243,234,216,.65)'; ctx.font = '21px Inter, sans-serif';
-      ctx.fillText('DailyPoem', W / 2, H - 48);
+      ctx.fillStyle = '#d4af37'; ctx.font = '600 ' + Math.round(25 * K) + 'px Inter, sans-serif';
+      ctx.fillText('\u2014 ' + (poem.customPoet || poetOf(poem.poet).name) + ' \u2014', W / 2, H - 84 * K);
+      if (watermark) {
+        ctx.textAlign = 'right';
+        ctx.fillStyle = 'rgba(243,234,216,.75)'; ctx.font = Math.round(20 * K) + 'px Inter, sans-serif';
+        ctx.fillText('\u2726 DailyPoem', W - 18 * K, H - 22 * K);
+        ctx.textAlign = 'center';
+      }
     };
     const muxer = new Muxer({
       target: new ArrayBufferTarget(),
@@ -330,7 +345,7 @@ async function exportReelVideo(poem, scene, toast, setProgress) {
       fastStart: 'in-memory', firstTimestampBehavior: 'offset',
     });
     const venc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: () => {} });
-    const vcfg = { codec: 'avc1.640028', width: W, height: H, bitrate: 2400000, framerate: FPS };
+    const vcfg = { codec: H >= 1920 ? 'avc1.64002a' : 'avc1.640028', width: W, height: H, bitrate: H >= 1920 ? 5000000 : 2400000, framerate: FPS };
     const sup = await VideoEncoder.isConfigSupported(vcfg);
     if (!sup.supported) { toast('Video format is not supported on this device'); return; }
     venc.configure(vcfg);
@@ -356,7 +371,9 @@ async function exportReelVideo(poem, scene, toast, setProgress) {
       } catch { /* silent video */ }
     }
     const total = Math.floor(dur * FPS);
+    const cancelled = () => !!(opts.cancelRef && opts.cancelRef.current);
     for (let f = 0; f <= total; f++) {
+      if (cancelled()) { try { venc.close(); } catch { /* noop */ } setProgress(0); toast('Export cancelled'); return; }
       drawFrame(f / FPS);
       const frame = new VideoFrame(canvas, { timestamp: Math.round(f * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
       venc.encode(frame, { keyFrame: f % (FPS * 2) === 0 });
@@ -364,6 +381,7 @@ async function exportReelVideo(poem, scene, toast, setProgress) {
       if (venc.encodeQueueSize > 5) await new Promise(r => setTimeout(r, 10));
       if (f % 12 === 0) { setProgress(Math.round((f / total) * 100)); await new Promise(r => setTimeout(r, 0)); }
     }
+    if (cancelled()) { try { venc.close(); } catch { /* noop */ } setProgress(0); toast('Export cancelled'); return; }
     await venc.flush(); venc.close();
     muxer.finalize();
     setProgress(100);
@@ -456,16 +474,28 @@ async function copyPoem(poem, toast) {
 }
 
 /* ---------------- Reel Player ---------------- */
-function ReelPlayer({ poem, scene, onClose, toast }) {
+const REEL_ANIMS = [
+  { id: 'fade', label: 'Fade' },
+  { id: 'rise', label: 'Rise' },
+  { id: 'slide', label: 'Slide' },
+];
+
+function ReelPlayer({ poem, scene, onClose, toast, anim = 'rise', onAnimChange }) {
   const lines = linesOf(poem);
   const [shown, setShown] = useState(0);
   const [playing, setPlaying] = useState(true);
+  const [sc, setSc] = useState(scene);
   const hasAudio = !!poem.audio;
   const [voice, setVoice] = useState(hasAudio);
   const [pace, setPace] = useState(2100);
   const [exporting, setExporting] = useState(0);
+  const [expQ, setExpQ] = useState(() => { try { return localStorage.getItem('dailypoem_export_q') || '720'; } catch { return '720'; } });
+  const [wm, setWm] = useState(() => { try { return localStorage.getItem('dailypoem_export_wm') !== '0'; } catch { return true; } });
   const audioRef = useRef(null);
+  const cancelRef = useRef(false);
   const poet = poetOf(poem.poet);
+
+  useEffect(() => { setSc(scene); }, [scene]);
 
   // bundled audio (English poems): pace the lines to the recording
   useEffect(() => {
@@ -523,9 +553,21 @@ function ReelPlayer({ poem, scene, onClose, toast }) {
     if (audioRef.current) { audioRef.current.currentTime = 0; if (voice) audioRef.current.play().catch(() => {}); }
   };
 
+  const pickQ = q => { setExpQ(q); try { localStorage.setItem('dailypoem_export_q', q); } catch { /* noop */ } };
+  const toggleWm = () => setWm(w => { const n = !w; try { localStorage.setItem('dailypoem_export_wm', n ? '1' : '0'); } catch { /* noop */ } return n; });
+
+  const startExport = async () => {
+    if (exporting) return;
+    cancelRef.current = false;
+    setPlaying(false);
+    setExporting(1);
+    await exportReelVideo(poem, sc, toast, setExporting, { height: expQ === '1080' ? 1920 : 1280, watermark: wm, cancelRef });
+    setExporting(0);
+  };
+
   return (
     <div className="reel">
-      <div className="reel-bg"><img src={scene.img} alt="" /></div>
+      <div className="reel-bg"><img src={sc.img} alt="" /></div>
       <div className="reel-shade" />
       {hasAudio && <audio ref={audioRef} src={poem.audio} preload="auto" />}
       <div className="reel-top">
@@ -534,7 +576,7 @@ function ReelPlayer({ poem, scene, onClose, toast }) {
       </div>
       <div className="reel-mid">
         {lines.map((ln, i) => (
-          <div key={i} className={`reel-line ${poem.lang === 'ur' ? 'ur' : 'en'} ${i < shown ? 'show' : ''}`}>{ln}</div>
+          <div key={i} className={`reel-line ${poem.lang === 'ur' ? 'ur' : 'en'} anim-${anim} ${i < shown ? 'show' : ''}`}>{ln}</div>
         ))}
         {poem.lang === 'ur' && poem.roman && (
           <div className={`reel-line rm ${shown >= lines.length ? 'show' : ''}`}>{poem.roman.join(' · ')}</div>
@@ -547,6 +589,9 @@ function ReelPlayer({ poem, scene, onClose, toast }) {
           <div>Rendering video… {exporting}%</div>
           <div className="reel-export-bar"><span style={{ width: exporting + '%' }} /></div>
           <small>Keep the app open while it renders</small>
+          <div style={{ marginTop: 10 }}>
+            <button className="btn" onClick={() => { cancelRef.current = true; }}>✕ Cancel export</button>
+          </div>
         </div>
       )}
       <div className="reel-controls">
@@ -554,9 +599,31 @@ function ReelPlayer({ poem, scene, onClose, toast }) {
           ? <button className="btn" onClick={restart}>↺ Replay</button>
           : <button className="btn" onClick={() => setPlaying(p => !p)}>{playing ? '⏸ Pause' : '▶ Play'}</button>}
         <button className="btn" onClick={toggleVoice}>{voice ? '🔊 Voice On' : '🔇 Voice'}</button>
-        <button className="btn" onClick={() => sharePoem(poem, scene, toast)}>📤 Share</button>
-        <button className="btn" onClick={async () => { if (exporting) return; setPlaying(false); setExporting(1); await exportReelVideo(poem, scene, toast, setExporting); setExporting(0); }}>🎬 Video</button>
+        <button className="btn" onClick={() => sharePoem(poem, sc, toast)}>📤 Share</button>
+        <button className="btn" onClick={startExport}>🎬 Video</button>
       </div>
+      {exporting === 0 && (
+        <div className="reel-opts">
+          <div className="reel-opts-row">
+            <span className="reel-opts-label">Animation</span>
+            {REEL_ANIMS.map(a => (
+              <button key={a.id} className={'reel-chip' + (anim === a.id ? ' on' : '')} onClick={() => onAnimChange && onAnimChange(a.id)}>{a.label}</button>
+            ))}
+          </div>
+          <div className="reel-opts-row">
+            <span className="reel-opts-label">Scene</span>
+            {SCENES.map(s => (
+              <button key={s.id} className={'reel-scene' + (sc.id === s.id ? ' on' : '')} onClick={() => setSc(s)} title={s.label} aria-label={s.label}><img src={s.img} alt="" /></button>
+            ))}
+          </div>
+          <div className="reel-opts-row">
+            <span className="reel-opts-label">Export</span>
+            <button className={'reel-chip' + (expQ === '720' ? ' on' : '')} onClick={() => pickQ('720')}>720p</button>
+            <button className={'reel-chip' + (expQ === '1080' ? ' on' : '')} onClick={() => pickQ('1080')}>1080p</button>
+            <button className={'reel-chip' + (wm ? ' on' : '')} onClick={toggleWm}>✦ Watermark</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -590,43 +657,246 @@ function PoemCard({ poem, isFav, onFav, onReel, toast }) {
 
 /* ---------------- App ---------------- */
 
-function NovelScreen() {
-  const [data, setData] = useState(() => { try { return sanitizeNovel(JSON.parse(localStorage.getItem('dailypoem_novel_cache'))) || NOVEL_FALLBACK; } catch { return NOVEL_FALLBACK; } });
-  const [reading, setReading] = useState(null);
-  const [readSet, setReadSet] = useState(() => { try { const v = JSON.parse(localStorage.getItem('dailypoem_novel_read') || '[]'); return Array.isArray(v) ? v : []; } catch { return []; } });
-  const [fs, setFs] = useState(() => { const v = parseInt(localStorage.getItem('dailypoem_novel_fs') || '19', 10); return isNaN(v) ? 19 : v; });
-  const readerRef = useRef(null);
+/* ---------------- Novel helpers ---------------- */
+/* Publisher note: kisi episode par "publishAt": "2026-11-04T20:00:00+05:00" lagane se wo
+   episode us waqt (Asia/Karachi) se pehle app mein NAHI dikhega. publishAt na ho to episode
+   foran live samjha jata hai — episodes 1-5 isi tarah hain. Unpublish = entry hata do. */
+function epPublishMs(ep) {
+  if (!ep || !ep.publishAt) return 0;
+  let str = String(ep.publishAt).trim();
+  if (!/[zZ]$|[+-]\d{2}:?\d{2}$/.test(str)) str = str.replace(' ', 'T') + '+05:00';
+  const t = Date.parse(str);
+  return isNaN(t) ? 0 : t;
+}
+function fmtPkDate(ms) {
+  try {
+    const d = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Karachi', day: 'numeric', month: 'short' }).format(new Date(ms));
+    const t = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Karachi', hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date(ms));
+    return d + ' at ' + t;
+  } catch { return ''; }
+}
+function lsGet(key, fb) { try { const v = localStorage.getItem(key); return v == null ? fb : v; } catch { return fb; } }
+function lsSet(key, val) { try { localStorage.setItem(key, val); } catch { /* noop */ } }
+function lsJson(key, fb) { try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fb : v; } catch { return fb; } }
 
-  useEffect(() => { if (readerRef.current) readerRef.current.scrollTop = 0; }, [reading]);
+/* LocalNotifications sirf native app par kaam karta hai — dynamic import, har call guarded */
+let _lnPromise = null;
+function loadLN() {
+  if (!_lnPromise) _lnPromise = import('@capacitor/local-notifications').then(m => m.LocalNotifications).catch(() => null);
+  return _lnPromise;
+}
+const EP_ALERT_ID = 8001;
+
+function NovelScreen({ toast }) {
+  const notify = toast || (() => {});
+  const [data, setData] = useState(() => sanitizeNovel(lsJson('dailypoem_novel_cache', null)) || NOVEL_FALLBACK);
+  const [view, setView] = useState('home'); // 'home' | 'details'
+  const [reading, setReading] = useState(null);
+  const [readSet, setReadSet] = useState(() => { const v = lsJson('dailypoem_novel_read', []); return Array.isArray(v) ? v : []; });
+  const [posMap, setPosMap] = useState(() => { const v = lsJson('dailypoem_novel_pos', {}); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; });
+  const [bookmarks, setBookmarks] = useState(() => { const v = lsJson('dailypoem_novel_bookmarks', []); return Array.isArray(v) ? v : []; });
+  const [novelFav, setNovelFav] = useState(() => lsGet('dailypoem_novel_fav', '') === '1');
+  const [fs, setFs] = useState(() => { const v = parseInt(lsGet('dailypoem_novel_fs', '19'), 10); return isNaN(v) ? 19 : v; });
+  const [ls, setLs] = useState(() => { const v = parseInt(lsGet('dailypoem_novel_ls', '2'), 10); return [1, 2, 3].includes(v) ? v : 2; });
+  const [rTheme, setRTheme] = useState(() => lsGet('dailypoem_reader_theme', 'dark'));
+  const [prog, setProg] = useState(0);
+  const [alertsOn, setAlertsOn] = useState(() => lsGet('dailypoem_ep_alerts', '') === '1');
+  const [alertBusy, setAlertBusy] = useState(false);
+  const readerRef = useRef(null);
+  const saveTimer = useRef(null);
 
   useEffect(() => {
     let live = true;
     fetch(NOVEL_REMOTE_URL, { cache: 'no-store' })
       .then(r => (r.ok ? r.json() : null))
-      .then(j => { const clean = sanitizeNovel(j); if (live && clean) { setData(clean); try { localStorage.setItem('dailypoem_novel_cache', JSON.stringify(clean)); } catch { /* noop */ } } })
+      .then(j => { const clean = sanitizeNovel(j); if (live && clean) { setData(clean); lsSet('dailypoem_novel_cache', JSON.stringify(clean)); } })
       .catch(() => {});
     return () => { live = false; };
   }, []);
 
-  const openEp = (ep) => {
+  const nv = data.novel;
+  const allEps = [...data.episodes].sort((a, b) => a.n - b.n);
+  const nowMs = Date.now();
+  const published = allEps.filter(e => epPublishMs(e) <= nowMs);
+  const nextScheduled = allEps.find(e => epPublishMs(e) > nowMs) || null;
+  const genre = nv.genre || 'Roohani Drama';
+  const status = nv.status || 'Ongoing';
+  const planned = nv.plannedEpisodes || published.length;
+
+  /* Sab se taaza reading position — Continue Reading isi se banta hai */
+  let lastPos = null;
+  for (const ep of published) {
+    const p = posMap[ep.n];
+    if (p && p.pct > 0.01 && p.pct < 0.98 && (!lastPos || (p.ts || 0) > (lastPos.ts || 0))) lastPos = { ep, pct: p.pct, ts: p.ts || 0 };
+  }
+
+  const markRead = n => setReadSet(prev => {
+    if (prev.includes(n)) return prev;
+    const nr = [...prev, n];
+    lsSet('dailypoem_novel_read', JSON.stringify(nr));
+    return nr;
+  });
+
+  const openEp = ep => {
+    const p = posMap[ep.n];
+    setProg(p ? p.pct || 0 : 0);
     setReading(ep);
-    if (!readSet.includes(ep.n)) {
-      const nr = [...readSet, ep.n]; setReadSet(nr);
-      try { localStorage.setItem('dailypoem_novel_read', JSON.stringify(nr)); } catch { /* noop */ }
+  };
+
+  const changeFs = d => {
+    const v = Math.min(24, Math.max(16, fs + d));
+    setFs(v); lsSet('dailypoem_novel_fs', String(v));
+  };
+  const cycleLs = () => setLs(v => { const n = v === 3 ? 1 : v + 1; lsSet('dailypoem_novel_ls', String(n)); return n; });
+  const cycleTheme = () => setRTheme(t => {
+    const n = t === 'dark' ? 'light' : t === 'light' ? 'sepia' : 'dark';
+    lsSet('dailypoem_reader_theme', n);
+    return n;
+  });
+  const toggleBookmark = n => setBookmarks(prev => {
+    const nb = prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n];
+    lsSet('dailypoem_novel_bookmarks', JSON.stringify(nb));
+    return nb;
+  });
+  const toggleNovelFav = () => setNovelFav(f => { lsSet('dailypoem_novel_fav', f ? '0' : '1'); return !f; });
+
+  /* Reader khule to saved position par wapas — aur scroll par progress + position save (throttled) */
+  useEffect(() => {
+    if (!reading) return undefined;
+    const el = readerRef.current;
+    if (!el) return undefined;
+    const saved = posMap[reading.n];
+    const pct = saved ? saved.pct || 0 : 0;
+    const apply = () => {
+      const max = el.scrollHeight - el.clientHeight;
+      el.scrollTop = max > 0 && pct > 0 ? pct * max : 0;
+    };
+    const t1 = setTimeout(apply, 60);
+    const t2 = setTimeout(apply, 420); // fonts late load hon to dobara align
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reading]);
+
+  const onReaderScroll = () => {
+    const el = readerRef.current;
+    if (!el || !reading) return;
+    const max = el.scrollHeight - el.clientHeight;
+    const pct = max > 0 ? Math.min(1, Math.max(0, el.scrollTop / max)) : 0;
+    const rp = Math.round(pct * 100) / 100;
+    setProg(p => (Math.abs(p - rp) >= 0.01 ? rp : p));
+    if (pct >= 0.85) markRead(reading.n);
+    if (saveTimer.current) return;
+    saveTimer.current = setTimeout(() => {
+      saveTimer.current = null;
+      setPosMap(prev => {
+        const nm = { ...prev, [reading.n]: { pct, ts: Date.now() } };
+        lsSet('dailypoem_novel_pos', JSON.stringify(nm));
+        return nm;
+      });
+    }, 700);
+  };
+
+  const shareEpisode = async ep => {
+    const text = ep.title + ' — ' + nv.title + ' (DailyPoem)\n\n' + ep.body.filter(p => p !== '✦').slice(0, 2).join('\n\n');
+    try {
+      if (Capacitor.isNativePlatform()) { await Share.share({ title: nv.title, text }); return; }
+      if (navigator.share) { await navigator.share({ title: nv.title, text }); return; }
+      throw new Error('noshare');
+    } catch (e) {
+      if (e && /cancel/i.test(e.message || '')) return;
+      try { await navigator.clipboard.writeText(text); notify('📋 Episode text copied'); }
+      catch { notify('Sharing is not available on this device'); }
     }
   };
-  const changeFs = (d) => { const v = Math.min(24, Math.max(16, fs + d)); setFs(v); try { localStorage.setItem('dailypoem_novel_fs', String(v)); } catch { /* noop */ } };
+
+  /* ---- Episode alerts: roz 8:00 PM local notification (device time) ---- */
+  const scheduleAlerts = async LN => {
+    await LN.schedule({
+      notifications: [{
+        id: EP_ALERT_ID,
+        title: 'Aakhri Sajda — DailyPoem',
+        body: 'A new episode is live — tap to read.',
+        schedule: { every: 'day', on: { hour: 20, minute: 0 } },
+        extra: { tab: 'novel' },
+      }],
+    });
+  };
+  const toggleAlerts = async () => {
+    if (alertBusy) return;
+    setAlertBusy(true);
+    try {
+      const LN = await loadLN();
+      if (!LN) { notify('Episode alerts are not available on this device yet'); return; }
+      if (alertsOn) {
+        await LN.cancel({ notifications: [{ id: EP_ALERT_ID }] });
+        setAlertsOn(false); lsSet('dailypoem_ep_alerts', '0');
+        notify('Episode alerts turned off');
+      } else {
+        const perm = await LN.requestPermissions();
+        if (!perm || perm.display !== 'granted') { notify('Notifications are blocked — allow them in system settings'); return; }
+        await scheduleAlerts(LN);
+        setAlertsOn(true); lsSet('dailypoem_ep_alerts', '1');
+        notify('Episode alerts on — daily at 8:00 PM');
+      }
+    } catch { notify('Episode alerts are not available on this device yet'); }
+    finally { setAlertBusy(false); }
+  };
+  /* Pref on hai to schedule zinda rakho (masalan phone restart ke baad) */
+  useEffect(() => {
+    if (!alertsOn) return undefined;
+    let live = true;
+    (async () => {
+      try {
+        const LN = await loadLN();
+        if (!LN || !live) return;
+        const pending = await LN.getPending();
+        const has = pending && pending.notifications && pending.notifications.some(n => n.id === EP_ALERT_ID);
+        if (!has) {
+          const perm = await LN.checkPermissions();
+          if (perm && perm.display === 'granted') await scheduleAlerts(LN);
+        }
+      } catch { /* noop */ }
+    })();
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const epRow = ep => {
+    const p = posMap[ep.n];
+    const pct = p ? p.pct || 0 : 0;
+    const isRead = readSet.includes(ep.n) || pct >= 0.85;
+    const inProg = !isRead && pct > 0.01;
+    return (
+      <div key={ep.n} className="ep-row" onClick={() => openEp(ep)}>
+        <div className="ep-num">{ep.n}</div>
+        <div style={{ flex: 1 }}>
+          <div className="ep-urdu" dir="rtl">{ep.urduTitle}</div>
+          <div className="ep-sub">{ep.title} • {ep.mins} min read{isRead ? ' • ✓ Read' : inProg ? ' • ● ' + Math.round(pct * 100) + '% read' : ''} • ⬇ On device</div>
+        </div>
+        {bookmarks.includes(ep.n) && <span title="Bookmarked" style={{ fontSize: 15 }}>🔖</span>}
+        <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
+      </div>
+    );
+  };
 
   if (reading) {
-    const next = data.episodes.find(e => e.n === reading.n + 1);
+    const idx = published.findIndex(e => e.n === reading.n);
+    const prev = idx > 0 ? published[idx - 1] : null;
+    const next = idx >= 0 && idx < published.length - 1 ? published[idx + 1] : null;
+    const lineH = [2.05, 2.35, 2.65][ls - 1] || 2.35;
+    const bm = bookmarks.includes(reading.n);
     return (
-      <div className="reader" ref={readerRef}>
+      <div className={'reader th-' + rTheme} ref={readerRef} onScroll={onReaderScroll}>
         <div className="reader-top">
-          <button className="btn" onClick={() => setReading(null)}>← Episodes</button>
-          <span className="reader-title">Episode {reading.n}</span>
-          <span style={{ display: 'flex', gap: 6 }}>
-            <button className="btn" onClick={() => changeFs(-1)}>A−</button>
-            <button className="btn" onClick={() => changeFs(1)}>A+</button>
+          <button className="rbtn" onClick={() => setReading(null)} aria-label="Back to episodes">←</button>
+          <span className="reader-title">Episode {reading.n} · {Math.round(prog * 100)}%</span>
+          <span className="reader-tools">
+            <button className="rbtn" onClick={() => changeFs(-1)}>A−</button>
+            <button className="rbtn" onClick={() => changeFs(1)}>A+</button>
+            <button className="rbtn" onClick={cycleLs} title="Line spacing">↕</button>
+            <button className="rbtn" onClick={cycleTheme} title="Reading theme">{rTheme === 'dark' ? '🌙' : rTheme === 'light' ? '☀️' : '📜'}</button>
+            <button className={'rbtn' + (bm ? ' on' : '')} onClick={() => toggleBookmark(reading.n)} title="Bookmark">🔖</button>
+            <button className="rbtn" onClick={() => shareEpisode(reading)} title="Share episode">📤</button>
           </span>
         </div>
         <div className="reader-body">
@@ -634,13 +904,16 @@ function NovelScreen() {
           <div className="reader-ep-sub">{reading.title} • {reading.mins} min read</div>
           {reading.body.map((p, i) => p === '✦'
             ? <div key={i} className="novel-brk">✦ ✦ ✦</div>
-            : <p key={i} className="novel-p" dir="rtl" style={{ fontSize: fs }}>{p}</p>)}
+            : <p key={i} className="novel-p" dir="rtl" style={{ fontSize: fs, lineHeight: lineH }}>{p}</p>)}
           <div className="reader-end">
             <div style={{ fontSize: 28 }}>📖</div>
             <b>End of Episode {reading.n}</b>
             {next
-              ? <button className="btn btn-gold" onClick={() => openEp(next)}>Next Episode →</button>
-              : <span className="muted" style={{ fontSize: 13 }}>The next episode arrives tomorrow at 8:00 PM.</span>}
+              ? <button className="btn btn-gold" onClick={() => { markRead(reading.n); openEp(next); }}>Next Episode →</button>
+              : nextScheduled && nextScheduled.n === reading.n + 1
+                ? <span className="muted" style={{ fontSize: 13 }}>Episode {nextScheduled.n} arrives {fmtPkDate(epPublishMs(nextScheduled))}.</span>
+                : <span className="muted" style={{ fontSize: 13 }}>The next episode arrives tomorrow at 8:00 PM.</span>}
+            {prev && <button className="btn" onClick={() => openEp(prev)}>← Previous Episode</button>}
             <button className="btn" onClick={() => setReading(null)}>← Back to episodes</button>
           </div>
         </div>
@@ -648,27 +921,78 @@ function NovelScreen() {
     );
   }
 
+  if (view === 'details') {
+    const firstUnread = published.find(e => !readSet.includes(e.n) && !(posMap[e.n] && posMap[e.n].pct >= 0.85)) || published[0];
+    const latest = published[published.length - 1];
+    const latestDate = latest ? (latest.publishAt ? fmtPkDate(epPublishMs(latest)) : (latest.date || '')) : '';
+    return (
+      <div>
+        <div style={{ marginTop: 14 }}>
+          <button className="btn" onClick={() => setView('home')}>← Novel Library</button>
+        </div>
+        <div className="ncover" style={{ marginTop: 12 }}>
+          <div className="ncover-urdu" dir="rtl">{nv.urduTitle}</div>
+          <div className="ncover-title">{nv.title}</div>
+          <span className="tag">MintNest Studio Originals</span>
+          <p className="ncover-syn">{nv.synopsis}</p>
+          <button className={'btn' + (novelFav ? ' active-fav' : '')} onClick={toggleNovelFav}>{novelFav ? '❤️ Favourite' : '🤍 Add to Favourites'}</button>
+        </div>
+        <div className="nd-meta">
+          <div className="nd-row"><span>Author</span><b>{nv.author}</b></div>
+          <div className="nd-row"><span>Genre</span><b>{genre}</b></div>
+          <div className="nd-row"><span>Status</span><b>{status}</b></div>
+          <div className="nd-row"><span>Episodes</span><b>{published.length} of {planned} published</b></div>
+          {latest && <div className="nd-row"><span>Latest</span><b>Episode {latest.n} — {latest.title}{latestDate ? ' · ' + latestDate : ''}</b></div>}
+        </div>
+        <div style={{ display: 'flex', gap: 9, marginTop: 14, flexWrap: 'wrap' }}>
+          {firstUnread && <button className="btn btn-gold" style={{ flex: '0 1 auto' }} onClick={() => openEp(firstUnread)}>▶ Start Reading</button>}
+          {lastPos && <button className="btn" onClick={() => openEp(lastPos.ep)}>Continue · Episode {lastPos.ep.n} ({Math.round(lastPos.pct * 100)}%)</button>}
+        </div>
+        <div className="section-title"><h2>Episodes</h2><small>{published.length} live</small></div>
+        {published.map(epRow)}
+      </div>
+    );
+  }
+
   return (
     <div>
-      <div className="ncover">
-        <div className="ncover-urdu" dir="rtl">{data.novel.urduTitle}</div>
-        <div className="ncover-title">{data.novel.title}</div>
-        <span className="tag">A DailyPoem Original Novel</span>
-        <p className="ncover-syn">{data.novel.synopsis}</p>
-        <div className="ncover-meta">{data.episodes.length} episode{data.episodes.length === 1 ? '' : 's'} live • {data.novel.plannedEpisodes} planned • New episode daily at 8:00 PM</div>
+      <div className="section-title" style={{ marginTop: 18 }}><h2>Novel Library</h2><small>Featured</small></div>
+      <div className="ncover ncover-tap" onClick={() => setView('details')}>
+        <div className="ncover-urdu" dir="rtl">{nv.urduTitle}</div>
+        <div className="ncover-title">{nv.title}</div>
+        <span className="tag">MintNest Studio Originals</span>
+        <p className="ncover-syn">{nv.synopsis}</p>
+        <div className="ncover-meta">{published.length} of {planned} episodes live • {status} • {genre} • New episode daily at 8:00 PM</div>
+        <div className="muted" style={{ fontSize: 12, marginTop: 8 }}>Tap for details & the full episode list ›</div>
       </div>
-      <div className="section-title"><h2>Episodes</h2><small>{data.episodes.length} live</small></div>
-      {[...data.episodes].sort((a, b) => a.n - b.n).map(ep => (
-        <div key={ep.n} className="ep-row" onClick={() => openEp(ep)}>
-          <div className="ep-num">{ep.n}</div>
+
+      {lastPos && (
+        <div className="cont-card" onClick={() => openEp(lastPos.ep)}>
+          <div style={{ fontSize: 22 }}>📖</div>
           <div style={{ flex: 1 }}>
-            <div className="ep-urdu" dir="rtl">{ep.urduTitle}</div>
-            <div className="ep-sub">{ep.title} • {ep.mins} min read{readSet.includes(ep.n) ? ' • ✓ Read' : ''}</div>
+            <b style={{ fontSize: 14.5 }}>Continue Reading</b>
+            <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>Episode {lastPos.ep.n} — {lastPos.ep.title} • {Math.round(lastPos.pct * 100)}% read</div>
+            <div className="cont-bar"><span style={{ width: (lastPos.pct * 100) + '%' }} /></div>
           </div>
           <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
         </div>
-      ))}
-      <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 14 }}>Episodes appear here automatically when published — no app update needed.</p>
+      )}
+
+      {nextScheduled && (
+        <div className="sched-card">🕗 <b>Episode {nextScheduled.n}</b>&nbsp;arrives {fmtPkDate(epPublishMs(nextScheduled))} — right here in the app, no update needed.</div>
+      )}
+
+      <div className="alert-row">
+        <div style={{ flex: 1 }}>
+          <b style={{ fontSize: 14 }}>🔔 Episode alerts</b>
+          <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>A gentle daily reminder at 8:00 PM, when the new episode lands.</div>
+        </div>
+        <button className={'chip' + (alertsOn ? ' on' : '')} disabled={alertBusy} onClick={toggleAlerts}>{alertsOn ? 'On' : 'Off'}</button>
+      </div>
+
+      <div className="section-title"><h2>Episodes</h2><small>{published.length} live</small></div>
+      {published.map(epRow)}
+      <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 14 }}>Episodes appear here automatically when published — no app update needed.<br />⬇ On device means the episode is saved inside the app and also opens offline.</p>
     </div>
   );
 }
@@ -701,27 +1025,392 @@ const TEXT_COLORS = [
   { id: 'ink', hex: '#2a1f10', name: 'Ink' },
 ];
 
+/* ================= Photo Studio Editor (v0.9) =================
+   Ek hi design state -> preview aur export dono. Layout ka hisaab shared
+   functions (edPoemLayout / edTextLayout) se hota hai taake jo screen par
+   dikhe, bilkul wahi export ho. */
+
+const ED_FONTS = [
+  { id: 'nastaliq', name: 'Urdu Nastaliq', stack: '"Noto Nastaliq Urdu", serif', urdu: true, step: 2.15, defSize: 64 },
+  { id: 'amiri', name: 'Urdu Naskh', stack: '"Amiri", serif', urdu: true, step: 1.95, defSize: 62 },
+  { id: 'playfair', name: 'Playfair', stack: '"Playfair Display", serif', step: 1.45, defSize: 56, weight: '600 ' },
+  { id: 'cormorant', name: 'Cormorant', stack: '"Cormorant Garamond", serif', step: 1.42, defSize: 60, weight: '600 ' },
+  { id: 'inter', name: 'Modern', stack: 'Inter, sans-serif', step: 1.45, defSize: 48, weight: '600 ' },
+  { id: 'hand', name: 'Handwritten', stack: '"Segoe Script", "Bradley Hand", cursive', step: 1.6, defSize: 54 },
+];
+const edFont = (id) => ED_FONTS.find(f => f.id === id) || ED_FONTS[0];
+
+const ED_GRADIENTS = [
+  { id: 'rain', name: 'Rain', from: '#182a44', to: '#060b16', css: 'linear-gradient(165deg,#182a44,#060b16)' },
+  { id: 'moon', name: 'Moon', from: '#232a4d', to: '#070814', css: 'linear-gradient(165deg,#232a4d,#070814)' },
+  { id: 'sunset', name: 'Sunset', from: '#71360f', to: '#1e0b02', css: 'linear-gradient(165deg,#71360f,#1e0b02)' },
+  { id: 'ocean', name: 'Ocean', from: '#0c3a4a', to: '#031319', css: 'linear-gradient(165deg,#0c3a4a,#031319)' },
+  { id: 'night', name: 'Night', from: '#1b1b28', to: '#050508', css: 'linear-gradient(165deg,#1b1b28,#050508)' },
+  { id: 'love', name: 'Love', from: '#5c1a2e', to: '#1a050c', css: 'linear-gradient(165deg,#5c1a2e,#1a050c)' },
+  { id: 'sadness', name: 'Sadness', from: '#2e3644', to: '#0a0d12', css: 'linear-gradient(165deg,#2e3644,#0a0d12)' },
+  { id: 'minimal', name: 'Minimal', from: '#f2ead6', to: '#ddcdaa', css: 'linear-gradient(165deg,#f2ead6,#ddcdaa)', light: true },
+  { id: 'islamic', name: 'Islamic', from: '#0e4030', to: '#03130c', css: 'linear-gradient(165deg,#0e4030,#03130c)' },
+  { id: 'mehfil', name: 'Mehfil Gold', from: '#3d2c10', to: '#110a02', css: 'linear-gradient(165deg,#3d2c10,#110a02)' },
+];
+const ED_COLORS = [
+  ...PHOTO_COLORS,
+  { id: 'ivory', name: 'Ivory', from: '#fbf7ec', to: '#eee2c4', css: 'linear-gradient(160deg,#fbf7ec,#eee2c4)', light: true },
+  { id: 'forest', name: 'Forest', from: '#14301c', to: '#050f08', css: 'linear-gradient(160deg,#14301c,#050f08)' },
+];
+const edColorOf = (d) => (d.bg.type === 'gradient'
+  ? (ED_GRADIENTS.find(g => g.id === d.bg.gradientId) || ED_GRADIENTS[9])
+  : (ED_COLORS.find(c => c.id === d.bg.colorId) || ED_COLORS[0]));
+
+const ED_RATIOS = [
+  { id: '1:1', label: 'Square · 1:1', w: 1080, h: 1080 },
+  { id: '4:5', label: 'Portrait · 4:5', w: 1080, h: 1350 },
+  { id: '9:16', label: 'Story · 9:16', w: 1080, h: 1920 },
+  { id: 'custom', label: 'Custom', w: 0, h: 0 },
+];
+const edClamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function edDims(d) {
+  if (d.ratio === 'custom') return { w: edClamp(Math.round(d.customW || 1080), 600, 2160), h: edClamp(Math.round(d.customH || 1350), 600, 2160) };
+  return ED_RATIOS.find(r => r.id === d.ratio) || ED_RATIOS[1];
+}
+
+const ED_HAS_URDU = /[\u0600-\u06FF]/;
+let _edLid = 0;
+const edNewId = () => 'L' + (++_edLid) + Date.now().toString(36);
+
+function edPoemLayer() {
+  return { id: edNewId(), kind: 'poem', name: 'Poem', text: '', x: 0.5, y: 0.46, w: 0.88, size: 1, color: '#f3ead8', font: 'auto', align: 'center', opacity: 1, lineHeight: 1, letterSpacing: 0, bold: false, italic: false, shadow: true, shadowStr: 0.55, outline: false, outlineW: 2, chip: 'none', hidden: false, locked: false };
+}
+function edTextLayer(kind, text) {
+  return { id: edNewId(), kind, name: kind === 'name' ? 'Your name' : 'Text', text, x: 0.5, y: kind === 'name' ? 0.88 : 0.7, w: 0.8, size: kind === 'name' ? 34 : 44, color: '#f0c95c', font: 'playfair', align: 'center', opacity: 1, lineHeight: 1, letterSpacing: 0, bold: false, italic: false, shadow: true, shadowStr: 0.5, outline: false, outlineW: 2, chip: 'none', hidden: false, locked: false };
+}
+function edDefaultDesign() {
+  return {
+    ratio: '4:5', customW: 1080, customH: 1350,
+    bg: { type: 'color', colorId: 'maroon', sceneId: 'baarish', gradientId: 'mehfil', photoData: null, offX: 0.5, offY: 0.5, blur: 0, bright: 100, contrast: 100, sat: 100, opacity: 1, darkness: 55 },
+    poemId: '', useCustom: false, customText: '',
+    layers: [edPoemLayer()],
+    frame: 'thin', ornament: true, watermark: true,
+  };
+}
+
+/* Template = design par patch; sab kuch badalne ke baad bhi editable rehta hai */
+function edTplPatch(bgPatch, poemPatch, extra) {
+  return (d) => {
+    Object.assign(d.bg, bgPatch);
+    const pl = d.layers.find(l => l.kind === 'poem');
+    if (pl) Object.assign(pl, poemPatch);
+    if (extra) Object.assign(d, extra);
+  };
+}
+const ED_TEMPLATES = [
+  { id: 'romantic', name: 'Romantic', css: 'linear-gradient(160deg,#5c1a2e,#2a0d18)', apply: edTplPatch({ type: 'scene', sceneId: 'gulab', darkness: 58 }, { color: '#f3ead8', font: 'auto', y: 0.46, size: 1, chip: 'none' }, { frame: 'thin', ornament: true }) },
+  { id: 'sad', name: 'Sad', css: 'linear-gradient(160deg,#2e3644,#0a0d12)', apply: edTplPatch({ type: 'gradient', gradientId: 'sadness', darkness: 40 }, { color: '#e8ecf4', font: 'auto', y: 0.44, chip: 'none' }, { frame: 'none', ornament: false }) },
+  { id: 'love', name: 'Love', css: 'linear-gradient(160deg,#5c1a2e,#1a050c)', apply: edTplPatch({ type: 'gradient', gradientId: 'love', darkness: 42 }, { color: '#ffd9a0', font: 'auto', y: 0.46 }, { frame: 'double', ornament: true }) },
+  { id: 'broken', name: 'Broken Heart', css: 'linear-gradient(160deg,#182a44,#060b16)', apply: edTplPatch({ type: 'scene', sceneId: 'baarish', darkness: 72 }, { color: '#ffffff', font: 'auto', y: 0.42 }, { frame: 'none', ornament: false }) },
+  { id: 'attitude', name: 'Attitude', css: 'linear-gradient(160deg,#262626,#090909)', apply: edTplPatch({ type: 'color', colorId: 'charcoal', darkness: 30 }, { color: '#f0c95c', font: 'auto', y: 0.48, size: 1.08, chip: 'dark' }, { frame: 'thin', ornament: false }) },
+  { id: 'life', name: 'Life', css: 'linear-gradient(160deg,#232a4d,#070814)', apply: edTplPatch({ type: 'gradient', gradientId: 'moon', darkness: 44 }, { color: '#f3ead8', font: 'auto', y: 0.46 }, { frame: 'thin', ornament: true }) },
+  { id: 'motivation', name: 'Motivation', css: 'linear-gradient(160deg,#71360f,#1e0b02)', apply: edTplPatch({ type: 'gradient', gradientId: 'sunset', darkness: 46 }, { color: '#ffffff', font: 'auto', y: 0.46, size: 1.14 }, { frame: 'none', ornament: true }) },
+  { id: 'sufi', name: 'Sufi', css: 'linear-gradient(160deg,#3d2c10,#110a02)', apply: edTplPatch({ type: 'scene', sceneId: 'mehfil', darkness: 55 }, { color: '#f0c95c', font: 'nastaliq', y: 0.46 }, { frame: 'double', ornament: true }) },
+  { id: 'islamic', name: 'Islamic', css: 'linear-gradient(160deg,#0e4030,#03130c)', apply: edTplPatch({ type: 'gradient', gradientId: 'islamic', darkness: 40 }, { color: '#f3ead8', font: 'auto', y: 0.46 }, { frame: 'double', ornament: true }) },
+  { id: 'english', name: 'English Poetry', css: 'linear-gradient(160deg,#f2ead6,#ddcdaa)', apply: edTplPatch({ type: 'gradient', gradientId: 'minimal', darkness: 6 }, { color: '#2a1f10', font: 'playfair', y: 0.46, shadow: false }, { frame: 'thin', ornament: true }) },
+];
+
+function edPoemOf(design, poems) {
+  if (design.useCustom) {
+    const txt = design.customText || '';
+    const lines = txt.split('\n').map(s => s.trim()).filter(Boolean);
+    if (!lines.length) return null;
+    const isUr = ED_HAS_URDU.test(txt);
+    return { id: 'custom', lang: isUr ? 'ur' : 'en', urdu: isUr ? lines : undefined, lines: isUr ? undefined : lines, roman: [], poet: null, customPoet: '', title: '', _custom: true };
+  }
+  return poems.find(p => p.id === design.poemId) || poems[0] || null;
+}
+function edLayerFont(layer, poem) {
+  if (layer.font && layer.font !== 'auto') return edFont(layer.font);
+  return poem && poem.lang === 'ur' ? edFont('nastaliq') : edFont('playfair');
+}
+function edContrast(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+  if (!m) return '#1c1503';
+  const n = parseInt(m[1], 16);
+  const lum = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+  return lum > 0.55 ? '#1c1503' : '#f3ead8';
+}
+
+/* ---------- shared layout (preview + export) ---------- */
+function edPoemLayout(design, poem, layer, W, H) {
+  const f = edLayerFont(layer, poem);
+  const maxW = Math.max(200, Math.round(layer.w * W) - 40);
+  const L = fitPoemText({
+    poem, maxW, availH: Math.round(H * 0.94), scale: layer.size,
+    fontStack: f.stack, baseFs: f.defSize, stepF: f.step * (layer.lineHeight || 1),
+    weight: layer.bold ? '700 ' : (f.weight || ''), italic: layer.italic && !f.urdu,
+    letterSpacing: f.urdu ? 0 : (layer.letterSpacing || 0),
+  });
+  const pad = layer.chip !== 'none' ? 16 : 0;
+  const ornH = design.ornament ? 46 : 0;
+  const poetH = poem._custom ? 0 : Math.round(L.fs * 1.0) + 16;
+  const totalH = pad * 2 + ornH + L.blockH + poetH;
+  const boxW = Math.round(layer.w * W);
+  let top = Math.round(layer.y * H - totalH / 2);
+  top = edClamp(top, 8, Math.max(8, H - 8 - totalH));
+  const left = edClamp(Math.round(layer.x * W - boxW / 2), 0, Math.max(0, W - boxW));
+  return { L, f, pad, ornH, poetH, totalH, boxW, top, left, textTop: top + pad + ornH, textLeft: left + pad, textW: boxW - pad * 2 };
+}
+function edTextLayout(layer, W, H) {
+  const f = edFont(layer.font === 'auto' ? 'playfair' : layer.font);
+  const isUrduText = ED_HAS_URDU.test(layer.text || '');
+  const fs = layer.size;
+  const ctx = measureCtx();
+  ctx.font = (layer.bold ? '700 ' : (f.weight || '')) + (layer.italic && !f.urdu ? 'italic ' : '') + fs + 'px ' + f.stack;
+  const fontStr = ctx.font;
+  const useLS = !f.urdu && !isUrduText && layer.letterSpacing;
+  if (useLS) { try { ctx.letterSpacing = layer.letterSpacing + 'px'; } catch { /* noop */ } }
+  const boxW = Math.round(layer.w * W);
+  const wrapped = wrapTextLines(ctx, (layer.text || '').split('\n'), Math.max(80, boxW - 32));
+  if (useLS) { try { ctx.letterSpacing = '0px'; } catch { /* noop */ } }
+  const step = fs * f.step * (layer.lineHeight || 1);
+  const blockH = Math.max(step, wrapped.lines.length * step);
+  const pad = layer.chip !== 'none' ? 14 : 0;
+  const totalH = blockH + pad * 2;
+  let top = Math.round(layer.y * H - totalH / 2);
+  top = edClamp(top, 6, Math.max(6, H - 6 - totalH));
+  const left = edClamp(Math.round(layer.x * W - boxW / 2), 0, Math.max(0, W - boxW));
+  return { lines: wrapped.lines, fs, step, blockH, totalH, pad, top, left, boxW, textTop: top + pad, textLeft: left + pad, font: fontStr, f, isUrduText };
+}
+
+/* ---------- canvas rendering ---------- */
+function edLoadImg(src) {
+  return new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+}
+function edCoverRect(img, W, H, offX, offY, bleed) {
+  const W2 = W + bleed * 2, H2 = H + bleed * 2;
+  const s = Math.max(W2 / img.naturalWidth, H2 / img.naturalHeight);
+  const w = img.naturalWidth * s, h = img.naturalHeight * s;
+  return { x: -bleed + (W2 - w) * offX, y: -bleed + (H2 - h) * offY, w, h };
+}
+function edRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function edChipDraw(ctx, left, top, boxW, totalH, chip) {
+  if (chip === 'dark') { ctx.fillStyle = 'rgba(8,6,5,.48)'; edRoundRect(ctx, left, top, boxW, totalH, 18); ctx.fill(); }
+  else if (chip === 'gold') { const g = ctx.createLinearGradient(left, top, left + boxW, top + totalH); g.addColorStop(0, 'rgba(212,175,55,.92)'); g.addColorStop(1, 'rgba(160,120,30,.92)'); ctx.fillStyle = g; edRoundRect(ctx, left, top, boxW, totalH, 18); ctx.fill(); }
+}
+function edTextStyle(ctx, layer, fs) {
+  if (layer.shadow) {
+    ctx.shadowColor = 'rgba(0,0,0,' + (layer.shadowStr || 0.5).toFixed(2) + ')';
+    ctx.shadowBlur = Math.max(4, fs * 0.32);
+    ctx.shadowOffsetY = Math.max(1, fs * 0.05);
+  }
+}
+function edClearShadow(ctx) { ctx.shadowColor = 'rgba(0,0,0,0)'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; }
+function edFillLine(ctx, ln, x, y, layer) {
+  if (layer.outline) {
+    ctx.save();
+    ctx.lineWidth = Math.max(1, (layer.outlineW || 2)) * 1.6;
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = edContrast(layer.color);
+    ctx.strokeText(ln, x, y);
+    ctx.restore();
+  }
+  ctx.fillText(ln, x, y);
+}
+function edAlignX(align, left, w) { return align === 'left' ? left : align === 'right' ? left + w : left + w / 2; }
+
+async function edDrawBg(ctx, design, W, H) {
+  const bg = design.bg;
+  let img = null;
+  if (bg.type === 'photo' && bg.photoData) img = await edLoadImg(bg.photoData);
+  else if (bg.type === 'scene') { const sc = SCENES.find(x => x.id === bg.sceneId) || SCENES[0]; img = await edLoadImg(sc.img); }
+  if (img && img.naturalWidth) {
+    const bleed = bg.blur ? Math.ceil(bg.blur * 2.2) : 0;
+    const r = edCoverRect(img, W, H, bg.offX, bg.offY, bleed);
+    ctx.save();
+    const filt = 'blur(' + (bg.blur || 0) + 'px) brightness(' + (bg.bright || 100) + '%) contrast(' + (bg.contrast || 100) + '%) saturate(' + (bg.sat || 100) + '%)';
+    try { ctx.filter = filt; } catch { /* purani WebView */ }
+    ctx.globalAlpha = bg.opacity == null ? 1 : bg.opacity;
+    ctx.drawImage(img, r.x, r.y, r.w, r.h);
+    ctx.restore();
+    if ((bg.opacity == null ? 1 : bg.opacity) < 1) {
+      const e = edColorOf({ bg: { type: 'color', colorId: 'charcoal' } });
+      ctx.fillStyle = e.to; ctx.globalAlpha = 1 - (bg.opacity == null ? 1 : bg.opacity); ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
+    }
+  } else {
+    const e = edColorOf(design);
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, e.from); g.addColorStop(1, e.to);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  const dark = (bg.darkness || 0) / 100;
+  if (dark > 0) { ctx.fillStyle = 'rgba(0,0,0,' + (dark * 0.75).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); }
+  const vg = ctx.createLinearGradient(0, H * 0.45, 0, H);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.30)');
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+}
+function edDrawFrame(ctx, design, W, H, lightBg) {
+  if (design.frame === 'none') return;
+  const col = lightBg ? 'rgba(138,106,24,.55)' : 'rgba(212,175,55,.5)';
+  ctx.strokeStyle = col; ctx.lineWidth = 3;
+  ctx.strokeRect(30, 30, W - 60, H - 60);
+  if (design.frame === 'double') { ctx.lineWidth = 1.6; ctx.strokeRect(44, 44, W - 88, H - 88); }
+}
+function edDrawPoemLayer(ctx, design, poem, layer, W, H, goldInk) {
+  const lay = edPoemLayout(design, poem, layer, W, H);
+  const { L } = lay;
+  ctx.save();
+  ctx.globalAlpha = layer.opacity;
+  edChipDraw(ctx, lay.left, lay.top, lay.boxW, lay.totalH, layer.chip);
+  let y = lay.top + lay.pad;
+  if (design.ornament) {
+    const cy = y + 20;
+    ctx.strokeStyle = goldInk; ctx.globalAlpha = layer.opacity * 0.85; ctx.lineWidth = 1.6;
+    const cxm = lay.left + lay.boxW / 2;
+    ctx.beginPath(); ctx.moveTo(cxm - 92, cy); ctx.lineTo(cxm - 20, cy); ctx.moveTo(cxm + 20, cy); ctx.lineTo(cxm + 92, cy); ctx.stroke();
+    ctx.fillStyle = goldInk; ctx.font = '26px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('✦', cxm, cy + 9);
+    ctx.globalAlpha = layer.opacity;
+    y += lay.ornH;
+  }
+  const cx = edAlignX(layer.align, lay.textLeft, lay.textW);
+  ctx.textAlign = layer.align;
+  if (L.hasTitle) {
+    ctx.fillStyle = goldInk;
+    ctx.font = 'italic 600 ' + Math.round(L.fs * 0.74) + 'px "Playfair Display", serif';
+    ctx.fillText(poem.title, cx, y + L.fs * 0.98);
+    y += L.titleH;
+  }
+  edTextStyle(ctx, layer, L.fs);
+  ctx.fillStyle = layer.color;
+  ctx.font = L.fontMain;
+  L.lines.forEach((ln, i) => edFillLine(ctx, ln, cx, y + L.step * 0.72 + i * L.step, layer));
+  y += L.lines.length * L.step;
+  if (L.roman.length) {
+    ctx.font = L.fontRoman;
+    ctx.globalAlpha = layer.opacity * 0.88;
+    L.roman.forEach((ln, i) => ctx.fillText(ln, cx, y + 14 + L.rStep * 0.72 + i * L.rStep));
+    ctx.globalAlpha = layer.opacity;
+  }
+  edClearShadow(ctx);
+  if (!poem._custom) {
+    ctx.fillStyle = goldInk;
+    ctx.font = '600 ' + Math.round(L.fs * 0.58) + 'px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('— ' + (poem.customPoet || poetOf(poem.poet).name) + ' —', lay.left + lay.boxW / 2, lay.textTop + L.blockH + Math.round(L.fs * 0.72));
+  }
+  ctx.restore();
+}
+function edDrawTextLayer(ctx, layer, W, H) {
+  const lay = edTextLayout(layer, W, H);
+  ctx.save();
+  ctx.globalAlpha = layer.opacity;
+  edChipDraw(ctx, lay.left, lay.top, lay.boxW, lay.totalH, layer.chip);
+  const cx = edAlignX(layer.align, lay.textLeft, lay.boxW - lay.pad * 2);
+  ctx.textAlign = layer.align;
+  edTextStyle(ctx, layer, lay.fs);
+  ctx.fillStyle = layer.color;
+  ctx.font = lay.font;
+  lay.lines.forEach((ln, i) => edFillLine(ctx, ln, cx, lay.textTop + lay.step * 0.72 + i * lay.step, layer));
+  edClearShadow(ctx);
+  ctx.restore();
+}
+async function edRenderCanvas(design, poems) {
+  const { w: W, h: H } = edDims(design);
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  await edDrawBg(ctx, design, W, H);
+  try {
+    await Promise.all([
+      document.fonts.load('64px "Noto Nastaliq Urdu"'),
+      document.fonts.load('62px "Amiri"'),
+      document.fonts.load('600 56px "Playfair Display"'),
+      document.fonts.load('italic 30px "Cormorant Garamond"'),
+      document.fonts.load('600 40px Inter'),
+    ]);
+  } catch { /* fonts optional */ }
+  const entry = edColorOf(design);
+  const lightBg = !!entry.light && design.bg.type !== 'photo' && design.bg.type !== 'scene';
+  const goldInk = lightBg ? '#8a6a18' : '#d4af37';
+  edDrawFrame(ctx, design, W, H, lightBg);
+  const poem = edPoemOf(design, poems);
+  for (const layer of design.layers) {
+    if (layer.hidden) continue;
+    if (layer.kind === 'poem') { if (poem) edDrawPoemLayer(ctx, design, poem, layer, W, H, goldInk); }
+    else edDrawTextLayer(ctx, layer, W, H);
+  }
+  if (design.watermark) {
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = lightBg ? '#5c4a1c' : '#f3ead8';
+    ctx.font = '600 25px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('✦ DailyPoem', W - 42, H - 34);
+    ctx.restore();
+  }
+  return canvas;
+}
+function edSaveCanvas(canvas, mime, filename, toast) {
+  if (Capacitor.isNativePlatform()) {
+    const data = canvas.toDataURL(mime, 0.92).split(',')[1];
+    return Filesystem.writeFile({ path: filename, data, directory: Directory.Cache })
+      .then(({ uri }) => Share.share({ title: 'DailyPoem', files: [uri] }))
+      .then(() => toast('Ready — saved, pick where to send it'))
+      .catch((e) => { if (e && /cancel/i.test(e.message || '')) return; toast('Could not save the image'); });
+  }
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      if (!blob) { toast('Could not create the image'); resolve(); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      toast('Image saved');
+      resolve();
+    }, mime, 0.92);
+  });
+}
+
+const ED_PROJ_KEY = 'dailypoem_projects_v1';
+function edLoadProjects() {
+  try { const v = JSON.parse(localStorage.getItem(ED_PROJ_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
+}
+function EdSlider({ label, min, max, step, value, unit, onChange }) {
+  return (
+    <label className="ph-label" style={{ marginTop: 10 }}>{label}: {value}{unit || ''}
+      <input type="range" className="slider" min={min} max={max} step={step || 1} value={value} onChange={(e) => onChange(parseFloat(e.target.value))} />
+    </label>
+  );
+}
+
 function PhotoCardMaker({ poems, toast }) {
-  const [imgUrl, setImgUrl] = useState(null);
-  const imgRef = useRef(null);
+  const [design, setDesign] = useState(edDefaultDesign);
+  const [selId, setSelId] = useState(null);
+  const [panel, setPanel] = useState('design');
+  const [busy, setBusy] = useState('');
+  const [zoom, setZoom] = useState(1);
+  const [guides, setGuides] = useState(false);
+  const [bgMove, setBgMove] = useState(false);
+  const [snapGuide, setSnapGuide] = useState({ v: false, h: false });
+  const [projects, setProjects] = useState(edLoadProjects);
+  const [projName, setProjName] = useState('');
+  const stageRef = useRef(null);
   const fileRef = useRef(null);
-  const [bgMode, setBgMode] = useState('color');
-  const [colorId, setColorId] = useState('maroon');
-  const [sceneId, setSceneId] = useState(SCENES[0].id);
-  const [poemId, setPoemId] = useState('');
-  const [name, setName] = useState('');
-  const [posY, setPosY] = useState(62);
-  const [scale, setScale] = useState(1);
-  const [textColor, setTextColor] = useState('cream');
-  const [shade, setShade] = useState(55);
-  const [busy, setBusy] = useState(false);
-  const dragging = useRef(false);
-  const [ratioId, setRatioId] = useState('portrait');
-  const previewRef = useRef(null);
+  const dragRef = useRef(null);
+  const pastRef = useRef([]);
+  const futureRef = useRef([]);
+  const lastKeyRef = useRef({ key: null, t: 0 });
   const [pvW, setPvW] = useState(360);
-  const [, setFontsReady] = useState(false); // value nahi, sirf re-render trigger chahiye (fonts load ke baad sahi measure)
+  const [, setTick] = useState(0);
+  const [, setFontsReady] = useState(false);
+
   useEffect(() => {
-    const el = previewRef.current;
+    const el = stageRef.current;
     if (!el) return undefined;
     const update = () => setPvW(el.clientWidth || 360);
     update();
@@ -735,6 +1424,7 @@ function PhotoCardMaker({ poems, toast }) {
     try {
       Promise.all([
         document.fonts.load('40px "Noto Nastaliq Urdu"'),
+        document.fonts.load('40px "Amiri"'),
         document.fonts.load('600 40px "Playfair Display"'),
         document.fonts.load('italic 28px "Cormorant Garamond"'),
       ]).then(() => { if (on) setFontsReady(true); }).catch(() => { if (on) setFontsReady(true); });
@@ -742,138 +1432,530 @@ function PhotoCardMaker({ poems, toast }) {
     return () => { on = false; };
   }, []);
 
-  // picked photo ka object URL tab change/unmount par release karo (memory leak rokne ke liye)
-  useEffect(() => () => { if (imgUrl) URL.revokeObjectURL(imgUrl); }, [imgUrl]);
+  const { w: W, h: H } = edDims(design);
+  const pv = pvW / W;
+  const poem = edPoemOf(design, poems);
+  const sel = design.layers.find(l => l.id === selId) || design.layers.find(l => l.kind === 'poem') || design.layers[0];
+  const entry = edColorOf(design);
+  const lightBg = !!entry.light && design.bg.type !== 'photo' && design.bg.type !== 'scene';
+  const goldInk = lightBg ? '#8a6a18' : '#d4af37';
 
-  const poem = poems.find(p => p.id === poemId) || poems[0];
-  const color = PHOTO_COLORS.find(c => c.id === colorId) || PHOTO_COLORS[0];
-  const tc = TEXT_COLORS.find(t => t.id === textColor) || TEXT_COLORS[0];
-  const scene = SCENES.find(x => x.id === sceneId) || SCENES[0];
-  const goldHex = color.light ? '#8a6a18' : '#d4af37';
-  const ratio = CARD_RATIOS.find(r => r.id === ratioId) || CARD_RATIOS[1];
-  const layout = poem ? fitPoemText({ poem, maxW: ratio.w - 150, availH: ratio.h - 376, scale }) : null;
-  const pvScale = pvW / ratio.w;
-  if (!poem) return null;
+  /* ---------- history ---------- */
+  const edClone = (o) => JSON.parse(JSON.stringify(o));
+  const applyDesign = (next, key) => {
+    const now = Date.now();
+    const coalesce = key && lastKeyRef.current.key === key && now - lastKeyRef.current.t < 900;
+    if (!coalesce) {
+      pastRef.current.push(edClone(design));
+      if (pastRef.current.length > 60) pastRef.current.shift();
+      futureRef.current = [];
+    }
+    lastKeyRef.current = { key: key || null, t: now };
+    setDesign(next);
+    setTick(t => t + 1);
+  };
+  const updateDesign = (fn, key) => { const next = edClone(design); fn(next); applyDesign(next, key); };
+  const updLayer = (id, patch, key) => updateDesign((d) => {
+    const l = d.layers.find(x => x.id === id);
+    if (l) Object.assign(l, patch);
+  }, key || ('layer:' + id + ':' + Object.keys(patch).join(',')));
+  const beginHistory = () => {
+    pastRef.current.push(edClone(design));
+    if (pastRef.current.length > 60) pastRef.current.shift();
+    futureRef.current = [];
+    lastKeyRef.current = { key: null, t: 0 };
+    setTick(t => t + 1);
+  };
+  const undo = () => {
+    if (!pastRef.current.length) return;
+    futureRef.current.push(edClone(design));
+    setDesign(pastRef.current.pop());
+    lastKeyRef.current = { key: null, t: 0 };
+    setTick(t => t + 1);
+  };
+  const redo = () => {
+    if (!futureRef.current.length) return;
+    pastRef.current.push(edClone(design));
+    setDesign(futureRef.current.pop());
+    lastKeyRef.current = { key: null, t: 0 };
+    setTick(t => t + 1);
+  };
+  const canUndo = pastRef.current.length > 0;
+  const canRedo = futureRef.current.length > 0;
 
-  const onPick = (e) => {
+  /* ---------- photo ---------- */
+  const onPickPhoto = (e) => {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
     const url = URL.createObjectURL(f);
     const im = new Image();
-    im.onload = () => { imgRef.current = im; setImgUrl(url); setBgMode('photo'); };
+    im.onload = () => {
+      try {
+        const MAX = 1440;
+        const sc = Math.min(1, MAX / Math.max(im.naturalWidth, im.naturalHeight));
+        const c = document.createElement('canvas');
+        c.width = Math.round(im.naturalWidth * sc);
+        c.height = Math.round(im.naturalHeight * sc);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        const dataUrl = c.toDataURL('image/jpeg', 0.86);
+        updateDesign((d) => { d.bg.type = 'photo'; d.bg.photoData = dataUrl; d.bg.offX = 0.5; d.bg.offY = 0.5; });
+        toast('Photo added');
+      } catch { toast('That photo could not be loaded'); }
+      URL.revokeObjectURL(url);
+    };
     im.onerror = () => { URL.revokeObjectURL(url); toast('That photo could not be loaded'); };
     im.src = url;
+    e.target.value = '';
   };
-  const dragTo = (e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const y = ((e.clientY - r.top) / r.height) * 100;
-    setPosY(Math.max(14, Math.min(88, Math.round(y))));
+
+  /* ---------- drag (layers + background) ---------- */
+  const startLayerDrag = (e, layer) => {
+    e.preventDefault();
+    setSelId(layer.id);
+    if (layer.locked) return;
+    const stage = stageRef.current;
+    if (!stage) return;
+    try { stage.setPointerCapture(e.pointerId); } catch { /* noop */ }
+    beginHistory();
+    dragRef.current = { kind: 'layer', id: layer.id, sx: e.clientX, sy: e.clientY, x: layer.x, y: layer.y };
   };
-  const generate = async () => {
-    if (busy) return;
-    setBusy(true);
+  const onStagePointerDown = (e) => {
+    if (bgMove && (design.bg.type === 'photo' || design.bg.type === 'scene')) {
+      const stage = stageRef.current;
+      if (!stage) return;
+      try { stage.setPointerCapture(e.pointerId); } catch { /* noop */ }
+      beginHistory();
+      dragRef.current = { kind: 'bg', sx: e.clientX, sy: e.clientY, x: design.bg.offX, y: design.bg.offY };
+      return;
+    }
+    if (e.target === e.currentTarget || (e.target.classList && (e.target.classList.contains('ed-bgimg') || e.target.classList.contains('ed-shade')))) setSelId(null);
+  };
+  const onStagePointerMove = (e) => {
+    const dr = dragRef.current;
+    if (!dr) return;
+    const stage = stageRef.current;
+    if (!stage) return;
+    const r = stage.getBoundingClientRect();
+    const dx = (e.clientX - dr.sx) / r.width;
+    const dy = (e.clientY - dr.sy) / r.height;
+    if (dr.kind === 'bg') {
+      setDesign((prev) => {
+        const next = edClone(prev);
+        next.bg.offX = edClamp(dr.x - dx, 0, 1);
+        next.bg.offY = edClamp(dr.y - dy, 0, 1);
+        return next;
+      });
+      return;
+    }
+    let nx = edClamp(dr.x + dx, 0.04, 0.96);
+    let ny = edClamp(dr.y + dy, 0.03, 0.97);
+    const sv = Math.abs(nx - 0.5) < 0.02;
+    const sh = Math.abs(ny - 0.5) < 0.02;
+    if (sv) nx = 0.5;
+    if (sh) ny = 0.5;
+    setSnapGuide({ v: sv, h: sh });
+    setDesign((prev) => {
+      const next = edClone(prev);
+      const l = next.layers.find(x => x.id === dr.id);
+      if (l) { l.x = nx; l.y = ny; }
+      return next;
+    });
+  };
+  const endDrag = () => { dragRef.current = null; setSnapGuide({ v: false, h: false }); };
+
+  /* ---------- projects ---------- */
+  const saveProject = () => {
+    const name = projName.trim() || ('Design — ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    const list = [{ id: edNewId(), name, at: Date.now(), design: edClone(design) }, ...projects].slice(0, 24);
     try {
-      const canvas = await makePhotoCard({ poem, W: ratio.w, H: ratio.h, bgMode, img: imgRef.current, color, scene, name: name.trim(), posY, scale, tcHex: tc.hex, shade: shade / 100 });
-      await shareCanvasFile(canvas, toast, 'dailypoem-photo.png');
-    } catch { toast('Could not create the photo card'); }
-    setBusy(false);
+      localStorage.setItem(ED_PROJ_KEY, JSON.stringify(list));
+      setProjects(list);
+      setProjName('');
+      toast('Project saved on this device');
+    } catch { toast('Storage is full — delete a saved project first'); }
   };
+  const openProject = (p) => {
+    applyDesign(edClone(p.design));
+    setSelId(null);
+    toast('Project opened');
+  };
+  const deleteProject = (id) => {
+    const list = projects.filter(p => p.id !== id);
+    setProjects(list);
+    try { localStorage.setItem(ED_PROJ_KEY, JSON.stringify(list)); } catch { /* noop */ }
+  };
+
+  /* ---------- layers ---------- */
+  const addLayer = (kind) => {
+    const l = edTextLayer(kind, kind === 'name' ? 'Your Name' : 'New text');
+    updateDesign((d) => { d.layers.push(l); });
+    setSelId(l.id);
+    setPanel('text');
+  };
+  const moveLayer = (id, dir) => updateDesign((d) => {
+    const i = d.layers.findIndex(l => l.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= d.layers.length) return;
+    const tmp = d.layers[i]; d.layers[i] = d.layers[j]; d.layers[j] = tmp;
+  });
+  const dupLayer = (id) => {
+    const src = design.layers.find(l => l.id === id);
+    if (!src || src.kind === 'poem') return;
+    const c = edClone(src);
+    c.id = edNewId();
+    c.name = src.name + ' copy';
+    c.y = edClamp(src.y + 0.04, 0.05, 0.95);
+    updateDesign((d) => { d.layers.push(c); });
+    setSelId(c.id);
+  };
+  const delLayer = (id) => {
+    const l = design.layers.find(x => x.id === id);
+    if (!l || l.kind === 'poem') return;
+    updateDesign((d) => { d.layers = d.layers.filter(x => x.id !== id); });
+    if (selId === id) setSelId(null);
+  };
+
+  /* ---------- export ---------- */
+  const doExport = async (kind) => {
+    if (busy) return;
+    setBusy(kind);
+    try {
+      const canvas = await edRenderCanvas(design, poems);
+      if (kind === 'share') await shareCanvasFile(canvas, toast, 'dailypoem-design.png');
+      else if (kind === 'jpg') await edSaveCanvas(canvas, 'image/jpeg', 'dailypoem-design.jpg', toast);
+      else await edSaveCanvas(canvas, 'image/png', 'dailypoem-design.png', toast);
+    } catch { toast('Export failed on this device'); }
+    setBusy('');
+  };
+
+  /* ---------- preview pieces ---------- */
+  const bgFilterCss = 'blur(' + design.bg.blur + 'px) brightness(' + design.bg.bright + '%) contrast(' + design.bg.contrast + '%) saturate(' + design.bg.sat + '%)';
+  const renderBg = () => {
+    const bg = design.bg;
+    if (bg.type === 'photo' && bg.photoData) {
+      return <img className="ed-bgimg" src={bg.photoData} alt="" style={{ filter: bgFilterCss, opacity: bg.opacity, objectPosition: (bg.offX * 100) + '% ' + (bg.offY * 100) + '%' }} />;
+    }
+    if (bg.type === 'scene') {
+      const sc = SCENES.find(x => x.id === bg.sceneId) || SCENES[0];
+      return <img className="ed-bgimg" src={sc.img} alt="" style={{ filter: bgFilterCss, opacity: bg.opacity, objectPosition: (bg.offX * 100) + '% ' + (bg.offY * 100) + '%' }} />;
+    }
+    return <div className="ed-bgimg" style={{ background: entry.css }} />;
+  };
+  const chipStyle = (layer) => layer.chip === 'dark'
+    ? { background: 'rgba(8,6,5,.48)', borderRadius: 14 }
+    : layer.chip === 'gold'
+      ? { background: 'linear-gradient(145deg, rgba(212,175,55,.92), rgba(160,120,30,.92))', borderRadius: 14 }
+      : {};
+  const layerTextFx = (layer, fsPx) => ({
+    textShadow: layer.shadow ? '0 ' + Math.max(1, fsPx * 0.05) + 'px ' + Math.max(3, fsPx * 0.32) + 'px rgba(0,0,0,' + layer.shadowStr + ')' : 'none',
+    WebkitTextStroke: layer.outline ? (Math.max(0.6, layer.outlineW * 1.6 * pv) + 'px ' + edContrast(layer.color)) : undefined,
+  });
+  const renderPoemPreview = (layer) => {
+    if (!poem) return <div style={{ padding: 16, textAlign: 'center', color: '#f3ead8', fontSize: 13 }}>Pick a poem or write your own in the Text tab</div>;
+    const lay = edPoemLayout(design, poem, layer, W, H);
+    const { L } = lay;
+    return (
+      <div style={{ padding: lay.pad * pv, ...chipStyle(layer) }}>
+        {design.ornament && <div style={{ height: lay.ornH * pv, display: 'flex', alignItems: 'center', justifyContent: 'center', color: goldInk, fontSize: Math.max(9, 24 * pv), letterSpacing: 4 }}>— ✦ —</div>}
+        {L.hasTitle && <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 600, fontSize: Math.max(10, L.fs * 0.74 * pv), color: goldInk, textAlign: layer.align, height: L.titleH * pv, display: 'flex', alignItems: 'center', justifyContent: layer.align === 'center' ? 'center' : layer.align === 'left' ? 'flex-start' : 'flex-end' }}>{poem.title}</div>}
+        <div dir={L.isUr ? 'rtl' : 'ltr'} style={{ fontFamily: lay.f.stack, fontWeight: layer.bold ? 700 : (lay.f.weight ? 600 : 400), fontStyle: layer.italic && !lay.f.urdu ? 'italic' : 'normal', fontSize: L.fs * pv, lineHeight: L.step / L.fs, color: layer.color, textAlign: layer.align, letterSpacing: lay.f.urdu ? 0 : (layer.letterSpacing * pv) + 'px', ...layerTextFx(layer, L.fs * pv) }}>
+          {L.lines.map((l, i) => <div key={i}>{l}</div>)}
+        </div>
+        {L.roman.length > 0 && (
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: L.rFs * pv, lineHeight: L.rStep / L.rFs, color: layer.color, opacity: 0.88, textAlign: 'center', marginTop: 14 * pv }}>
+            {L.roman.map((l, i) => <div key={i}>{l}</div>)}
+          </div>
+        )}
+        {!poem._custom && <div style={{ textAlign: 'center', color: goldInk, fontWeight: 600, fontSize: Math.max(9, L.fs * 0.58 * pv), marginTop: 10 * pv }}>— {poem.customPoet || poetOf(poem.poet).name} —</div>}
+      </div>
+    );
+  };
+  const renderTextPreview = (layer) => {
+    const lay = edTextLayout(layer, W, H);
+    return (
+      <div style={{ padding: lay.pad * pv, ...chipStyle(layer) }}>
+        <div dir={lay.isUrduText ? 'rtl' : 'ltr'} style={{ fontFamily: lay.f.stack, fontWeight: layer.bold ? 700 : (lay.f.weight ? 600 : 400), fontStyle: layer.italic && !lay.f.urdu ? 'italic' : 'normal', fontSize: lay.fs * pv, lineHeight: lay.step / lay.fs, color: layer.color, textAlign: layer.align, letterSpacing: lay.f.urdu || lay.isUrduText ? 0 : (layer.letterSpacing * pv) + 'px', whiteSpace: 'pre-wrap', ...layerTextFx(layer, lay.fs * pv) }}>
+          {lay.lines.map((l, i) => <div key={i}>{l || ' '}</div>)}
+        </div>
+      </div>
+    );
+  };
+  const layerBox = (layer) => {
+    if (layer.kind === 'poem') {
+      if (!poem) return { left: '6%', top: '30%', width: '88%' };
+      const lay = edPoemLayout(design, poem, layer, W, H);
+      return { left: lay.left * pv, top: lay.top * pv, width: lay.boxW * pv };
+    }
+    const lay = edTextLayout(layer, W, H);
+    return { left: lay.left * pv, top: lay.top * pv, width: lay.boxW * pv };
+  };
+
+  const selF = sel ? edLayerFont(sel, poem) : edFont('playfair');
+  const selIsUrduFont = !!selF.urdu;
 
   return (
     <div style={{ marginTop: 26 }}>
-      <div className="section-title"><h2>🖼️ Poetry Photo</h2><small>Your photo, your sher</small></div>
-      <p className="muted" style={{ fontSize: 13, margin: '0 0 12px' }}>Put any poem on your own photo — or on a colour background — then share it anywhere.</p>
+      <div className="section-title"><h2>🖼️ Poetry Photo Studio</h2><small>Design studio</small></div>
+      <p className="muted" style={{ fontSize: 13, margin: '0 0 10px' }}>A full design studio for poetry cards — your photo, layered text, templates and pro export.</p>
 
-      <div className="ph-preview" ref={previewRef} style={{ aspectRatio: ratio.w + ' / ' + ratio.h }}
-        onPointerDown={(e) => { dragging.current = true; dragTo(e); }}
-        onPointerMove={(e) => { if (dragging.current) dragTo(e); }}
-        onPointerUp={() => { dragging.current = false; }}
-        onPointerLeave={() => { dragging.current = false; }}>
-        {bgMode === 'photo' && imgUrl && <img className="ph-bgimg" src={imgUrl} alt="" />}
-        {bgMode === 'scene' && <img className="ph-bgimg" src={scene.img} alt="" />}
-        {bgMode === 'color' && <div className="ph-bgimg" style={{ background: color.css }} />}
-        <div className="ph-shade" style={{ opacity: (shade / 100) * 0.75 }} />
-        <div style={{ position: 'absolute', top: 10, left: 0, right: 0, textAlign: 'center', color: goldHex, fontSize: 11, fontWeight: 700, letterSpacing: 2 }}>✦ DAILYPOEM ✦</div>
-        {layout && (
-          <div className="ph-text" style={{ top: posY + '%', color: tc.hex }}>
-            {layout.hasTitle && <div style={{ height: Math.round(layout.titleH * pvScale), display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 600, fontSize: Math.max(11, layout.fs * 0.74 * pvScale), color: goldHex }}>{poem.title}</div>}
-            {layout.isUr
-              ? <div className="urdu" style={{ fontSize: layout.fs * pvScale, lineHeight: layout.step / layout.fs, color: tc.hex }}>{layout.lines.map((l, i) => <div key={i}>{l}</div>)}</div>
-              : <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: layout.fs * pvScale, lineHeight: layout.step / layout.fs, color: tc.hex }}>{layout.lines.map((l, i) => <div key={i}>{l}</div>)}</div>}
-            {layout.roman.length > 0 && <div className="roman" style={{ fontSize: layout.rFs * pvScale, lineHeight: layout.rStep / layout.rFs, opacity: 0.88, color: tc.hex, marginTop: Math.max(4, 14 * pvScale) }}>{layout.roman.map((l, i) => <div key={i}>{l}</div>)}</div>}
+      {/* ---------- top bar ---------- */}
+      <div className="ed-topbar">
+        <button className="btn ed-mini" onClick={undo} disabled={!canUndo} title="Undo">↩ Undo</button>
+        <button className="btn ed-mini" onClick={redo} disabled={!canRedo} title="Redo">↪ Redo</button>
+        <button className="btn ed-mini" onClick={() => { applyDesign(edDefaultDesign()); setSelId(null); }} title="Reset design">⟲ Reset</button>
+        <button className="btn ed-mini" onClick={saveProject} title="Save project on this device">💾 Save</button>
+        <span style={{ flex: 1 }} />
+        <button className="btn ed-mini" onClick={() => doExport('png')} disabled={!!busy}>{busy === 'png' ? 'Rendering…' : 'PNG'}</button>
+        <button className="btn ed-mini" onClick={() => doExport('jpg')} disabled={!!busy}>{busy === 'jpg' ? 'Rendering…' : 'JPG'}</button>
+        <button className="btn btn-gold ed-mini" style={{ flex: '0 0 auto' }} onClick={() => doExport('share')} disabled={!!busy}>{busy === 'share' ? 'Rendering…' : '📤 Share'}</button>
+      </div>
+
+      {/* ---------- stage ---------- */}
+      <div style={{ overflowX: 'auto', marginTop: 10 }}>
+        <div style={{ width: (zoom * 100) + '%', margin: '0 auto', minWidth: '60%' }}>
+          <div className="ed-stage" ref={stageRef} style={{ aspectRatio: W + ' / ' + H, cursor: bgMove ? 'move' : 'default' }}
+            onPointerDown={onStagePointerDown} onPointerMove={onStagePointerMove} onPointerUp={endDrag} onPointerCancel={endDrag}>
+            {renderBg()}
+            <div className="ed-shade" style={{ opacity: (design.bg.darkness / 100) * 0.75 }} />
+            {design.frame !== 'none' && <div className={'ed-frame' + (design.frame === 'double' ? ' dbl' : '')} style={{ borderColor: goldInk }} />}
+            {design.layers.map((layer) => layer.hidden ? null : (
+              <div key={layer.id} className={'ed-layer' + (sel && sel.id === layer.id ? ' sel' : '')}
+                style={{ ...layerBox(layer), opacity: layer.opacity }}
+                onPointerDown={(e) => startLayerDrag(e, layer)}>
+                {layer.kind === 'poem' ? renderPoemPreview(layer) : renderTextPreview(layer)}
+              </div>
+            ))}
+            {guides && <><div className="ed-safe" /><div className="ed-gh" style={{ opacity: 0.3 }} /><div className="ed-gv" style={{ opacity: 0.3 }} /></>}
+            {snapGuide.v && <div className="ed-gv" />}
+            {snapGuide.h && <div className="ed-gh" />}
+            {design.watermark && <div className="ed-wm" style={{ color: lightBg ? '#5c4a1c' : '#f3ead8' }}>✦ DailyPoem</div>}
+          </div>
+        </div>
+      </div>
+      <div className="ed-row" style={{ justifyContent: 'space-between', marginTop: 8 }}>
+        <span className="muted" style={{ fontSize: 12 }}>{W} × {H}px{sel ? ' · ' + sel.name : ''}</span>
+        <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <button className="btn ed-mini" onClick={() => setZoom(z => edClamp(Math.round((z - 0.15) * 100) / 100, 0.6, 1.8))}>−</button>
+          <span className="muted" style={{ fontSize: 12, minWidth: 38, textAlign: 'center' }}>{Math.round(zoom * 100)}%</span>
+          <button className="btn ed-mini" onClick={() => setZoom(z => edClamp(Math.round((z + 0.15) * 100) / 100, 0.6, 1.8))}>+</button>
+          <button className={'btn ed-mini' + (guides ? ' btn-gold' : '')} style={{ flex: '0 0 auto' }} onClick={() => setGuides(g => !g)}>Guides</button>
+        </span>
+      </div>
+      <p className="muted" style={{ fontSize: 12, textAlign: 'center', margin: '6px 0 0' }}>Drag any text on the canvas to move it — it snaps to the centre.</p>
+
+      {/* ---------- panel tabs ---------- */}
+      <div className="ed-tabs">
+        {[['design', '🎨 Design'], ['bg', '🌆 Background'], ['text', '✍️ Text'], ['fx', '✨ Effects'], ['layers', '🗂 Layers']].map(([id, label]) => (
+          <button key={id} className={'ed-tab' + (panel === id ? ' on' : '')} onClick={() => setPanel(id)}>{label}</button>
+        ))}
+      </div>
+
+      <div className="ed-panel">
+        {panel === 'design' && (
+          <div>
+            <div className="ed-sec">Canvas size</div>
+            <div className="ed-row">
+              {ED_RATIOS.map(r => (
+                <button key={r.id} className={'chip' + (design.ratio === r.id ? ' on' : '')} onClick={() => updateDesign((d) => { d.ratio = r.id; })}>{r.label}</button>
+              ))}
+              <span className="muted" style={{ fontSize: 12 }}>{W} × {H}px</span>
+            </div>
+            {design.ratio === 'custom' && (
+              <div className="ed-row" style={{ marginTop: 10 }}>
+                <label className="muted" style={{ fontSize: 12.5 }}>Width <input className="field ed-num" type="number" min={600} max={2160} value={design.customW} onChange={(e) => updateDesign((d) => { d.customW = parseInt(e.target.value || '1080', 10); }, 'customW')} /></label>
+                <label className="muted" style={{ fontSize: 12.5 }}>Height <input className="field ed-num" type="number" min={600} max={2160} value={design.customH} onChange={(e) => updateDesign((d) => { d.customH = parseInt(e.target.value || '1350', 10); }, 'customH')} /></label>
+                <span className="muted" style={{ fontSize: 11.5 }}>600–2160 px each side</span>
+              </div>
+            )}
+            <div className="ed-sec">Templates — one tap, fully editable</div>
+            <div className="ed-tplgrid">
+              {ED_TEMPLATES.map(t => (
+                <button key={t.id} className="ed-tpl" style={{ background: t.css }} onClick={() => updateDesign((d) => { t.apply(d); })}>{t.name}</button>
+              ))}
+            </div>
+            <div className="ed-sec">Saved projects (on this device)</div>
+            <div className="ed-row">
+              <input className="field" style={{ flex: 1, minWidth: 150 }} placeholder="Project name (optional)" value={projName} maxLength={40} onChange={(e) => setProjName(e.target.value)} />
+              <button className="btn btn-gold" style={{ flex: '0 0 auto' }} onClick={saveProject}>💾 Save project</button>
+            </div>
+            {projects.length === 0 && <p className="muted" style={{ fontSize: 12.5, marginTop: 8 }}>No saved projects yet — your full design (layers, photo, styles) is kept, not just a picture.</p>}
+            {projects.map(p => (
+              <div key={p.id} className="ed-projrow">
+                <span style={{ flex: 1, fontSize: 13.5 }}><b>{p.name}</b> <span className="muted" style={{ fontSize: 11.5 }}>{new Date(p.at).toLocaleDateString()}</span></span>
+                <button className="btn ed-mini" onClick={() => openProject(p)}>Open</button>
+                <button className="btn ed-mini" onClick={() => deleteProject(p.id)}>🗑</button>
+              </div>
+            ))}
           </div>
         )}
-        {layout && <div className="ph-poet" style={{ top: 'calc(' + posY + '% + ' + Math.round(layout.blockH * pvScale / 2 + 30 * pvScale) + 'px)', color: goldHex, fontSize: Math.max(10, 36 * pvScale) }}>— {poem.customPoet || poetOf(poem.poet).name} —</div>}
-        {name.trim() && <div className="ph-name" style={{ color: tc.hex }}>✍ {name.trim()}</div>}
-        <div className="ph-brand" style={{ color: tc.hex }}>DailyPoem — Shayari & Poetry Reels</div>
+
+        {panel === 'bg' && (
+          <div>
+            <div className="ed-sec">Background type</div>
+            <div className="ed-row">
+              <button className={'chip' + (design.bg.type === 'photo' ? ' on' : '')} onClick={() => { if (design.bg.photoData) updateDesign((d) => { d.bg.type = 'photo'; }); else fileRef.current && fileRef.current.click(); }}>📷 My Photo</button>
+              <button className={'chip' + (design.bg.type === 'scene' ? ' on' : '')} onClick={() => updateDesign((d) => { d.bg.type = 'scene'; })}>🌆 Scenes</button>
+              <button className={'chip' + (design.bg.type === 'color' ? ' on' : '')} onClick={() => updateDesign((d) => { d.bg.type = 'color'; })}>🎨 Colours</button>
+              <button className={'chip' + (design.bg.type === 'gradient' ? ' on' : '')} onClick={() => updateDesign((d) => { d.bg.type = 'gradient'; })}>🌈 Gradients</button>
+              <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPickPhoto} />
+            </div>
+            {design.bg.type === 'photo' && (
+              <div style={{ marginTop: 10 }}>
+                <button className="btn" onClick={() => fileRef.current && fileRef.current.click()}>📷 Choose a photo</button>
+                <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>Large photos are shrunk automatically so the editor stays fast.</p>
+              </div>
+            )}
+            {design.bg.type === 'scene' && (
+              <div className="ed-row" style={{ marginTop: 10 }}>
+                {SCENES.map(sc => (
+                  <button key={sc.id} className={'ed-swatch' + (design.bg.sceneId === sc.id ? ' on' : '')} style={{ backgroundImage: 'url(' + sc.img + ')', backgroundSize: 'cover' }} title={sc.label} onClick={() => updateDesign((d) => { d.bg.sceneId = sc.id; })}><span>{sc.label}</span></button>
+                ))}
+              </div>
+            )}
+            {design.bg.type === 'color' && (
+              <div className="ed-row" style={{ marginTop: 10 }}>
+                {ED_COLORS.map(c => (
+                  <button key={c.id} className={'swatch' + (design.bg.colorId === c.id ? ' on' : '')} style={{ background: c.css }} title={c.name} onClick={() => updateDesign((d) => { d.bg.colorId = c.id; })} />
+                ))}
+                <span className="muted" style={{ fontSize: 12.5 }}>{(ED_COLORS.find(c => c.id === design.bg.colorId) || ED_COLORS[0]).name}</span>
+              </div>
+            )}
+            {design.bg.type === 'gradient' && (
+              <div className="ed-row" style={{ marginTop: 10 }}>
+                {ED_GRADIENTS.map(g => (
+                  <button key={g.id} className={'ed-swatch' + (design.bg.gradientId === g.id ? ' on' : '')} style={{ background: g.css }} title={g.name} onClick={() => updateDesign((d) => { d.bg.gradientId = g.id; })}><span>{g.name}</span></button>
+                ))}
+              </div>
+            )}
+            {(design.bg.type === 'photo' || design.bg.type === 'scene') && (
+              <>
+                <div className="ed-sec">Photo adjustments</div>
+                <EdSlider label="Blur" min={0} max={12} value={design.bg.blur} onChange={(v) => updateDesign((d) => { d.bg.blur = v; }, 'bg:blur')} />
+                <EdSlider label="Brightness" min={40} max={140} value={design.bg.bright} unit="%" onChange={(v) => updateDesign((d) => { d.bg.bright = v; }, 'bg:bright')} />
+                <EdSlider label="Contrast" min={40} max={140} value={design.bg.contrast} unit="%" onChange={(v) => updateDesign((d) => { d.bg.contrast = v; }, 'bg:contrast')} />
+                <EdSlider label="Saturation" min={0} max={200} value={design.bg.sat} unit="%" onChange={(v) => updateDesign((d) => { d.bg.sat = v; }, 'bg:sat')} />
+                <EdSlider label="Image opacity" min={20} max={100} value={Math.round(design.bg.opacity * 100)} unit="%" onChange={(v) => updateDesign((d) => { d.bg.opacity = v / 100; }, 'bg:opacity')} />
+                <div className="ed-row" style={{ marginTop: 12 }}>
+                  <button className={'chip' + (bgMove ? ' on' : '')} onClick={() => setBgMove(m => !m)}>✥ Move background: {bgMove ? 'On' : 'Off'}</button>
+                  <span className="muted" style={{ fontSize: 12 }}>Drag the canvas to reposition the photo</span>
+                </div>
+              </>
+            )}
+            <EdSlider label="Dark overlay (text readability)" min={0} max={95} value={design.bg.darkness} unit="%" onChange={(v) => updateDesign((d) => { d.bg.darkness = v; }, 'bg:darkness')} />
+          </div>
+        )}
+
+        {panel === 'text' && sel && (
+          <div>
+            <div className="ed-sec">Poem source</div>
+            <div className="ed-row">
+              <button className={'chip' + (!design.useCustom ? ' on' : '')} onClick={() => updateDesign((d) => { d.useCustom = false; })}>From library</button>
+              <button className={'chip' + (design.useCustom ? ' on' : '')} onClick={() => updateDesign((d) => { d.useCustom = true; })}>Write my own</button>
+            </div>
+            {!design.useCustom && (
+              <select className="field" style={{ marginTop: 10 }} value={poem && !poem._custom ? poem.id : ''} onChange={(e) => updateDesign((d) => { d.poemId = e.target.value; })}>
+                {poems.map(p => <option key={p.id} value={p.id}>{p.lang === 'en' ? p.title : (p.roman ? p.roman[0] : p.id)} — {poetOf(p.poet).name}</option>)}
+              </select>
+            )}
+            {design.useCustom && (
+              <div style={{ marginTop: 10 }}>
+                <textarea className="field" rows={5} placeholder={'Write or paste your poetry — one line per line…'} value={design.customText} onChange={(e) => updateDesign((d) => { d.customText = e.target.value; }, 'customText')} />
+                <button className="btn ed-mini" style={{ marginTop: 8 }} onClick={async () => {
+                  try { const t = await navigator.clipboard.readText(); if (t) updateDesign((d) => { d.customText = t; }); else toast('Clipboard is empty'); }
+                  catch { toast('Paste is not allowed here — long-press the box and tap Paste'); }
+                }}>📋 Paste from clipboard</button>
+              </div>
+            )}
+            <div className="ed-sec">Layer: {sel.name}</div>
+            {sel.kind !== 'poem' && (
+              <textarea className="field" rows={3} value={sel.text} onChange={(e) => updLayer(sel.id, { text: e.target.value }, 'text:' + sel.id)} />
+            )}
+            <div className="ed-sec">Font</div>
+            <div className="ed-row">
+              {sel.kind === 'poem' && <button className={'chip' + (sel.font === 'auto' ? ' on' : '')} onClick={() => updLayer(sel.id, { font: 'auto' })}>Auto</button>}
+              {ED_FONTS.map(f => (
+                <button key={f.id} className={'chip' + (sel.font === f.id ? ' on' : '')} style={{ fontFamily: f.stack }} onClick={() => updLayer(sel.id, { font: f.id })}>{f.name}</button>
+              ))}
+            </div>
+            <EdSlider label={sel.kind === 'poem' ? 'Text size' : 'Font size (px)'} min={sel.kind === 'poem' ? 60 : 22} max={sel.kind === 'poem' ? 155 : 120} step={sel.kind === 'poem' ? 1 : 1} value={sel.kind === 'poem' ? Math.round(sel.size * 100) : sel.size} unit={sel.kind === 'poem' ? '%' : 'px'} onChange={(v) => updLayer(sel.id, { size: sel.kind === 'poem' ? v / 100 : v }, 'size:' + sel.id)} />
+            <EdSlider label="Block width" min={50} max={100} value={Math.round(sel.w * 100)} unit="%" onChange={(v) => updLayer(sel.id, { w: v / 100 }, 'w:' + sel.id)} />
+            <EdSlider label="Opacity" min={15} max={100} value={Math.round(sel.opacity * 100)} unit="%" onChange={(v) => updLayer(sel.id, { opacity: v / 100 }, 'op:' + sel.id)} />
+            <EdSlider label="Line spacing" min={80} max={160} value={Math.round(sel.lineHeight * 100)} unit="%" onChange={(v) => updLayer(sel.id, { lineHeight: v / 100 }, 'lh:' + sel.id)} />
+            {!selIsUrduFont && <EdSlider label="Letter spacing" min={0} max={12} value={sel.letterSpacing} unit="px" onChange={(v) => updLayer(sel.id, { letterSpacing: v }, 'ls:' + sel.id)} />}
+            {selIsUrduFont && <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>Letter spacing is off for Urdu fonts — it would break the joined letters.</p>}
+            <div className="ed-sec">Colour & alignment</div>
+            <div className="ed-row">
+              {TEXT_COLORS.map(t => (
+                <button key={t.id} className={'btn ed-mini' + (sel.color === t.hex ? ' btn-gold' : '')} style={{ flex: '0 0 auto' }} onClick={() => updLayer(sel.id, { color: t.hex })}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: t.hex, border: '1px solid rgba(128,128,128,.5)' }} />{t.name}</button>
+              ))}
+              <input type="color" className="ed-colorpick" value={sel.color} onChange={(e) => updLayer(sel.id, { color: e.target.value }, 'color:' + sel.id)} />
+              <span style={{ flex: 1 }} />
+              {[['left', '⬅ Left'], ['center', '↔ Centre'], ['right', 'Right ➡']].map(([a, label]) => (
+                <button key={a} className={'btn ed-mini' + (sel.align === a ? ' btn-gold' : '')} style={{ flex: '0 0 auto' }} onClick={() => updLayer(sel.id, { align: a })}>{label}</button>
+              ))}
+            </div>
+            <div className="ed-row" style={{ marginTop: 10 }}>
+              <button className={'chip' + (sel.bold ? ' on' : '')} onClick={() => updLayer(sel.id, { bold: !sel.bold })}><b>Bold</b></button>
+              <button className={'chip' + (sel.italic ? ' on' : '')} disabled={selIsUrduFont} onClick={() => updLayer(sel.id, { italic: !sel.italic })}><i>Italic</i></button>
+              {selIsUrduFont && <span className="muted" style={{ fontSize: 12 }}>Italic is not available for Urdu fonts</span>}
+            </div>
+            <div className="ed-sec">Shadow, outline & backing</div>
+            <div className="ed-row">
+              <button className={'chip' + (sel.shadow ? ' on' : '')} onClick={() => updLayer(sel.id, { shadow: !sel.shadow })}>Shadow</button>
+              <button className={'chip' + (sel.outline ? ' on' : '')} onClick={() => updLayer(sel.id, { outline: !sel.outline })}>Outline</button>
+              {[['none', 'No backing'], ['dark', 'Dark pill'], ['gold', 'Gold pill']].map(([c, label]) => (
+                <button key={c} className={'chip' + (sel.chip === c ? ' on' : '')} onClick={() => updLayer(sel.id, { chip: c })}>{label}</button>
+              ))}
+            </div>
+            {sel.shadow && <EdSlider label="Shadow strength" min={0} max={100} value={Math.round(sel.shadowStr * 100)} unit="%" onChange={(v) => updLayer(sel.id, { shadowStr: v / 100 }, 'sh:' + sel.id)} />}
+            {sel.outline && <EdSlider label="Outline width" min={1} max={6} value={sel.outlineW} unit="px" onChange={(v) => updLayer(sel.id, { outlineW: v }, 'ow:' + sel.id)} />}
+            <div className="ed-sec">Position</div>
+            <EdSlider label="Vertical position" min={4} max={96} value={Math.round(sel.y * 100)} unit="%" onChange={(v) => updLayer(sel.id, { y: v / 100 }, 'y:' + sel.id)} />
+            <EdSlider label="Horizontal position" min={4} max={96} value={Math.round(sel.x * 100)} unit="%" onChange={(v) => updLayer(sel.id, { x: v / 100 }, 'x:' + sel.id)} />
+          </div>
+        )}
+
+        {panel === 'fx' && (
+          <div>
+            <div className="ed-sec">Frame</div>
+            <div className="ed-row">
+              {[['none', 'No frame'], ['thin', 'Thin gold'], ['double', 'Double']].map(([f, label]) => (
+                <button key={f} className={'chip' + (design.frame === f ? ' on' : '')} onClick={() => updateDesign((d) => { d.frame = f; })}>{label}</button>
+              ))}
+            </div>
+            <div className="ed-sec">Decorations</div>
+            <div className="ed-row">
+              <button className={'chip' + (design.ornament ? ' on' : '')} onClick={() => updateDesign((d) => { d.ornament = !d.ornament; })}>— ✦ — ornament above poem</button>
+              <button className={'chip' + (design.watermark ? ' on' : '')} onClick={() => updateDesign((d) => { d.watermark = !d.watermark; })}>DailyPoem watermark</button>
+            </div>
+            <p className="muted" style={{ fontSize: 12.5, marginTop: 10, lineHeight: 1.6 }}>The watermark is a small “✦ DailyPoem” in the bottom corner of the exported image. Turn it off any time. Text glow, shadow and outline live in the Text tab, per layer.</p>
+          </div>
+        )}
+
+        {panel === 'layers' && (
+          <div>
+            <div className="ed-row">
+              <button className="btn" onClick={() => addLayer('text')}>＋ Add text</button>
+              <button className="btn" onClick={() => addLayer('name')}>✍ Add your name</button>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              {[...design.layers].reverse().map((layer) => (
+                <div key={layer.id} className={'ed-layerrow' + (sel && sel.id === layer.id ? ' sel' : '')} onClick={() => setSelId(layer.id)}>
+                  <span style={{ fontSize: 15 }}>{layer.kind === 'poem' ? '📜' : layer.kind === 'name' ? '✍' : '🔤'}</span>
+                  <input className="field ed-layername" value={layer.name} maxLength={24} onClick={(e) => e.stopPropagation()} onChange={(e) => updLayer(layer.id, { name: e.target.value }, 'name:' + layer.id)} />
+                  <button className="btn ed-mini" title="Move up (on top)" onClick={(e) => { e.stopPropagation(); moveLayer(layer.id, 1); }}>⬆</button>
+                  <button className="btn ed-mini" title="Move down" onClick={(e) => { e.stopPropagation(); moveLayer(layer.id, -1); }}>⬇</button>
+                  <button className="btn ed-mini" title={layer.hidden ? 'Show' : 'Hide'} onClick={(e) => { e.stopPropagation(); updLayer(layer.id, { hidden: !layer.hidden }); }}>{layer.hidden ? '🙈' : '👁'}</button>
+                  <button className="btn ed-mini" title={layer.locked ? 'Unlock' : 'Lock'} onClick={(e) => { e.stopPropagation(); updLayer(layer.id, { locked: !layer.locked }); }}>{layer.locked ? '🔒' : '🔓'}</button>
+                  {layer.kind !== 'poem' && <button className="btn ed-mini" title="Duplicate" onClick={(e) => { e.stopPropagation(); dupLayer(layer.id); }}>⧉</button>}
+                  {layer.kind !== 'poem' && <button className="btn ed-mini" title="Delete" onClick={(e) => { e.stopPropagation(); delLayer(layer.id); }}>🗑</button>}
+                </div>
+              ))}
+            </div>
+            <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>Top row = front-most layer. The Poem layer can be hidden but not deleted. Locked layers cannot be dragged.</p>
+          </div>
+        )}
       </div>
-      <p className="muted" style={{ fontSize: 12, textAlign: 'center', margin: '8px 0 0' }}>Tip: drag the text on the photo to move it up or down</p>
-
-      <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
-        <button className="btn btn-gold" onClick={() => fileRef.current && fileRef.current.click()}>📷 Choose Photo</button>
-        <button className={'btn' + (bgMode === 'color' ? ' btn-gold' : '')} onClick={() => setBgMode('color')}>🎨 Colours</button>
-        <button className={'btn' + (bgMode === 'scene' ? ' btn-gold' : '')} onClick={() => setBgMode('scene')}>🌆 Scenes</button>
-        {imgUrl && <button className={'btn' + (bgMode === 'photo' ? ' btn-gold' : '')} onClick={() => setBgMode('photo')}>🖼️ My Photo</button>}
-        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPick} />
-      </div>
-
-      <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-        <span className="muted" style={{ fontSize: 12.5, fontWeight: 600 }}>Card size:</span>
-        {CARD_RATIOS.map(r => (
-          <button key={r.id} className={'btn' + (ratioId === r.id ? ' btn-gold' : '')} onClick={() => setRatioId(r.id)}>{r.label}</button>
-        ))}
-        <span className="muted" style={{ fontSize: 12 }}>{ratio.w} × {ratio.h}px</span>
-      </div>
-
-      {bgMode === 'color' && (
-        <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-          {PHOTO_COLORS.map(c => (
-            <button key={c.id} className={'swatch' + (colorId === c.id ? ' on' : '')} style={{ background: c.css }} title={c.name} onClick={() => { setColorId(c.id); if (c.light) setTextColor('ink'); }} />
-          ))}
-          <span className="muted" style={{ fontSize: 12.5 }}>{color.name}</span>
-        </div>
-      )}
-      {bgMode === 'scene' && (
-        <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
-          {SCENES.map(sc => (
-            <button key={sc.id} className={'swatch' + (sceneId === sc.id ? ' on' : '')} style={{ backgroundImage: 'url(' + sc.img + ')', backgroundSize: 'cover', width: 46, height: 46 }} title={sc.label} onClick={() => setSceneId(sc.id)} />
-          ))}
-        </div>
-      )}
-
-      <div style={{ marginTop: 14, display: 'grid', gap: 10 }}>
-        <select className="field" value={poem.id} onChange={(e) => setPoemId(e.target.value)}>
-          {poems.map(p => <option key={p.id} value={p.id}>{p.lang === 'en' ? p.title : (p.roman ? p.roman[0] : p.id)} — {poetOf(p.poet).name}</option>)}
-        </select>
-        <input className="field" placeholder="Your name on the card (optional)" value={name} maxLength={30} onChange={(e) => setName(e.target.value)} />
-      </div>
-
-      <div style={{ marginTop: 14, display: 'grid', gap: 12 }}>
-        <label className="ph-label">Text position
-          <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button className="btn" onClick={() => setPosY(v => Math.max(14, v - 4))}>↑ Up</button>
-            <input type="range" className="slider" min={14} max={88} value={posY} onChange={(e) => setPosY(parseInt(e.target.value, 10))} style={{ flex: 1 }} />
-            <button className="btn" onClick={() => setPosY(v => Math.min(88, v + 4))}>↓ Down</button>
-          </span>
-        </label>
-        <label className="ph-label">Text size
-          <input type="range" className="slider" min={80} max={135} value={Math.round(scale * 100)} onChange={(e) => setScale(parseInt(e.target.value, 10) / 100)} />
-        </label>
-        <label className="ph-label">Background darkness
-          <input type="range" className="slider" min={0} max={95} value={shade} onChange={(e) => setShade(parseInt(e.target.value, 10))} />
-        </label>
-        <div className="ph-label">Text colour
-          <span style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-            {TEXT_COLORS.map(t => (
-              <button key={t.id} className={'btn' + (textColor === t.id ? ' btn-gold' : '')} onClick={() => setTextColor(t.id)}><span style={{ display: 'inline-block', width: 11, height: 11, borderRadius: '50%', background: t.hex, border: '1px solid rgba(128,128,128,.5)', marginRight: 6 }} />{t.name}</button>
-            ))}
-          </span>
-        </div>
-      </div>
-
-      <button className="btn btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: 16, padding: '14px' }} onClick={generate} disabled={busy}>
-        {busy ? 'Creating…' : '📤 Share / Save Photo'}
-      </button>
     </div>
   );
 }
@@ -998,10 +2080,17 @@ function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, 
 
 function ReelsFeed() {
   const [reels, setReels] = useState(() => { try { return JSON.parse(localStorage.getItem(REELS_CACHE_KEY)) || REELS_FALLBACK; } catch { return REELS_FALLBACK; } });
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(() => { try { return localStorage.getItem('dailypoem_reels_muted') !== '0'; } catch { return true; } });
+  const [active, setActive] = useState(0);
   const [pausedId, setPausedId] = useState(null);
+  const [errIds, setErrIds] = useState(() => new Set());
+  const [retryMap, setRetryMap] = useState({});
   const videoRefs = useRef({});
   const itemRefs = useRef({});
+  const progRefs = useRef({});
+  const activeRef = useRef(0);
+  const pausedRef = useRef(null);
+  const hiddenRef = useRef(false);
 
   useEffect(() => {
     let live = true;
@@ -1019,34 +2108,104 @@ function ReelsFeed() {
     return () => { live = false; };
   }, []);
 
-  useEffect(() => {
-    Object.values(videoRefs.current).forEach(v => { if (v) v.muted = muted; });
-  }, [muted, reels]);
+  const playOne = id => {
+    const v = videoRefs.current[id];
+    if (v) { const pr = v.play(); if (pr) pr.catch(() => {}); }
+  };
+  const pauseAll = () => { Object.values(videoRefs.current).forEach(v => { if (v) v.pause(); }); };
 
+  /* Kaunsi reel screen par hai — sirf wahi chalegi, baqi ruki rahengi */
   useEffect(() => {
     if (!reels.length) return undefined;
     const io = new IntersectionObserver(entries => {
       entries.forEach(en => {
-        const id = en.target.dataset.reelId;
-        const v = videoRefs.current[id];
-        if (!v) return;
         if (en.intersectionRatio >= 0.6) {
-          setPausedId(null);
-          const pr = v.play(); if (pr) pr.catch(() => {});
-        } else {
-          v.pause();
+          const i = Number(en.target.dataset.idx);
+          if (!isNaN(i) && i !== activeRef.current) {
+            activeRef.current = i;
+            setActive(i);
+            setPausedId(null);
+            pausedRef.current = null;
+          }
         }
       });
-    }, { threshold: [0, 0.6] });
+    }, { threshold: [0.6] });
     Object.values(itemRefs.current).forEach(el => { if (el) io.observe(el); });
     return () => io.disconnect();
   }, [reels]);
 
+  /* Active reel chalao, baqi sab pause — kamzor phones par memory bachane ke liye
+     sirf pichli + current + agli reel ka <video> mount hota hai (windowing neeche render mein) */
+  useEffect(() => {
+    reels.forEach((r, i) => {
+      const v = videoRefs.current[r.id];
+      if (!v) return;
+      if (i === active && !hiddenRef.current && pausedRef.current !== r.id) {
+        const pr = v.play(); if (pr) pr.catch(() => {});
+      } else v.pause();
+    });
+  }, [active, reels]);
+
+  /* App background mein jaye to videos band — wapas aaye to active reel dobara chale */
+  useEffect(() => {
+    const onVis = () => {
+      hiddenRef.current = document.hidden;
+      if (document.hidden) pauseAll();
+      else {
+        const r = reels[activeRef.current];
+        if (r && pausedRef.current !== r.id) playOne(r.id);
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [reels]);
+
+  /* Unmount par saare video resources release */
+  useEffect(() => () => {
+    Object.values(videoRefs.current).forEach(v => {
+      if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch { /* noop */ } }
+    });
+  }, []);
+
+  const toggleMute = () => setMuted(m => {
+    const n = !m;
+    try { localStorage.setItem('dailypoem_reels_muted', n ? '1' : '0'); } catch { /* noop */ }
+    return n;
+  });
+
   const togglePlay = id => {
     const v = videoRefs.current[id];
     if (!v) return;
-    if (v.paused) { const pr = v.play(); if (pr) pr.catch(() => {}); setPausedId(null); }
-    else { v.pause(); setPausedId(id); }
+    if (v.paused) { playOne(id); setPausedId(null); pausedRef.current = null; }
+    else { v.pause(); setPausedId(id); pausedRef.current = id; }
+  };
+
+  const restart = (e, id) => {
+    e.stopPropagation();
+    const v = videoRefs.current[id];
+    if (!v) return;
+    try { v.currentTime = 0; } catch { /* noop */ }
+    playOne(id);
+    setPausedId(null); pausedRef.current = null;
+  };
+
+  const onTime = id => {
+    const v = videoRefs.current[id];
+    const bar = progRefs.current[id];
+    if (v && bar && v.duration && isFinite(v.duration)) bar.style.width = (v.currentTime / v.duration * 100) + '%';
+  };
+
+  const onErr = id => setErrIds(prev => {
+    if (prev.has(id)) return prev;
+    const n = new Set(prev); n.add(id); return n;
+  });
+
+  const retry = (e, id) => {
+    e.stopPropagation();
+    setErrIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+    setRetryMap(m => ({ ...m, [id]: (m[id] || 0) + 1 }));
+    /* Nayi copy mount hogi — ▶ dikha do taake user tap karke chala sake */
+    setPausedId(id); pausedRef.current = id;
   };
 
   if (!reels.length) {
@@ -1061,23 +2220,43 @@ function ReelsFeed() {
 
   return (
     <div className="vfeed">
-      {reels.map(r => (
-        <div className="vfeed-item" key={r.id} data-reel-id={r.id}
-          ref={el => { itemRefs.current[r.id] = el; }}
-          onClick={() => togglePlay(r.id)}>
-          <video
-            ref={el => { videoRefs.current[r.id] = el; if (el) el.muted = muted; }}
-            src={r.video} loop playsInline preload="metadata" muted={muted}
-          />
-          <div className="vfeed-shade" />
-          {pausedId === r.id && <div className="vfeed-play">▶</div>}
-          <button className="vfeed-mute" onClick={e => { e.stopPropagation(); setMuted(m => !m); }}>{muted ? '🔇' : '🔊'}</button>
-          <div className="vfeed-meta">
-            <div className="vfeed-title">{r.title}</div>
-            <div className="vfeed-poet">{r.poet}</div>
+      {reels.map((r, i) => {
+        const mounted = Math.abs(i - active) <= 1;
+        const failed = errIds.has(r.id);
+        return (
+          <div className="vfeed-item" key={r.id} data-idx={i}
+            ref={el => { itemRefs.current[r.id] = el; }}
+            onClick={() => togglePlay(r.id)}>
+            {mounted && !failed ? (
+              <video
+                key={r.id + ':' + (retryMap[r.id] || 0)}
+                ref={el => { videoRefs.current[r.id] = el; if (el) el.muted = muted; }}
+                src={r.video} loop playsInline muted={muted}
+                preload={i === active || i === active + 1 ? 'auto' : 'metadata'}
+                onTimeUpdate={() => onTime(r.id)}
+                onError={() => onErr(r.id)}
+              />
+            ) : (
+              <div className="vfeed-ph"><span>{r.title}</span></div>
+            )}
+            <div className="vfeed-shade" />
+            {failed && (
+              <div className="vfeed-err" onClick={e => e.stopPropagation()}>
+                <span>⚠️ This video could not load.<br />Check your connection and try again.</span>
+                <button className="btn btn-gold" style={{ flex: '0 1 auto' }} onClick={e => retry(e, r.id)}>↻ Retry</button>
+              </div>
+            )}
+            {!failed && pausedId === r.id && <div className="vfeed-play">▶</div>}
+            <div className="vfeed-progress"><span ref={el => { progRefs.current[r.id] = el; }} /></div>
+            <button className="vfeed-act vfeed-replay" onClick={e => restart(e, r.id)} aria-label="Replay">↻</button>
+            <button className="vfeed-act vfeed-mute" onClick={e => { e.stopPropagation(); toggleMute(); }} aria-label="Mute or unmute">{muted ? '🔇' : '🔊'}</button>
+            <div className="vfeed-meta">
+              <div className="vfeed-title">{r.title}</div>
+              <div className="vfeed-poet">{r.poet}</div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -1089,6 +2268,7 @@ export default function App() {
   const [catFilter, setCatFilter] = useState('all');
   const [poetFilter, setPoetFilter] = useState(null);
   const [reel, setReel] = useState(null);
+  const [reelAnim, setReelAnimState] = useState(() => { try { return localStorage.getItem('dailypoem_reel_anim') || 'rise'; } catch { return 'rise'; } });
   const [ownText, setOwnText] = useState('');
   const [ownName, setOwnName] = useState('');
   const [ownScene, setOwnScene] = useState(SCENES[0]);
@@ -1144,7 +2324,32 @@ export default function App() {
     return next;
   });
 
-  const openReel = poem => setReel({ poem, scene: SCENES[Math.floor(Math.random() * SCENES.length)] });
+  /* Mood ke hisaab se scene: mohabbat -> gulab, udaasi -> baarish, umeed -> chaand, sufi -> mehfil;
+     baqi categories din ke hisaab se ghoomti hain (random nahi, taake har dafa wahi mile) */
+  const openReel = poem => {
+    const MOOD_SCENE = { mohabbat: 'gulab', udaasi: 'baarish', umeed: 'chaand', sufi: 'mehfil' };
+    const scene = SCENES.find(s => s.id === MOOD_SCENE[poem.category]) || SCENES[new Date().getDate() % SCENES.length];
+    setReel({ poem, scene });
+  };
+
+  const setReelAnim = a => {
+    setReelAnimState(a);
+    try { localStorage.setItem('dailypoem_reel_anim', a); } catch { /* noop */ }
+  };
+
+  /* Episode alert notification par tap -> seedha Novel tab */
+  useEffect(() => {
+    let sub = null;
+    let live = true;
+    (async () => {
+      try {
+        const m = await import('@capacitor/local-notifications');
+        if (!live) return;
+        sub = await m.LocalNotifications.addListener('localNotificationActionPerformed', () => setTab('novel'));
+      } catch { /* web/dev par plugin nahi — khamoshi se skip */ }
+    })();
+    return () => { live = false; if (sub && sub.remove) { try { const r = sub.remove(); if (r && r.catch) r.catch(() => {}); } catch { /* noop */ } } };
+  }, []);
 
   const filtered = useMemo(() => {
     let list = poems;
@@ -1288,6 +2493,12 @@ export default function App() {
                   </button>
                 ))}
               </div>
+              <label>Line Animation</label>
+              <div className="chips">
+                {REEL_ANIMS.map(a => (
+                  <button key={a.id} className={`chip ${reelAnim === a.id ? 'on' : ''}`} onClick={() => setReelAnim(a.id)}>{a.label}</button>
+                ))}
+              </div>
               <button className="btn btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: 18, padding: '13px 16px' }}
                 onClick={startOwnReel} disabled={!ownText.trim()}>
                 🎬 Play My Reel
@@ -1303,7 +2514,7 @@ export default function App() {
 
         {tab === 'create' && <PhotoCardMaker poems={poems} toast={toast} />}
 
-      {tab === 'novel' && <NovelScreen />}
+      {tab === 'novel' && <NovelScreen toast={toast} />}
 
         {tab === 'noor' && (
           <>
@@ -1387,7 +2598,7 @@ export default function App() {
       </nav>
 
       {toastMsg && <div className="toast">{toastMsg}</div>}
-      {reel && <ReelPlayer poem={reel.poem} scene={reel.scene} onClose={() => { setReel(null); stopSpeak(); }} toast={toast} />}
+      {reel && <ReelPlayer poem={reel.poem} scene={reel.scene} onClose={() => { setReel(null); stopSpeak(); }} toast={toast} anim={reelAnim} onAnimChange={setReelAnim} />}
     </div>
   );
 }
