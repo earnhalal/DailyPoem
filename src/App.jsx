@@ -81,9 +81,9 @@ function sanitizeNovels(raw) {
 
 /* Pehle launch par novels data: naya cache -> purana (legacy shape) cache -> bundled fallback */
 function loadNovelsInitial() {
-  return sanitizeNovels(lsJson(NOVELS_CACHE_KEY, null))
-    || sanitizeNovels(lsJson(LEGACY_NOVEL_CACHE_KEY, null))
-    || NOVELS_FALLBACK;
+  const clean = sanitizeNovels(lsJson(NOVELS_CACHE_KEY, null))
+    || sanitizeNovels(lsJson(LEGACY_NOVEL_CACHE_KEY, null));
+  return clean ? clean.novels : NOVELS_FALLBACK.novels;
 }
 
 /* Per-novel progress keys: 'aakhri-sajda' ke liye PURANI keys hi rehti hain taake maujooda
@@ -2837,7 +2837,7 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.12</b></div>
+        <div className="nd-row"><span>Version</span><b>0.13</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
         <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>

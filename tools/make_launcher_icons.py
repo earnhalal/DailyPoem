@@ -59,4 +59,15 @@ with open(os.path.join(values, "ic_launcher_background.xml"), "w", encoding="utf
         '<resources><color name="ic_launcher_background">#120F0C</color></resources>\n'
     )
 
+# Remove the template's stale vector foreground/background drawables — some
+# launchers/splash screens resolve @drawable/ic_launcher_foreground and would
+# show the OLD default icon at startup even with correct mipmaps.
+for stale in (
+    os.path.join(RES, "drawable", "ic_launcher_background.xml"),
+    os.path.join(RES, "drawable-v24", "ic_launcher_foreground.xml"),
+    os.path.join(RES, "drawable-v24", "$ic_launcher_foreground__0.xml"),
+):
+    if os.path.exists(stale):
+        os.remove(stale)
+
 print("launcher icons written to", RES)
