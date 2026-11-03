@@ -687,7 +687,71 @@ function loadLN() {
 }
 const EP_ALERT_ID = 8001;
 
-function NovelScreen({ toast }) {
+/* Episode alert schedule — Novel tab aur Settings dono yahi istemal karte hain,
+   taake ek hi notification (id 8001) aur ek hi pref key (dailypoem_ep_alerts) rahe. */
+async function scheduleEpAlert(LN) {
+  await LN.schedule({
+    notifications: [{
+      id: EP_ALERT_ID,
+      title: 'Aakhri Sajda — DailyPoem',
+      body: 'A new episode is live — tap to read.',
+      schedule: { every: 'day', on: { hour: 20, minute: 0 } },
+      extra: { tab: 'novel' },
+    }],
+  });
+}
+/* Settings ke liye: on/off apply karo, result string wapas: 'on' | 'off' | 'blocked' | 'unavailable' */
+async function applyEpAlerts(on) {
+  const LN = await loadLN();
+  if (!LN) return 'unavailable';
+  if (on) {
+    const perm = await LN.requestPermissions();
+    if (!perm || perm.display !== 'granted') return 'blocked';
+    await scheduleEpAlert(LN);
+    lsSet('dailypoem_ep_alerts', '1');
+    return 'on';
+  }
+  await LN.cancel({ notifications: [{ id: EP_ALERT_ID }] });
+  lsSet('dailypoem_ep_alerts', '0');
+  return 'off';
+}
+
+/* Shayar ki lifespan — sirf woh 8 classical shayar jinki tareekhen verified hain.
+   NOTE: data file (poems.js POETS) mein Hasrat Mohani 1875–1951 hai; yahi rakha hai
+   taake app ke andar har jagah ek hi tareekh dikhe. English nazm par 'Original Poetry'. */
+const POET_META = {
+  ghalib: '1797–1869',
+  mir: '1723–1810',
+  iqbal: '1877–1938',
+  dagh: '1831–1905',
+  momin: '1800–1851',
+  zafar: '1775–1862',
+  hasrat: '1875–1951',
+  akbar: '1846–1921',
+};
+function poetYears(poem) {
+  if (!poem || poem.lang === 'en') return 'Original Poetry';
+  return POET_META[poem.poet] || poetOf(poem.poet).years || '';
+}
+
+/* Mood ke hisaab se scene — openReel aur Home ke reel cards dono ke liye ek jagah */
+const MOOD_SCENE = { mohabbat: 'gulab', udaasi: 'baarish', umeed: 'chaand', sufi: 'mehfil' };
+function sceneForPoem(poem) {
+  return SCENES.find(s => s.id === (poem && MOOD_SCENE[poem.category])) || SCENES[new Date().getDate() % SCENES.length];
+}
+
+/* Novel Continue Reading ka hisaab — NovelScreen aur Home dono ke liye:
+   sab se taaza adhoori position (pct 1% se zyada, 98% se kam) dailypoem_novel_pos se. */
+function novelLastPos(publishedEps, posMap) {
+  let lastPos = null;
+  for (const ep of publishedEps) {
+    const p = posMap[ep.n];
+    if (p && p.pct > 0.01 && p.pct < 0.98 && (!lastPos || (p.ts || 0) > (lastPos.ts || 0))) lastPos = { ep, pct: p.pct, ts: p.ts || 0 };
+  }
+  return lastPos;
+}
+
+function NovelScreen({ toast, openRequest, onConsumeOpenRequest }) {
   const notify = toast || (() => {});
   const [data, setData] = useState(() => sanitizeNovel(lsJson('dailypoem_novel_cache', null)) || NOVEL_FALLBACK);
   const [view, setView] = useState('home'); // 'home' | 'details'
@@ -723,12 +787,8 @@ function NovelScreen({ toast }) {
   const status = nv.status || 'Ongoing';
   const planned = nv.plannedEpisodes || published.length;
 
-  /* Sab se taaza reading position — Continue Reading isi se banta hai */
-  let lastPos = null;
-  for (const ep of published) {
-    const p = posMap[ep.n];
-    if (p && p.pct > 0.01 && p.pct < 0.98 && (!lastPos || (p.ts || 0) > (lastPos.ts || 0))) lastPos = { ep, pct: p.pct, ts: p.ts || 0 };
-  }
+  /* Sab se taaza reading position — Continue Reading isi se banta hai (shared helper) */
+  const lastPos = novelLastPos(published, posMap);
 
   const markRead = n => setReadSet(prev => {
     if (prev.includes(n)) return prev;
@@ -742,6 +802,17 @@ function NovelScreen({ toast }) {
     setProg(p ? p.pct || 0 : 0);
     setReading(ep);
   };
+
+  /* Bahar se (Home Continue Reading / search) kisi episode ko seedha kholne ki request —
+     consume karke parent ko clear karne ko keh do, taake Novels tab dobara khulne par
+     purani request reader phir se na khol de */
+  useEffect(() => {
+    if (!openRequest || !openRequest.n) return;
+    const ep = published.find(e => e.n === openRequest.n);
+    if (ep) openEp(ep);
+    if (onConsumeOpenRequest) onConsumeOpenRequest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openRequest]);
 
   const changeFs = d => {
     const v = Math.min(24, Math.max(16, fs + d));
@@ -809,18 +880,8 @@ function NovelScreen({ toast }) {
     }
   };
 
-  /* ---- Episode alerts: roz 8:00 PM local notification (device time) ---- */
-  const scheduleAlerts = async LN => {
-    await LN.schedule({
-      notifications: [{
-        id: EP_ALERT_ID,
-        title: 'Aakhri Sajda — DailyPoem',
-        body: 'A new episode is live — tap to read.',
-        schedule: { every: 'day', on: { hour: 20, minute: 0 } },
-        extra: { tab: 'novel' },
-      }],
-    });
-  };
+  /* ---- Episode alerts: roz 8:00 PM local notification (device time) ----
+     Schedule module-level scheduleEpAlert se hota hai — Settings bhi wahi istemal karti hai. */
   const toggleAlerts = async () => {
     if (alertBusy) return;
     setAlertBusy(true);
@@ -834,7 +895,7 @@ function NovelScreen({ toast }) {
       } else {
         const perm = await LN.requestPermissions();
         if (!perm || perm.display !== 'granted') { notify('Notifications are blocked — allow them in system settings'); return; }
-        await scheduleAlerts(LN);
+        await scheduleEpAlert(LN);
         setAlertsOn(true); lsSet('dailypoem_ep_alerts', '1');
         notify('Episode alerts on — daily at 8:00 PM');
       }
@@ -853,7 +914,7 @@ function NovelScreen({ toast }) {
         const has = pending && pending.notifications && pending.notifications.some(n => n.id === EP_ALERT_ID);
         if (!has) {
           const perm = await LN.checkPermissions();
-          if (perm && perm.display === 'granted') await scheduleAlerts(LN);
+          if (perm && perm.display === 'granted') await scheduleEpAlert(LN);
         }
       } catch { /* noop */ }
     })();
@@ -2021,7 +2082,7 @@ function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, 
             <div className="en-lines" style={{ marginTop: 12 }}>{p.lines.slice(0, 4).map((l, i) => <div key={i}>{l}</div>)}</div>
           </>
         )}
-        <div className="poet-line">— {poetOf(p.poet).name} <span>· {poetOf(p.poet).years}</span></div>
+        <div className="poet-line">— {poetOf(p.poet).name} <span>· {poetYears(p)}</span></div>
         <span className="slide-chip">🎬 Play Reel</span>
       </div>
     </section>
@@ -2042,7 +2103,7 @@ function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, 
             ) : (
               <div className="en-lines" style={{ marginTop: 18 }}>{today.lines.slice(0, 4).map((l, i) => <div key={i}>{l}</div>)}</div>
             )}
-            <div className="poet-line">— {poetOf(today.poet).name} <span>· {poetOf(today.poet).years}</span></div>
+            <div className="poet-line">— {poetOf(today.poet).name} <span>· {poetYears(today)}</span></div>
             <div className="hero-actions">
               <button className="btn btn-gold" onClick={onOpenReel}>🎬 Play Reel</button>
               <button className={'btn' + (isFav ? ' active-fav' : '')} onClick={onToggleFav}>{isFav ? '❤️' : '🤍'}</button>
@@ -2078,17 +2139,20 @@ function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, 
   );
 }
 
-function ReelsFeed() {
+function ReelsFeed({ startIndex = 0, onCreate }) {
   const [reels, setReels] = useState(() => { try { return JSON.parse(localStorage.getItem(REELS_CACHE_KEY)) || REELS_FALLBACK; } catch { return REELS_FALLBACK; } });
   const [muted, setMuted] = useState(() => { try { return localStorage.getItem('dailypoem_reels_muted') !== '0'; } catch { return true; } });
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(() => Math.max(0, startIndex || 0));
   const [pausedId, setPausedId] = useState(null);
   const [errIds, setErrIds] = useState(() => new Set());
   const [retryMap, setRetryMap] = useState({});
   const videoRefs = useRef({});
   const itemRefs = useRef({});
   const progRefs = useRef({});
-  const activeRef = useRef(0);
+  const feedRef = useRef(null);
+  const activeRef = useRef(Math.max(0, startIndex || 0));
+  const startRef = useRef(Math.max(0, startIndex || 0));
+  const didStartScroll = useRef(false);
   const pausedRef = useRef(null);
   const hiddenRef = useRef(false);
 
@@ -2145,6 +2209,20 @@ function ReelsFeed() {
       } else v.pause();
     });
   }, [active, reels]);
+
+  /* Home ki Trending strip se kisi khaas reel par land karna ho to feed wahan se shuru karo —
+     sirf pehli dafa (mount par), taake baad mein user ki scroll na khinch jaye */
+  useEffect(() => {
+    if (didStartScroll.current) return undefined;
+    const idx = Math.min(startRef.current, reels.length - 1);
+    if (idx <= 0) { didStartScroll.current = true; return undefined; }
+    const t = setTimeout(() => {
+      didStartScroll.current = true;
+      const el = feedRef.current;
+      if (el) el.scrollTo({ top: idx * el.clientHeight, behavior: 'auto' });
+    }, 60);
+    return () => clearTimeout(t);
+  }, [reels]);
 
   /* App background mein jaye to videos band — wapas aaye to active reel dobara chale */
   useEffect(() => {
@@ -2208,9 +2286,14 @@ function ReelsFeed() {
     setPausedId(id); pausedRef.current = id;
   };
 
+  const createBtn = onCreate ? (
+    <button className="vfeed-create" onClick={e => { e.stopPropagation(); onCreate(); }}>+ Create Reel</button>
+  ) : null;
+
   if (!reels.length) {
     return (
-      <div className="vfeed">
+      <div className="vfeed" ref={feedRef}>
+        {createBtn}
         <div className="vfeed-empty">
           <span><span className="big">🎬</span>Reels are coming soon.<br />Poetry videos are on their way — check back in a little while.</span>
         </div>
@@ -2219,7 +2302,8 @@ function ReelsFeed() {
   }
 
   return (
-    <div className="vfeed">
+    <div className="vfeed" ref={feedRef}>
+      {createBtn}
       {reels.map((r, i) => {
         const mounted = Math.abs(i - active) <= 1;
         const failed = errIds.has(r.id);
@@ -2261,6 +2345,81 @@ function ReelsFeed() {
   );
 }
 
+/* ---------------- More menu + Settings ---------------- */
+function MoreMenu({ onOpen }) {
+  const rows = [
+    { id: 'noor', icon: '☪️', title: 'Noor', desc: 'Duas, Hadith & Daily Noor' },
+    { id: 'create', icon: '✍️', title: 'Create / Studio', desc: 'Photo studio & your own reels' },
+    { id: 'saved', icon: '❤️', title: 'Saved', desc: 'Your favourite poetry' },
+    { id: 'settings', icon: '⚙️', title: 'Settings', desc: 'App preferences' },
+  ];
+  return (
+    <div>
+      <div className="section-title" style={{ marginTop: 18 }}><h2>More</h2><small>Explore</small></div>
+      {rows.map(r => (
+        <button key={r.id} className="more-row" onClick={() => onOpen(r.id)}>
+          <span className="more-ic">{r.icon}</span>
+          <span style={{ flex: 1, textAlign: 'left' }}>
+            <span className="more-title">{r.title}</span>
+            <span className="more-desc">{r.desc}</span>
+          </span>
+          <span className="more-chev">›</span>
+        </button>
+      ))}
+      <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 16 }}>DailyPoem · MintNest Studio</p>
+    </div>
+  );
+}
+
+function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poemsCount, novelCount }) {
+  const notify = toast || (() => {});
+  const [alertsOn, setAlertsOn] = useState(() => lsGet('dailypoem_ep_alerts', '') === '1');
+  const [alertBusy, setAlertBusy] = useState(false);
+  const toggleAlerts = async () => {
+    if (alertBusy) return;
+    setAlertBusy(true);
+    try {
+      const r = await applyEpAlerts(!alertsOn);
+      if (r === 'on') { setAlertsOn(true); notify('Episode alerts on — daily at 8:00 PM'); }
+      else if (r === 'off') { setAlertsOn(false); notify('Episode alerts turned off'); }
+      else if (r === 'blocked') notify('Notifications are blocked — allow them in system settings');
+      else notify('Episode alerts are not available on this device yet');
+    } catch { notify('Episode alerts are not available on this device yet'); }
+    finally { setAlertBusy(false); }
+  };
+  return (
+    <div>
+      <div className="section-title" style={{ marginTop: 18 }}><h2>Settings</h2><small>Preferences</small></div>
+      <div className="nd-meta" style={{ marginTop: 2 }}>
+        <div className="nd-row">
+          <span>Theme</span>
+          <button className="btn" style={{ padding: '7px 13px', fontSize: 12.5 }} onClick={onToggleTheme}>{theme === 'dark' ? '🌙 Dark' : '☀️ Light'}</button>
+        </div>
+        <div className="nd-row">
+          <span>Episode alerts<span className="set-sub">Daily reminder at 8:00 PM</span></span>
+          <button className={'chip' + (alertsOn ? ' on' : '')} disabled={alertBusy} onClick={toggleAlerts}>{alertsOn ? 'On' : 'Off'}</button>
+        </div>
+        <div className="nd-row" style={{ alignItems: 'flex-start' }}>
+          <span>Reel animation<span className="set-sub">How poetry lines appear</span></span>
+          <span className="chips" style={{ paddingBottom: 0 }}>
+            {REEL_ANIMS.map(a => (
+              <button key={a.id} className={`chip ${reelAnim === a.id ? 'on' : ''}`} onClick={() => onReelAnim(a.id)}>{a.label}</button>
+            ))}
+          </span>
+        </div>
+      </div>
+
+      <div className="section-title"><h2>About</h2></div>
+      <div className="nd-meta" style={{ marginTop: 2 }}>
+        <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
+        <div className="nd-row"><span>Version</span><b>0.10</b></div>
+        <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
+        <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState('home');
   const [favs, setFavs] = useState(loadFavs);
@@ -2273,6 +2432,10 @@ export default function App() {
   const [ownName, setOwnName] = useState('');
   const [ownScene, setOwnScene] = useState(SCENES[0]);
   const [noorTab, setNoorTab] = useState('dua');
+  const [moreView, setMoreView] = useState('menu'); // More ke andar: 'menu' | 'noor' | 'create' | 'saved' | 'settings'
+  const [homeQuery, setHomeQuery] = useState('');
+  const [reelsJump, setReelsJump] = useState({ index: 0, nonce: 0 });
+  const [novelOpenReq, setNovelOpenReq] = useState(null);
   const [theme, setTheme] = useState(() => { try { return localStorage.getItem('dailypoem_theme') || 'dark'; } catch { return 'dark'; } });
   const [intro, setIntro] = useState(true);
 
@@ -2302,6 +2465,40 @@ export default function App() {
   const noorToday = useMemo(() => noorOfTheDay(), []);
   const todayScene = SCENES[new Date().getDate() % SCENES.length];
 
+  /* Novel data App level par bhi — Home ke Continue Reading / Featured Novel / search ke liye.
+     Wahi cache key aur wahi remote file jo NovelScreen istemal karta hai. */
+  const [novelData, setNovelData] = useState(() => sanitizeNovel(lsJson('dailypoem_novel_cache', null)) || NOVEL_FALLBACK);
+  useEffect(() => {
+    let live = true;
+    fetch(NOVEL_REMOTE_URL, { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => { const clean = sanitizeNovel(j); if (live && clean) { setNovelData(clean); lsSet('dailypoem_novel_cache', JSON.stringify(clean)); } })
+      .catch(() => {});
+    return () => { live = false; };
+  }, []);
+  const novelPublished = useMemo(
+    () => [...novelData.episodes].sort((a, b) => a.n - b.n).filter(e => epPublishMs(e) <= Date.now()),
+    [novelData],
+  );
+
+  /* Home ki Trending Reels strip ke liye reels list — ReelsFeed wali hi cache/remote */
+  const [homeReels, setHomeReels] = useState(() => { try { return JSON.parse(localStorage.getItem(REELS_CACHE_KEY)) || REELS_FALLBACK; } catch { return REELS_FALLBACK; } });
+  useEffect(() => {
+    let live = true;
+    fetch(REELS_REMOTE_URL, { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => {
+        const list = Array.isArray(j) ? j : (j && j.reels);
+        const clean = Array.isArray(list) ? list.filter(x => x && x.video) : null;
+        if (live && clean && clean.length) {
+          setHomeReels(clean);
+          try { localStorage.setItem(REELS_CACHE_KEY, JSON.stringify(clean)); } catch { /* noop */ }
+        }
+      })
+      .catch(() => {});
+    return () => { live = false; };
+  }, []);
+
   const copyText = async text => {
     try { await navigator.clipboard.writeText(text); }
     catch {
@@ -2324,18 +2521,20 @@ export default function App() {
     return next;
   });
 
-  /* Mood ke hisaab se scene: mohabbat -> gulab, udaasi -> baarish, umeed -> chaand, sufi -> mehfil;
-     baqi categories din ke hisaab se ghoomti hain (random nahi, taake har dafa wahi mile) */
-  const openReel = poem => {
-    const MOOD_SCENE = { mohabbat: 'gulab', udaasi: 'baarish', umeed: 'chaand', sufi: 'mehfil' };
-    const scene = SCENES.find(s => s.id === MOOD_SCENE[poem.category]) || SCENES[new Date().getDate() % SCENES.length];
-    setReel({ poem, scene });
-  };
+  /* Mood ke hisaab se scene (shared sceneForPoem): mohabbat -> gulab, udaasi -> baarish,
+     umeed -> chaand, sufi -> mehfil; baqi din ke hisaab se ghoomti hain (random nahi) */
+  const openReel = poem => setReel({ poem, scene: sceneForPoem(poem) });
 
   const setReelAnim = a => {
     setReelAnimState(a);
     try { localStorage.setItem('dailypoem_reel_anim', a); } catch { /* noop */ }
   };
+
+  /* More tab ke andar kisi section ko kholo */
+  const goMore = view => { setMoreView(view); setTab('more'); };
+
+  /* Novels tab khol kar seedha kisi episode ke reader mein jao (saved position khud lag jati hai) */
+  const openNovelEpisode = n => { setNovelOpenReq({ n, ts: Date.now() }); setTab('novel'); };
 
   /* Episode alert notification par tap -> seedha Novel tab */
   useEffect(() => {
@@ -2368,6 +2567,27 @@ export default function App() {
 
   const favPoems = poems.filter(p => favs.has(p.id));
 
+  /* ---------- Home: search + novel sections ka data ---------- */
+  const hqRaw = homeQuery.trim();
+  const hq = hqRaw.toLowerCase();
+  const homePoemHits = hq ? poems.filter(p => {
+    const poet = poetOf(p.poet).name.toLowerCase();
+    const text = [...(p.urdu || []), ...(p.roman || []), ...(p.lines || []), p.title || ''].join(' ').toLowerCase();
+    return poet.includes(hq) || text.includes(hq) || (p.urdu || []).join(' ').includes(hqRaw);
+  }).slice(0, 6) : [];
+  const homeMoodHits = hq ? CATEGORIES.filter(c => c.label.toLowerCase().includes(hq) || c.id.includes(hq) || (c.urdu || '').includes(hqRaw)) : [];
+  const homeEpHits = hq ? novelPublished.filter(e => (e.title || '').toLowerCase().includes(hq) || (e.urduTitle || '').includes(hqRaw)).slice(0, 4) : [];
+  const homeNovelHit = !!hq && ((novelData.novel.title || '').toLowerCase().includes(hq) || (novelData.novel.urduTitle || '').includes(hqRaw));
+  const homeHasHits = homePoemHits.length > 0 || homeMoodHits.length > 0 || homeEpHits.length > 0 || homeNovelHit;
+
+  /* Continue Reading — NovelScreen wali hi dailypoem_novel_pos key + shared helper */
+  const homeLastPos = novelLastPos(novelPublished, lsJson('dailypoem_novel_pos', {}));
+  const latestEp = novelPublished[novelPublished.length - 1] || null;
+  /* "New Episode" badge sirf tab jab latest episode asal mein pichle 48 ghante mein publish hua ho
+     (publishAt maujood ho tab hi pata chalta hai; warna koi badge nahi — andaza nahi lagate) */
+  const latestAgeMs = latestEp && latestEp.publishAt ? Date.now() - epPublishMs(latestEp) : null;
+  const latestIsNew = latestAgeMs != null && latestAgeMs >= 0 && latestAgeMs < 48 * 3600 * 1000;
+
   const ownPoem = () => {
     const lines = ownText.split('\n').map(s => s.trim()).filter(Boolean);
     if (lines.length < 1) return null;
@@ -2392,11 +2612,10 @@ export default function App() {
             <div className="logo-sub">Shayari · Poetry · Reels</div>
           </div>
         </div>
-        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button className="btn" style={{ padding: '8px 12px', fontSize: 13 }} onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}>
-            {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
-          </button>
+        <span style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
           <span className="tag">{poems.length} poems</span>
+          <button className="btn top-ic" onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))} aria-label="Toggle light or dark theme" title="Theme">{theme === 'dark' ? '☀️' : '🌙'}</button>
+          <button className="btn top-ic" onClick={() => goMore('settings')} aria-label="Settings and notifications" title="Settings">🔔</button>
         </span>
       </header>
 
@@ -2405,20 +2624,72 @@ export default function App() {
           <>
             <HomeSlider
               today={today} todayScene={todayScene} poems={poems}
-              novelCount={NOVEL_FALLBACK.episodes.length}
+              novelCount={novelPublished.length}
               isFav={favs.has(today.id)} onToggleFav={() => toggleFav(today.id)}
               onOpenReel={() => setReel({ poem: today, scene: todayScene })}
               onShare={() => sharePoem(today, todayScene, toast)}
               onGo={setTab} onOpenPoem={(p, sc) => setReel({ poem: p, scene: sc })}
             />
 
-            <div className="section-title"><h2>Browse by Mood</h2><small>Categories</small></div>
+            <div className="search">
+              <span>🔎</span>
+              <input value={homeQuery} onChange={e => setHomeQuery(e.target.value)} placeholder="Search poems, poets, moods, episodes…" />
+              {hqRaw && <button className="icon-btn" onClick={() => setHomeQuery('')} aria-label="Clear search">✕</button>}
+            </div>
+            {hqRaw && (
+              <div className="sr-panel">
+                {!homeHasHits && <div className="sr-empty">No poems found for &ldquo;{hqRaw}&rdquo; — try a poet name or mood.</div>}
+                {homePoemHits.length > 0 && (
+                  <>
+                    <div className="sr-label">Poems</div>
+                    {homePoemHits.map(p => (
+                      <button key={p.id} className="sr-row" onClick={() => { setHomeQuery(''); openReel(p); }}>
+                        {p.lang === 'ur'
+                          ? <span className="sr-urdu" dir="rtl">{p.urdu[0]}</span>
+                          : <span className="sr-main">{p.title || p.lines[0]}</span>}
+                        <span className="sr-sub">{poetOf(p.poet).name} · Poem</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+                {homeMoodHits.length > 0 && (
+                  <>
+                    <div className="sr-label">Moods</div>
+                    {homeMoodHits.map(c => (
+                      <button key={c.id} className="sr-row" onClick={() => { setHomeQuery(''); setCatFilter(c.id); setPoetFilter(null); setTab('library'); }}>
+                        <span className="sr-main">{c.icon} {c.label}</span>
+                        <span className="sr-sub">Mood</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+                {(homeNovelHit || homeEpHits.length > 0) && (
+                  <>
+                    <div className="sr-label">Novel</div>
+                    {homeNovelHit && (
+                      <button className="sr-row" onClick={() => { setHomeQuery(''); setTab('novel'); }}>
+                        <span className="sr-main">📖 {novelData.novel.title}</span>
+                        <span className="sr-sub">Novel · {novelPublished.length} episodes</span>
+                      </button>
+                    )}
+                    {homeEpHits.map(e => (
+                      <button key={e.n} className="sr-row" onClick={() => { setHomeQuery(''); openNovelEpisode(e.n); }}>
+                        <span className="sr-main">Episode {e.n} — {e.title}</span>
+                        <span className="sr-sub">Episode</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+
+            <div className="section-title"><h2>Browse by Mood</h2><button className="link-btn" onClick={() => { setCatFilter('all'); setPoetFilter(null); setTab('library'); }}>View All →</button></div>
             <div className="cat-grid">
               {CATEGORIES.map(c => {
                 const art = CAT_ART[c.id] || {};
                 return (
                   <button key={c.id} className={'cat-card' + (art.img ? ' has-art' : ' cat-grad')} onClick={() => { setCatFilter(c.id); setPoetFilter(null); setTab('library'); }}>
-                    {art.img && <img className="cat-bg" src={art.img} alt="" />}
+                    {art.img && <img className="cat-bg" src={art.img} alt="" loading="lazy" />}
                     {art.img && <div className="cat-shade" style={{ background: 'linear-gradient(155deg, ' + art.tint + ', rgba(10,8,7,.86) 82%)' }} />}
                     <span className="urdu-sm">{c.urdu}</span>
                     <span className="ic">{c.icon}</span>
@@ -2427,6 +2698,91 @@ export default function App() {
                   </button>
                 );
               })}
+            </div>
+
+            {homeLastPos ? (
+              <>
+                <div className="section-title"><h2>Continue Reading</h2><small>{novelData.novel.title}</small></div>
+                <div className="cont-card" style={{ marginTop: 0 }} onClick={() => openNovelEpisode(homeLastPos.ep.n)}>
+                  <div style={{ fontSize: 22 }}>📖</div>
+                  <div style={{ flex: 1 }}>
+                    <b style={{ fontSize: 14.5 }}>Episode {homeLastPos.ep.n} — {homeLastPos.ep.title}</b>
+                    <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>{Math.round(homeLastPos.pct * 100)}% read</div>
+                    <div className="cont-bar"><span style={{ width: (homeLastPos.pct * 100) + '%' }} /></div>
+                  </div>
+                  <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
+                </div>
+              </>
+            ) : novelPublished.length > 0 && (
+              <div className="cont-card" onClick={() => openNovelEpisode(novelPublished[0].n)}>
+                <div style={{ fontSize: 22 }}>📖</div>
+                <div style={{ flex: 1 }}>
+                  <b style={{ fontSize: 14.5 }}>Start {novelData.novel.title}</b>
+                  <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>Episode 1 is ready — a new episode arrives daily at 8:00 PM.</div>
+                </div>
+                <span style={{ color: 'var(--gold)', fontSize: 20 }}>›</span>
+              </div>
+            )}
+
+            <div className="section-title"><h2>Featured Novel</h2><small>Original</small></div>
+            <div className="ncover ncover-tap" onClick={() => (homeLastPos ? openNovelEpisode(homeLastPos.ep.n) : setTab('novel'))}>
+              {latestIsNew && <span className="feat-badge">✦ New Episode</span>}
+              <div className="ncover-urdu" dir="rtl">{novelData.novel.urduTitle}</div>
+              <div className="ncover-title">{novelData.novel.title}</div>
+              <span className="tag">{novelData.novel.genre || 'Roohani Drama'}</span>
+              <p className="ncover-syn">{novelData.novel.synopsis}</p>
+              <div className="ncover-meta">Episodes {novelPublished.length} of {novelData.novel.plannedEpisodes || novelPublished.length} · {novelData.novel.status || 'Ongoing'}</div>
+              <span className="slide-chip">{homeLastPos ? 'Continue Reading →' : 'Read Now →'}</span>
+            </div>
+
+            <div className="section-title"><h2>Trending Reels</h2><button className="link-btn" onClick={() => { setReelsJump({ index: 0, nonce: Date.now() }); setTab('reels'); }}>View All →</button></div>
+            <div className="hstrip">
+              {homeReels.map((r, i) => {
+                const rp = poems.find(p => p.id === r.poemId);
+                const sc = rp ? sceneForPoem(rp) : SCENES[0];
+                return (
+                  <button key={r.id} className="reel-card" onClick={() => { setReelsJump({ index: i, nonce: Date.now() }); setTab('reels'); }}>
+                    <img src={sc.img} alt="" loading="lazy" />
+                    <span className="reel-card-shade" />
+                    <span className="reel-card-play">▶</span>
+                    <span className="reel-card-meta"><b>{r.title}</b><small>{r.poet}</small></span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="section-title"><h2>Daily Noor</h2><small>Today</small></div>
+            <div className="pcard" style={{ marginTop: 0 }}>
+              <span className="tag">🤲 Dua of the Day · {noorToday.dua.source}</span>
+              <div className="arabic" style={{ marginTop: 10 }}>{noorToday.dua.arabic}</div>
+              <div className="en-lines" style={{ fontSize: 15.5, marginTop: 6 }}>{noorToday.dua.english}</div>
+              <div style={{ borderTop: '1px solid var(--line)', marginTop: 14, paddingTop: 12 }}>
+                <span className="tag">📜 Hadith of the Day · {noorToday.hadees.source}</span>
+                <div className="en-lines" style={{ fontSize: 15.5, marginTop: 8 }}>{noorToday.hadees.english}</div>
+              </div>
+              <button className="btn btn-gold" style={{ width: '100%', justifyContent: 'center', marginTop: 14 }} onClick={() => goMore('noor')}>Open Noor →</button>
+            </div>
+
+            <div className="section-title"><h2>Recently Added</h2><button className="link-btn" onClick={() => { setCatFilter('all'); setPoetFilter(null); setTab('library'); }}>View All →</button></div>
+            <div className="hstrip">
+              {[...poems].slice(-8).reverse().map(p => {
+                const cat = CATEGORIES.find(c => c.id === p.category);
+                return (
+                  <button key={p.id} className="recent-card" onClick={() => openReel(p)}>
+                    {p.lang === 'ur'
+                      ? <span className="recent-urdu" dir="rtl">{p.urdu[0]}</span>
+                      : <span className="recent-en">{p.title || p.lines[0]}</span>}
+                    <span className="recent-meta">{poetOf(p.poet).name}</span>
+                    {cat && <span className="tag" style={{ alignSelf: 'flex-start' }}>{cat.icon} {cat.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="create-hero">
+              <h3>✍️ Create Your Own</h3>
+              <p>Write your own poetry and turn it into a beautiful image card or a reel — with your name on it.</p>
+              <button className="btn btn-gold" style={{ flex: '0 1 auto', marginTop: 12 }} onClick={() => goMore('create')}>Open Studio →</button>
             </div>
 
             <div className="section-title"><h2>Poets</h2><small>The masters</small></div>
@@ -2471,10 +2827,22 @@ export default function App() {
           </>
         )}
 
-        {tab === 'reels' && <ReelsFeed />}
+        {tab === 'reels' && <ReelsFeed key={reelsJump.nonce} startIndex={reelsJump.index} onCreate={() => goMore('create')} />}
 
-        {tab === 'create' && (
+        {tab === 'more' && moreView === 'menu' && <MoreMenu onOpen={setMoreView} />}
+
+        {tab === 'more' && moreView === 'settings' && (
           <>
+            <div style={{ marginTop: 14 }}><button className="btn" onClick={() => setMoreView('menu')}>← More</button></div>
+            <SettingsScreen theme={theme} onToggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
+              reelAnim={reelAnim} onReelAnim={setReelAnim} toast={toast}
+              poemsCount={poems.length} novelCount={novelPublished.length} />
+          </>
+        )}
+
+        {tab === 'more' && moreView === 'create' && (
+          <>
+            <div style={{ marginTop: 14 }}><button className="btn" onClick={() => setMoreView('menu')}>← More</button></div>
             <div className="create-hero">
               <h3>✍️ Your Poetry, Your Reel</h3>
               <p>Type your own poem below — one line per line, in Urdu or English. Choose a scene, and your reel is ready with your name on it.</p>
@@ -2512,12 +2880,13 @@ export default function App() {
           </>
         )}
 
-        {tab === 'create' && <PhotoCardMaker poems={poems} toast={toast} />}
+        {tab === 'more' && moreView === 'create' && <PhotoCardMaker poems={poems} toast={toast} />}
 
-      {tab === 'novel' && <NovelScreen toast={toast} />}
+      {tab === 'novel' && <NovelScreen toast={toast} openRequest={novelOpenReq} onConsumeOpenRequest={() => setNovelOpenReq(null)} />}
 
-        {tab === 'noor' && (
+        {tab === 'more' && moreView === 'noor' && (
           <>
+            <div style={{ marginTop: 14 }}><button className="btn" onClick={() => setMoreView('menu')}>← More</button></div>
             <div className="create-hero">
               <h3>☪️ Noor — Daily Light</h3>
               <p>Authentic duas and ahadees for every day — each one shown with its source, so you can trust and verify what you read.</p>
@@ -2570,8 +2939,9 @@ export default function App() {
           </>
         )}
 
-        {tab === 'favs' && (
+        {tab === 'more' && moreView === 'saved' && (
           <>
+            <div style={{ marginTop: 14 }}><button className="btn" onClick={() => setMoreView('menu')}>← More</button></div>
             <div className="section-title"><h2>Saved</h2><small>{favPoems.length} poems</small></div>
             {favPoems.length === 0 && (
               <div className="empty"><span className="big">🤍</span>Nothing saved yet.<br />Tap the heart on any poem and it will be saved here.
@@ -2590,11 +2960,9 @@ export default function App() {
       <nav className="nav">
         <button className={tab === 'home' ? 'on' : ''} onClick={() => setTab('home')}><span className="ni">🏠</span>Home</button>
         <button className={tab === 'library' ? 'on' : ''} onClick={() => setTab('library')}><span className="ni">📚</span>Library</button>
-        <button className={tab === 'reels' ? 'on' : ''} onClick={() => setTab('reels')}><span className="ni">🎬</span>Reels</button>
-        <button className={tab === 'noor' ? 'on' : ''} onClick={() => setTab('noor')}><span className="ni">☪️</span>Noor</button>
-        <button className={tab === 'create' ? 'on' : ''} onClick={() => setTab('create')}><span className="ni">✍️</span>My Reel</button>
-        <button className={tab === 'novel' ? 'on' : ''} onClick={() => setTab('novel')}><span className="ni">📖</span>Novel</button>
-        <button className={tab === 'favs' ? 'on' : ''} onClick={() => setTab('favs')}><span className="ni">❤️</span>Saved</button>
+        <button className={tab === 'reels' ? 'on' : ''} onClick={() => { setReelsJump({ index: 0, nonce: Date.now() }); setTab('reels'); }}><span className="ni">🎬</span>Reels</button>
+        <button className={tab === 'novel' ? 'on' : ''} onClick={() => setTab('novel')}><span className="ni">📖</span>Novels</button>
+        <button className={tab === 'more' ? 'on' : ''} onClick={() => { if (tab === 'more') setMoreView('menu'); else setTab('more'); }}><span className="ni">☰</span>More</button>
       </nav>
 
       {toastMsg && <div className="toast">{toastMsg}</div>}
