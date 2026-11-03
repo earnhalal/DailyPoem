@@ -253,3 +253,35 @@ input[type='range'].slider { accent-color: var(--gold); height: 28px; }
 .vfeed-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 54px; color: rgba(255,255,255,.9); text-shadow: 0 4px 24px rgba(0,0,0,.7); pointer-events: none; }
 .vfeed-empty { height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; color: #a89c8a; padding: 40px 30px; font-size: 14.5px; line-height: 1.7; }
 .vfeed-empty .big { font-size: 38px; display: block; margin-bottom: 10px; }
+
+/* ---------- design polish + category art + photo poet line ---------- */
+.btn { transition: transform .12s ease, background .2s ease, border-color .2s ease, color .2s ease; }
+.chip { transition: transform .12s ease, background .2s ease, color .2s ease; }
+.chip:active { transform: scale(.96); }
+.icon-btn { transition: transform .12s ease; }
+.icon-btn:active { transform: scale(.82); }
+.topbar { border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.logo-mark { box-shadow: 0 4px 16px rgba(212,175,55,.16); }
+.section-title h2 { border-left: 3px solid var(--gold); padding-left: 10px; }
+.pcard { box-shadow: 0 8px 22px rgba(0,0,0,.16); }
+.pcard .en-lines { line-height: 1.62; }
+.pcard footer { border-top: 1px solid var(--line); padding-top: 11px; }
+.poet .face { transition: transform .12s ease; }
+.poet:active .face { transform: scale(.93); }
+.ep-row { transition: transform .12s ease; }
+.ep-row:active { transform: scale(.99); }
+.field:focus { border-color: rgba(212,175,55,.55); outline: none; }
+.nav button { position: relative; transition: color .2s ease, transform .12s ease; }
+.nav button:active { transform: scale(.93); }
+.nav button.on::before { content: ''; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); width: 22px; height: 3px; border-radius: 0 0 4px 4px; background: var(--gold); }
+.cat-card { position: relative; overflow: hidden; transition: transform .12s ease; }
+.cat-card:active { transform: scale(.98); }
+.cat-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cat-shade { position: absolute; inset: 0; }
+.cat-card > *:not(.cat-bg):not(.cat-shade) { position: relative; }
+.cat-card.has-art, .cat-card.cat-grad { color: #f3ead8; border-color: rgba(212,175,55,.38); }
+.cat-card.has-art h3, .cat-card.cat-grad h3 { color: #f3ead8; }
+.cat-card.has-art p, .cat-card.cat-grad p { color: #cfc2ab; }
+.cat-grad { background: linear-gradient(150deg, #4a2410, #1c0f06 72%); }
+.ph-poet { position: absolute; left: 6%; right: 6%; text-align: center; font-weight: 600; pointer-events: none; text-shadow: 0 1px 10px rgba(0,0,0,.45); }
+.ph-text { text-shadow: 0 1px 10px rgba(0,0,0,.35); }

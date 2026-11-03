@@ -81,6 +81,66 @@ function synthHasVoice(lang) {
   } catch { return false; }
 }
 
+
+/* ------------- Card text layout: word-wrap + shrink-to-fit ------------- */
+let _measureCtx = null;
+function measureCtx() {
+  if (!_measureCtx) _measureCtx = document.createElement('canvas').getContext('2d');
+  return _measureCtx;
+}
+
+function wrapTextLines(ctx, lines, maxW) {
+  const out = [];
+  let widest = 0;
+  for (const raw of lines) {
+    const words = String(raw).split(/\s+/).filter(Boolean);
+    if (!words.length) { out.push(''); continue; }
+    let cur = '';
+    for (const w of words) {
+      const test = cur ? cur + ' ' + w : w;
+      if (!cur || ctx.measureText(test).width <= maxW) { cur = test; continue; }
+      out.push(cur); widest = Math.max(widest, ctx.measureText(cur).width);
+      cur = w;
+    }
+    if (cur) { out.push(cur); widest = Math.max(widest, ctx.measureText(cur).width); }
+  }
+  return { lines: out, widest };
+}
+
+/* Poora sher/nazm card par fit karo: font size step by step kam karo jab tak saari
+   lines (wrap ke baad) width mein bhi aur total height mein bhi jagah par na aa jayen.
+   Canvas render aur editor preview dono yahi layout istemal karte hain. */
+function fitPoemText({ poem, maxW, availH, scale = 1 }) {
+  const isUr = poem.lang === 'ur';
+  const ctx = measureCtx();
+  const src = linesOf(poem);
+  const romanSrc = isUr && Array.isArray(poem.roman) ? poem.roman : [];
+  const hasTitle = !isUr && !!poem.title;
+  const base = Math.round((isUr ? 64 : 58) * scale);
+  const floor = isUr ? 22 : 18;
+  let best = null;
+  for (let fs = base; fs >= floor; fs -= 2) {
+    ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
+    const main = wrapTextLines(ctx, src, maxW);
+    const step = fs * (isUr ? 2.15 : 1.42);
+    const rFs = Math.max(17, Math.round(fs * 0.54));
+    ctx.font = 'italic ' + rFs + 'px "Cormorant Garamond", serif';
+    const rom = romanSrc.length ? wrapTextLines(ctx, romanSrc, maxW) : { lines: [], widest: 0 };
+    const rStep = rFs * 1.45;
+    const titleH = hasTitle ? fs * 1.5 : 0;
+    const blockH = titleH + main.lines.length * step + (rom.lines.length ? 14 + rom.lines.length * rStep : 0);
+    best = { isUr, hasTitle, titleH, fs, step, lines: main.lines, roman: rom.lines, rFs, rStep, blockH };
+    if (blockH <= availH && main.widest <= maxW + 6 && rom.widest <= maxW + 6) break;
+  }
+  return best;
+}
+
+const CARD_RATIOS = [
+  { id: 'square', label: 'Square · 1:1', w: 1080, h: 1080 },
+  { id: 'portrait', label: 'Portrait · 4:5', w: 1080, h: 1350 },
+  { id: 'story', label: 'Story · 9:16', w: 1080, h: 1920 },
+];
+
 /* ---------------- Share card (canvas) ---------------- */
 async function makeShareCard(poem, scene) {
   const W = 1080, H = 1350;
@@ -108,27 +168,36 @@ async function makeShareCard(poem, scene) {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#d4af37';
   ctx.font = '600 34px Inter, sans-serif';
-  ctx.fillText('— POEM OF THE DAY —', W / 2, 130);
+  ctx.fillText('\u2014 POEM OF THE DAY \u2014', W / 2, 130);
+  try {
+    await document.fonts.load('44px "Noto Nastaliq Urdu"');
+    await document.fonts.load('600 44px "Playfair Display"');
+    await document.fonts.load('italic 30px "Cormorant Garamond"');
+  } catch { /* fonts optional */ }
   const poet = poetOf(poem.poet);
-  const lines = linesOf(poem);
+  const L = fitPoemText({ poem, maxW: W - 170, availH: H - 560, scale: 1 });
+  let y = 250 + Math.max(0, (H - 560 - L.blockH) / 2);
+  if (L.hasTitle) {
+    ctx.fillStyle = '#d4af37';
+    ctx.font = 'italic 600 ' + Math.round(L.fs * 0.78) + 'px "Playfair Display", serif';
+    ctx.fillText(poem.title, W / 2, y + L.fs * 1.02);
+    y += L.titleH;
+  }
   ctx.fillStyle = '#f3ead8';
-  if (poem.lang === 'ur') {
-    try { await document.fonts.load('28px "Noto Nastaliq Urdu"'); } catch { /* font optional */ }
-    ctx.font = '44px "Noto Nastaliq Urdu", serif';
-    lines.forEach((ln, i) => ctx.fillText(ln, W / 2, 400 + i * 130));
-    ctx.font = 'italic 30px "Cormorant Garamond", serif';
+  ctx.font = L.isUr ? L.fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + L.fs + 'px "Playfair Display", serif';
+  L.lines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + L.step * 0.72 + i * L.step));
+  y += L.lines.length * L.step;
+  if (L.roman.length) {
     ctx.fillStyle = '#d9cdb6';
-    (poem.roman || []).forEach((ln, i) => ctx.fillText(ln, W / 2, 760 + i * 52));
-  } else {
-    ctx.font = '46px "Cormorant Garamond", serif';
-    lines.slice(0, 9).forEach((ln, i) => ctx.fillText(ln, W / 2, 330 + i * 68));
+    ctx.font = 'italic ' + L.rFs + 'px "Cormorant Garamond", serif';
+    L.roman.forEach((ln, i) => ctx.fillText(ln, W / 2, y + 14 + L.rStep * 0.72 + i * L.rStep));
   }
   ctx.fillStyle = '#d4af37';
   ctx.font = '600 36px Inter, sans-serif';
-  ctx.fillText(poem.customPoet || poet.name, W / 2, H - 190);
+  ctx.fillText('\u2014 ' + (poem.customPoet || poet.name) + ' \u2014', W / 2, H - 190);
   ctx.fillStyle = '#a89c8a';
   ctx.font = '28px Inter, sans-serif';
-  ctx.fillText('DailyPoem — Shayari & Poetry Reels', W / 2, H - 110);
+  ctx.fillText('DailyPoem \u2014 Shayari & Poetry Reels', W / 2, H - 110);
   return canvas;
 }
 
@@ -304,7 +373,7 @@ async function exportReelVideo(poem, scene, toast, setProgress) {
 
 /* ------------- Photo card (editor state -> canvas) ------------- */
 async function makePhotoCard(o) {
-  const W = 1080, H = 1350;
+  const W = o.W || 1080, H = o.H || 1350;
   const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
   const loadImg = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
@@ -328,38 +397,35 @@ async function makePhotoCard(o) {
   ctx.lineWidth = 3; ctx.strokeRect(30, 30, W - 60, H - 60);
   ctx.textAlign = 'center';
   const poet = poetOf(o.poem.poet);
-  const isUr = o.poem.lang === 'ur';
-  const lines = linesOf(o.poem);
   const gold = o.color.light ? '#8a6a18' : '#d4af37';
   ctx.fillStyle = gold; ctx.font = '600 30px Inter, sans-serif';
   ctx.fillText('\u2726 DAILYPOEM \u2726', W / 2, 108);
-  try { await document.fonts.load('60px "Noto Nastaliq Urdu"'); await document.fonts.load('54px "Playfair Display"'); } catch { /* fonts optional */ }
-  let fs = (isUr ? 62 : 56) * o.scale;
-  ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
-  const maxW = () => Math.max(...lines.map(l => ctx.measureText(l).width));
-  while (maxW() > 940 && fs > 26) { fs -= 3; ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif'; }
-  const step = fs * (isUr ? 2.05 : 1.5);
-  const roman = isUr ? (o.poem.roman || []) : [];
-  const rStep = 50;
-  const titleH = !isUr && o.poem.title ? 74 : 0;
-  const blockH = titleH + lines.length * step + (roman.length ? roman.length * rStep + 16 : 0) + 84;
-  let y = (o.posY / 100) * H - blockH / 2;
-  if (!isUr && o.poem.title) {
-    ctx.fillStyle = gold; ctx.font = 'italic 600 40px "Playfair Display", serif';
-    ctx.fillText(o.poem.title, W / 2, y + 44); y += titleH;
+  try {
+    await document.fonts.load('60px "Noto Nastaliq Urdu"');
+    await document.fonts.load('600 54px "Playfair Display"');
+    await document.fonts.load('italic 34px "Cormorant Garamond"');
+  } catch { /* fonts optional */ }
+  const L = fitPoemText({ poem: o.poem, maxW: W - 150, availH: H - 376, scale: o.scale });
+  let y = (o.posY / 100) * H - L.blockH / 2;
+  y = Math.max(118, Math.min(y, H - 190 - L.blockH));
+  const blockTop = y;
+  if (L.hasTitle) {
+    ctx.fillStyle = gold; ctx.font = 'italic 600 ' + Math.round(L.fs * 0.74) + 'px "Playfair Display", serif';
+    ctx.fillText(o.poem.title, W / 2, y + L.fs * 0.98);
+    y += L.titleH;
   }
   ctx.fillStyle = o.tcHex;
-  ctx.font = isUr ? fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + fs + 'px "Playfair Display", serif';
-  lines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + fs * (isUr ? 1.42 : 1.05) + i * step));
-  y += lines.length * step;
-  if (roman.length) {
-    ctx.fillStyle = o.tcHex; ctx.globalAlpha = 0.88;
-    ctx.font = 'italic 34px "Cormorant Garamond", serif';
-    roman.forEach((ln, i) => ctx.fillText(ln, W / 2, y + 16 + 36 + i * rStep));
-    ctx.globalAlpha = 1; y += roman.length * rStep + 16;
+  ctx.font = L.isUr ? L.fs + 'px "Noto Nastaliq Urdu", serif' : '600 ' + L.fs + 'px "Playfair Display", serif';
+  L.lines.forEach((ln, i) => ctx.fillText(ln, W / 2, y + L.step * 0.72 + i * L.step));
+  y += L.lines.length * L.step;
+  if (L.roman.length) {
+    ctx.globalAlpha = 0.88; ctx.fillStyle = o.tcHex;
+    ctx.font = 'italic ' + L.rFs + 'px "Cormorant Garamond", serif';
+    L.roman.forEach((ln, i) => ctx.fillText(ln, W / 2, y + 14 + L.rStep * 0.72 + i * L.rStep));
+    ctx.globalAlpha = 1;
   }
   ctx.fillStyle = gold; ctx.font = '600 38px Inter, sans-serif';
-  ctx.fillText('\u2014 ' + (o.poem.customPoet || poet.name) + ' \u2014', W / 2, y + 58);
+  ctx.fillText('\u2014 ' + (o.poem.customPoet || poet.name) + ' \u2014', W / 2, blockTop + L.blockH + 62);
   if (o.name) {
     ctx.textAlign = 'left'; ctx.globalAlpha = 0.92; ctx.fillStyle = o.tcHex;
     ctx.font = '30px Inter, sans-serif';
@@ -608,6 +674,16 @@ function NovelScreen() {
 }
 
 
+/* Category cards ke liye scene thumbnails (sirf 4 scenes hain — tint se farq) */
+const CAT_ART = {
+  mohabbat: { img: 'scenes/gulab.jpg', tint: 'rgba(74,14,30,.52)' },
+  udaasi: { img: 'scenes/baarish.jpg', tint: 'rgba(10,26,52,.52)' },
+  zindagi: { img: 'scenes/chaand.jpg', tint: 'rgba(13,44,30,.50)' },
+  umeed: { img: 'scenes/chaand.jpg', tint: 'rgba(92,56,6,.50)' },
+  sufi: { img: 'scenes/mehfil.jpg', tint: 'rgba(48,30,10,.55)' },
+  attitude: { img: null, tint: null },
+};
+
 /* ---------------- Photo Shayari Editor ---------------- */
 const PHOTO_COLORS = [
   { id: 'maroon', name: 'Maroon', from: '#3d0f16', to: '#170608', css: 'linear-gradient(160deg,#3d0f16,#170608)' },
@@ -640,6 +716,31 @@ function PhotoCardMaker({ poems, toast }) {
   const [shade, setShade] = useState(55);
   const [busy, setBusy] = useState(false);
   const dragging = useRef(false);
+  const [ratioId, setRatioId] = useState('portrait');
+  const previewRef = useRef(null);
+  const [pvW, setPvW] = useState(360);
+  const [, setFontsReady] = useState(false); // value nahi, sirf re-render trigger chahiye (fonts load ke baad sahi measure)
+  useEffect(() => {
+    const el = previewRef.current;
+    if (!el) return undefined;
+    const update = () => setPvW(el.clientWidth || 360);
+    update();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  useEffect(() => {
+    let on = true;
+    try {
+      Promise.all([
+        document.fonts.load('40px "Noto Nastaliq Urdu"'),
+        document.fonts.load('600 40px "Playfair Display"'),
+        document.fonts.load('italic 28px "Cormorant Garamond"'),
+      ]).then(() => { if (on) setFontsReady(true); }).catch(() => { if (on) setFontsReady(true); });
+    } catch { setFontsReady(true); }
+    return () => { on = false; };
+  }, []);
 
   // picked photo ka object URL tab change/unmount par release karo (memory leak rokne ke liye)
   useEffect(() => () => { if (imgUrl) URL.revokeObjectURL(imgUrl); }, [imgUrl]);
@@ -649,8 +750,10 @@ function PhotoCardMaker({ poems, toast }) {
   const tc = TEXT_COLORS.find(t => t.id === textColor) || TEXT_COLORS[0];
   const scene = SCENES.find(x => x.id === sceneId) || SCENES[0];
   const goldHex = color.light ? '#8a6a18' : '#d4af37';
+  const ratio = CARD_RATIOS.find(r => r.id === ratioId) || CARD_RATIOS[1];
+  const layout = poem ? fitPoemText({ poem, maxW: ratio.w - 150, availH: ratio.h - 376, scale }) : null;
+  const pvScale = pvW / ratio.w;
   if (!poem) return null;
-  const lines = linesOf(poem);
 
   const onPick = (e) => {
     const f = e.target.files && e.target.files[0];
@@ -670,7 +773,7 @@ function PhotoCardMaker({ poems, toast }) {
     if (busy) return;
     setBusy(true);
     try {
-      const canvas = await makePhotoCard({ poem, bgMode, img: imgRef.current, color, scene, name: name.trim(), posY, scale, tcHex: tc.hex, shade: shade / 100 });
+      const canvas = await makePhotoCard({ poem, W: ratio.w, H: ratio.h, bgMode, img: imgRef.current, color, scene, name: name.trim(), posY, scale, tcHex: tc.hex, shade: shade / 100 });
       await shareCanvasFile(canvas, toast, 'dailypoem-photo.png');
     } catch { toast('Could not create the photo card'); }
     setBusy(false);
@@ -681,7 +784,7 @@ function PhotoCardMaker({ poems, toast }) {
       <div className="section-title"><h2>🖼️ Poetry Photo</h2><small>Your photo, your sher</small></div>
       <p className="muted" style={{ fontSize: 13, margin: '0 0 12px' }}>Put any poem on your own photo — or on a colour background — then share it anywhere.</p>
 
-      <div className="ph-preview"
+      <div className="ph-preview" ref={previewRef} style={{ aspectRatio: ratio.w + ' / ' + ratio.h }}
         onPointerDown={(e) => { dragging.current = true; dragTo(e); }}
         onPointerMove={(e) => { if (dragging.current) dragTo(e); }}
         onPointerUp={() => { dragging.current = false; }}
@@ -691,14 +794,16 @@ function PhotoCardMaker({ poems, toast }) {
         {bgMode === 'color' && <div className="ph-bgimg" style={{ background: color.css }} />}
         <div className="ph-shade" style={{ opacity: (shade / 100) * 0.75 }} />
         <div style={{ position: 'absolute', top: 10, left: 0, right: 0, textAlign: 'center', color: goldHex, fontSize: 11, fontWeight: 700, letterSpacing: 2 }}>✦ DAILYPOEM ✦</div>
-        <div className="ph-text" style={{ top: posY + '%', color: tc.hex }}>
-          {poem.lang === 'en' && poem.title && <div style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 600, fontSize: 15, color: goldHex, marginBottom: 6 }}>{poem.title}</div>}
-          {poem.lang === 'ur'
-            ? <div className="urdu" style={{ fontSize: 19 * scale, color: tc.hex }}>{lines.map((l, i) => <div key={i}>{l}</div>)}</div>
-            : <div className="en-lines" style={{ fontSize: 18 * scale, color: tc.hex }}>{lines.map((l, i) => <div key={i}>{l}</div>)}</div>}
-          {poem.lang === 'ur' && poem.roman && <div className="roman" style={{ fontSize: 12, opacity: 0.88, color: tc.hex }}>{poem.roman.map((l, i) => <div key={i}>{l}</div>)}</div>}
-          <div style={{ color: goldHex, fontWeight: 600, fontSize: 13, marginTop: 8 }}>— {poem.customPoet || poetOf(poem.poet).name} —</div>
-        </div>
+        {layout && (
+          <div className="ph-text" style={{ top: posY + '%', color: tc.hex }}>
+            {layout.hasTitle && <div style={{ height: Math.round(layout.titleH * pvScale), display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontWeight: 600, fontSize: Math.max(11, layout.fs * 0.74 * pvScale), color: goldHex }}>{poem.title}</div>}
+            {layout.isUr
+              ? <div className="urdu" style={{ fontSize: layout.fs * pvScale, lineHeight: layout.step / layout.fs, color: tc.hex }}>{layout.lines.map((l, i) => <div key={i}>{l}</div>)}</div>
+              : <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: layout.fs * pvScale, lineHeight: layout.step / layout.fs, color: tc.hex }}>{layout.lines.map((l, i) => <div key={i}>{l}</div>)}</div>}
+            {layout.roman.length > 0 && <div className="roman" style={{ fontSize: layout.rFs * pvScale, lineHeight: layout.rStep / layout.rFs, opacity: 0.88, color: tc.hex, marginTop: Math.max(4, 14 * pvScale) }}>{layout.roman.map((l, i) => <div key={i}>{l}</div>)}</div>}
+          </div>
+        )}
+        {layout && <div className="ph-poet" style={{ top: 'calc(' + posY + '% + ' + Math.round(layout.blockH * pvScale / 2 + 30 * pvScale) + 'px)', color: goldHex, fontSize: Math.max(10, 36 * pvScale) }}>— {poem.customPoet || poetOf(poem.poet).name} —</div>}
         {name.trim() && <div className="ph-name" style={{ color: tc.hex }}>✍ {name.trim()}</div>}
         <div className="ph-brand" style={{ color: tc.hex }}>DailyPoem — Shayari & Poetry Reels</div>
       </div>
@@ -710,6 +815,14 @@ function PhotoCardMaker({ poems, toast }) {
         <button className={'btn' + (bgMode === 'scene' ? ' btn-gold' : '')} onClick={() => setBgMode('scene')}>🌆 Scenes</button>
         {imgUrl && <button className={'btn' + (bgMode === 'photo' ? ' btn-gold' : '')} onClick={() => setBgMode('photo')}>🖼️ My Photo</button>}
         <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPick} />
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        <span className="muted" style={{ fontSize: 12.5, fontWeight: 600 }}>Card size:</span>
+        {CARD_RATIOS.map(r => (
+          <button key={r.id} className={'btn' + (ratioId === r.id ? ' btn-gold' : '')} onClick={() => setRatioId(r.id)}>{r.label}</button>
+        ))}
+        <span className="muted" style={{ fontSize: 12 }}>{ratio.w} × {ratio.h}px</span>
       </div>
 
       {bgMode === 'color' && (
@@ -1096,14 +1209,19 @@ export default function App() {
 
             <div className="section-title"><h2>Browse by Mood</h2><small>Categories</small></div>
             <div className="cat-grid">
-              {CATEGORIES.map(c => (
-                <button key={c.id} className="cat-card" onClick={() => { setCatFilter(c.id); setPoetFilter(null); setTab('library'); }}>
-                  <span className="urdu-sm">{c.urdu}</span>
-                  <span className="ic">{c.icon}</span>
-                  <h3>{c.label}</h3>
-                  <p>{poems.filter(p => p.category === c.id).length} poems</p>
-                </button>
-              ))}
+              {CATEGORIES.map(c => {
+                const art = CAT_ART[c.id] || {};
+                return (
+                  <button key={c.id} className={'cat-card' + (art.img ? ' has-art' : ' cat-grad')} onClick={() => { setCatFilter(c.id); setPoetFilter(null); setTab('library'); }}>
+                    {art.img && <img className="cat-bg" src={art.img} alt="" />}
+                    {art.img && <div className="cat-shade" style={{ background: 'linear-gradient(155deg, ' + art.tint + ', rgba(10,8,7,.86) 82%)' }} />}
+                    <span className="urdu-sm">{c.urdu}</span>
+                    <span className="ic">{c.icon}</span>
+                    <h3>{c.label}</h3>
+                    <p>{poems.filter(p => p.category === c.id).length} poems</p>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="section-title"><h2>Poets</h2><small>The masters</small></div>
@@ -1135,7 +1253,13 @@ export default function App() {
                 <button className="btn" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setPoetFilter(null)}>✕ Clear</button>
               </div>
             )}
-            {filtered.length === 0 && <div className="empty"><span className="big">🌙</span>Nothing found — try another word.</div>}
+            {filtered.length === 0 && (
+              <div className="empty"><span className="big">🌙</span>Nothing found for that search.<br />Try a poet's name — or browse the whole library.
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
+                  <button className="btn btn-gold" style={{ flex: '0 1 auto' }} onClick={() => { setQuery(''); setCatFilter('all'); setPoetFilter(null); }}>Browse all poems</button>
+                </div>
+              </div>
+            )}
             {filtered.map(p => (
               <PoemCard key={p.id} poem={p} isFav={favs.has(p.id)} onFav={toggleFav} onReel={openReel} toast={toast} />
             ))}
@@ -1239,7 +1363,11 @@ export default function App() {
           <>
             <div className="section-title"><h2>Saved</h2><small>{favPoems.length} poems</small></div>
             {favPoems.length === 0 && (
-              <div className="empty"><span className="big">🤍</span>Nothing saved yet.<br />Tap the heart on any poem and it will be saved here.</div>
+              <div className="empty"><span className="big">🤍</span>Nothing saved yet.<br />Tap the heart on any poem and it will be saved here.
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
+                  <button className="btn btn-gold" style={{ flex: '0 1 auto' }} onClick={() => setTab('library')}>Browse the Library</button>
+                </div>
+              </div>
             )}
             {favPoems.map(p => (
               <PoemCard key={p.id} poem={p} isFav onFav={toggleFav} onReel={openReel} toast={toast} />
