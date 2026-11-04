@@ -6,6 +6,8 @@ import { POEMS, POETS, CATEGORIES, SCENES, poetOf, poemOfTheDay, POEMS_REMOTE_UR
 import { DUAS, HADEES, noorOfTheDay } from './data/noor.js';
 import { NOVEL_FALLBACK as LEGACY_NOVEL_FALLBACK, NOVEL_REMOTE_URL as LEGACY_NOVEL_REMOTE_URL } from './data/novel.js';
 import { NOVELS_FALLBACK, NOVELS_REMOTE_URL } from './data/novels-data.js';
+import { BIO_LINES, BIO_CATEGORIES } from './data/bio-lines.js';
+import { fancyStyles, BIO_FRAMES, framed } from './data/fancy-text.js';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 
 const FAV_KEY = 'dailypoem_favs_v1';
@@ -2783,6 +2785,7 @@ function MoreMenu({ onOpen }) {
   const rows = [
     { id: 'noor', icon: '☪️', title: 'Noor', desc: 'Duas, Hadith & Daily Noor' },
     { id: 'create', icon: '✍️', title: 'Create / Studio', desc: 'Photo studio & your own reels' },
+    { id: 'bio', icon: '✨', title: 'Bio Studio', desc: 'Bio lines & fancy text for your profiles' },
     { id: 'saved', icon: '❤️', title: 'Saved', desc: 'Your favourite poetry' },
     { id: 'settings', icon: '⚙️', title: 'Settings', desc: 'App preferences' },
   ];
@@ -2800,6 +2803,109 @@ function MoreMenu({ onOpen }) {
         </button>
       ))}
       <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 16 }}>DailyPoem · MintNest Studio</p>
+    </div>
+  );
+}
+
+/* ---------------- Bio Studio ----------------
+   Part A: tayyar bio lines (classic couplets + DailyPoem originals) — Copy / Share / Frame.
+   Part B: Fancy Text Maker — Unicode styles + bio frames, tap karke copy.
+   Copy/share bilkul App ke maujooda idioms par (clipboard -> textarea fallback;
+   native Share -> navigator.share -> clipboard). Koi network call nahi. */
+
+async function copyPlain(text, toast, msg) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch { /* noop */ }
+    ta.remove();
+  }
+  if (toast) toast(msg);
+}
+
+async function sharePlain(text, toast) {
+  try {
+    if (Capacitor.isNativePlatform()) { await Share.share({ title: 'DailyPoem — Bio Studio', text }); return; }
+    if (navigator.share) { await navigator.share({ title: 'DailyPoem — Bio Studio', text }); return; }
+    throw new Error('noshare');
+  } catch (e) {
+    if (e && /cancel/i.test(e.message || '')) return;
+    copyPlain(text, toast, '📋 Copied — paste it in your bio');
+  }
+}
+
+function BioStudio({ toast }) {
+  const notify = toast || (() => {});
+  const [cat, setCat] = useState('all');
+  const [frameIdx, setFrameIdx] = useState({});
+  const [name, setName] = useState('');
+  const sample = name.trim() ? name : 'Your Name';
+  const styles = useMemo(() => fancyStyles(sample), [sample]);
+  const lines = cat === 'all' ? BIO_LINES : BIO_LINES.filter(l => l.cat === cat);
+
+  const cycleFrame = id => setFrameIdx(prev => {
+    const cur = prev[id] ?? -1;
+    return { ...prev, [id]: cur + 1 >= BIO_FRAMES.length ? -1 : cur + 1 };
+  });
+
+  return (
+    <div>
+      <div className="create-hero" style={{ marginTop: 14 }}>
+        <h3>✨ Bio Studio</h3>
+        <p>Ready-made lines for your Facebook, Instagram and WhatsApp bio — and a fancy text maker for your name and status. Tap, copy, paste. That is all.</p>
+      </div>
+
+      <div className="section-title"><h2>Bio Lines</h2><small>{lines.length} lines</small></div>
+      <div className="chips">
+        {BIO_CATEGORIES.map(c => (
+          <button key={c.id} className={`chip ${cat === c.id ? 'on' : ''}`} onClick={() => setCat(c.id)}>{c.icon} {c.label}</button>
+        ))}
+      </div>
+
+      {lines.map(l => {
+        const fi = frameIdx[l.id] ?? -1;
+        const shown = framed(l.text, fi);
+        return (
+          <div key={l.id} className="pcard">
+            {l.lang === 'ur'
+              ? <div dir="rtl">{shown.split('\n').map((ln, i) => <div key={i} className="urdu" style={{ fontSize: 16.5 }}>{ln}</div>)}</div>
+              : <div className="en-lines" style={{ fontSize: 16, whiteSpace: 'pre-line' }}>{shown}</div>}
+            <footer>
+              <span className="who">{l.poet || 'DailyPoem Originals'}</span>
+              {fi >= 0 && <span className="tag">✦ {BIO_FRAMES[fi].name} frame</span>}
+            </footer>
+            <div className="bio-actions">
+              <button className="btn" style={{ padding: '7px 13px', fontSize: 12.5 }} onClick={() => copyPlain(shown, notify, '📋 Copied — paste it in your bio')}>📋 Copy</button>
+              <button className="btn" style={{ padding: '7px 13px', fontSize: 12.5 }} onClick={() => sharePlain(shown, notify)}>↗ Share</button>
+              <button className="btn" style={{ padding: '7px 13px', fontSize: 12.5 }} onClick={() => cycleFrame(l.id)}>✦ Frame{fi >= 0 ? `: ${BIO_FRAMES[fi].name}` : ''}</button>
+            </div>
+          </div>
+        );
+      })}
+
+      <div className="section-title"><h2>Fancy Text Maker</h2><small>Tap any style to copy</small></div>
+      <div className="search" style={{ marginTop: 2 }}>
+        <span>✍️</span>
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="Type your name or any text…" maxLength={60} />
+        {name && <button className="icon-btn" title="Clear" onClick={() => setName('')}>✕</button>}
+      </div>
+      {styles.map(s => (
+        <button key={s.name} className="fancy-row" onClick={() => copyPlain(s.out, notify, '📋 Copied')}>
+          <span className="fancy-name">{s.name}</span>
+          <span className="fancy-out">{s.out}</span>
+        </button>
+      ))}
+
+      <div className="section-title"><h2>Bio Frames</h2><small>Tap any frame to copy</small></div>
+      {BIO_FRAMES.map(f => (
+        <button key={f.name} className="fancy-row" onClick={() => copyPlain(f.wrap(sample), notify, '📋 Copied')}>
+          <span className="fancy-name">{f.name}</span>
+          <span className="fancy-out">{f.wrap(sample)}</span>
+        </button>
+      ))}
+      <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', marginTop: 16 }}>Made with DailyPoem · Bio Studio</p>
     </div>
   );
 }
@@ -2837,7 +2943,7 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.14</b></div>
+        <div className="nd-row"><span>Version</span><b>0.15</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
         <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>
@@ -2902,7 +3008,7 @@ export default function App() {
   const [ownName, setOwnName] = useState('');
   const [ownScene, setOwnScene] = useState(SCENES[0]);
   const [noorTab, setNoorTab] = useState('dua');
-  const [moreView, setMoreView] = useState('menu'); // More ke andar: 'menu' | 'noor' | 'create' | 'saved' | 'settings'
+  const [moreView, setMoreView] = useState('menu'); // More ke andar: 'menu' | 'noor' | 'create' | 'bio' | 'saved' | 'settings'
   const [homeQuery, setHomeQuery] = useState('');
   const [reelsJump, setReelsJump] = useState({ index: 0, nonce: 0 });
   const [novelOpenReq, setNovelOpenReq] = useState(null);
@@ -3317,6 +3423,15 @@ export default function App() {
               <button className="btn btn-gold" style={{ flex: '0 1 auto', marginTop: 12 }} onClick={() => goMore('create')}>Open Studio →</button>
             </div>
 
+            <button className="create-hero bio-shortcut" onClick={() => goMore('bio')}>
+              <span style={{ fontSize: 22 }}>✨</span>
+              <span style={{ flex: 1 }}>
+                <span className="bio-shortcut-title">Bio Studio</span>
+                <span className="bio-shortcut-desc">Bio lines & fancy text for your profiles</span>
+              </span>
+              <span className="more-chev">›</span>
+            </button>
+
             <div className="section-title"><h2>Poets</h2><small>The masters</small></div>
             <div className="poet-row">
               {POETS.map(p => (
@@ -3416,6 +3531,13 @@ export default function App() {
         {tab === 'more' && moreView === 'create' && <PhotoCardMaker poems={poems} toast={toast} />}
 
       {tab === 'novel' && <NovelScreen toast={toast} novels={novels} openRequest={novelOpenReq} onConsumeOpenRequest={() => setNovelOpenReq(null)} />}
+
+        {tab === 'more' && moreView === 'bio' && (
+          <>
+            <div style={{ marginTop: 14 }}><button className="btn" onClick={() => setMoreView('menu')}>← More</button></div>
+            <BioStudio toast={toast} />
+          </>
+        )}
 
         {tab === 'more' && moreView === 'noor' && (
           <>

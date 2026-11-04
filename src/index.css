@@ -124,6 +124,19 @@ input, textarea { font-family: inherit; }
 .create-hero h3 { font-family: 'Cormorant Garamond', serif; font-size: 19px; }
 .create-hero p { color: var(--muted); font-size: 13px; margin-top: 5px; line-height: 1.6; }
 
+/* Bio Studio */
+.bio-shortcut { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; color: var(--cream);
+  padding: 14px 18px; cursor: pointer; font: inherit; }
+.bio-shortcut-title { display: block; font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; }
+.bio-shortcut-desc { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.bio-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.fancy-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--card);
+  border: 1px solid var(--line); border-radius: 14px; padding: 12px 15px; margin-top: 9px; color: var(--cream);
+  font: inherit; cursor: pointer; transition: transform .12s ease; }
+.fancy-row:active { transform: scale(.99); }
+.fancy-name { flex: 0 0 92px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
+.fancy-out { flex: 1; font-size: 16.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
   display: grid; grid-template-columns: repeat(5, 1fr); background: var(--navbg); backdrop-filter: blur(14px);
   border-top: 1px solid var(--line); padding: 9px 10px calc(9px + env(safe-area-inset-bottom)); z-index: 30; }
