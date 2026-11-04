@@ -70,4 +70,22 @@ for stale in (
     if os.path.exists(stale):
         os.remove(stale)
 
+# Branded launch splash: the template's launch theme shows res/drawable*/splash.png
+# (the OLD default logo on white) full-screen at startup. Regenerate every
+# splash.png at its own size: charcoal background + centered gold symbol.
+splash_count = 0
+for dirpath, _dirs, files in os.walk(RES):
+    if "splash.png" not in files:
+        continue
+    p = os.path.join(dirpath, "splash.png")
+    with Image.open(p) as old:
+        w, h = old.size
+    canvas = Image.new("RGBA", (w, h), CHARCOAL)
+    s = int(min(w, h) * 0.42)
+    fg = symbol.resize((s, int(s * symbol.height / symbol.width)), Image.LANCZOS)
+    canvas.alpha_composite(fg, ((w - fg.width) // 2, (h - fg.height) // 2))
+    canvas.convert("RGB").save(p)
+    splash_count += 1
+print("splash images regenerated:", splash_count)
+
 print("launcher icons written to", RES)
