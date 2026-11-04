@@ -682,6 +682,37 @@ const REEL_ANIMS = [
   { id: 'slide', label: 'Slide' },
 ];
 
+/* Scene picker ke category filters — teeno scene grids (ReelPlayer, Editor, Create) yahi istemal karte hain */
+const SCENE_CATS = [
+  { id: 'all', label: 'All' },
+  { id: 'classic', label: 'Classic' },
+  { id: 'girl', label: 'Girl' },
+  { id: 'boy', label: 'Boy' },
+  { id: 'couple', label: 'Couple' },
+  { id: 'neutral', label: 'Neutral' },
+];
+
+/* Shared scene picker: upar category chips, neeche filtered thumbnails.
+   Har grid apna button markup renderItem se deta hai taake class/onClick bilkul waisa hi rahe jaisa pehle tha. */
+function ScenePicker({ selectedId, onPick, listClassName, listStyle, leading = null, trailing = null, renderItem }) {
+  const [cat, setCat] = useState('all');
+  const list = cat === 'all' ? SCENES : SCENES.filter(s => s.cat === cat);
+  return (
+    <>
+      <div className="chips" style={{ marginBottom: 8 }}>
+        {SCENE_CATS.map(c => (
+          <button key={c.id} type="button" className={'chip' + (cat === c.id ? ' on' : '')} onClick={() => setCat(c.id)}>{c.label}</button>
+        ))}
+      </div>
+      <div className={listClassName} style={listStyle}>
+        {leading}
+        {list.map(s => renderItem(s, s.id === selectedId, onPick))}
+        {trailing}
+      </div>
+    </>
+  );
+}
+
 /* Apni photo par reel banane ke templates — preview aur MP4 export dono yahi layout rakhte hain */
 const PHOTO_TPLS = [
   { id: 'full', label: 'Full Photo' },
@@ -876,17 +907,24 @@ function ReelPlayer({ poem, scene, onClose, toast, anim = 'rise', onAnimChange, 
               <button key={a.id} className={'reel-chip' + (anim === a.id ? ' on' : '')} onClick={() => onAnimChange && onAnimChange(a.id)}>{a.label}</button>
             ))}
           </div>
-          <div className="reel-opts-row">
-            <span className="reel-opts-label">Scene</span>
-            {SCENES.map(s => (
-              <button key={s.id} className={'reel-scene' + (bgMode === 'scene' && sc.id === s.id ? ' on' : '')} onClick={() => { setSc(s); setBgMode('scene'); }} title={s.label} aria-label={s.label}><img src={s.img} alt="" /></button>
-            ))}
-            <button className={'reel-chip' + (bgMode === 'photo' ? ' on' : '')}
-              onClick={() => { if (photo) setBgMode('photo'); else if (photoRef.current) photoRef.current.click(); }}>
-              {photo && <img className="thumb" src={photo} alt="" />}📷 My Photo
-            </button>
-            <input ref={photoRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPickPhoto} />
-          </div>
+          <ScenePicker
+            selectedId={bgMode === 'scene' ? sc.id : null}
+            onPick={(s) => { setSc(s); setBgMode('scene'); }}
+            listClassName="reel-opts-row"
+            leading={<span className="reel-opts-label">Scene</span>}
+            trailing={(
+              <>
+                <button className={'reel-chip' + (bgMode === 'photo' ? ' on' : '')}
+                  onClick={() => { if (photo) setBgMode('photo'); else if (photoRef.current) photoRef.current.click(); }}>
+                  {photo && <img className="thumb" src={photo} alt="" />}📷 My Photo
+                </button>
+                <input ref={photoRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onPickPhoto} />
+              </>
+            )}
+            renderItem={(s, isOn, pick) => (
+              <button key={s.id} className={'reel-scene' + (isOn ? ' on' : '')} onClick={() => pick(s)} title={s.label} aria-label={s.label}><img src={s.img} alt="" /></button>
+            )}
+          />
           {bgMode === 'photo' && photo && (
             <>
               <div className="reel-opts-row">
@@ -2263,10 +2301,15 @@ function PhotoCardMaker({ poems, toast }) {
               </div>
             )}
             {design.bg.type === 'scene' && (
-              <div className="ed-row" style={{ marginTop: 10 }}>
-                {SCENES.map(sc => (
-                  <button key={sc.id} className={'ed-swatch' + (design.bg.sceneId === sc.id ? ' on' : '')} style={{ backgroundImage: 'url(' + sc.img + ')', backgroundSize: 'cover' }} title={sc.label} onClick={() => updateDesign((d) => { d.bg.sceneId = sc.id; })}><span>{sc.label}</span></button>
-                ))}
+              <div style={{ marginTop: 10 }}>
+                <ScenePicker
+                  selectedId={design.bg.sceneId}
+                  onPick={(sc) => updateDesign((d) => { d.bg.sceneId = sc.id; })}
+                  listClassName="ed-row"
+                  renderItem={(sc, isOn, pick) => (
+                    <button key={sc.id} className={'ed-swatch' + (isOn ? ' on' : '')} style={{ backgroundImage: 'url(' + sc.img + ')', backgroundSize: 'cover' }} title={sc.label} onClick={() => pick(sc)}><span>{sc.label}</span></button>
+                  )}
+                />
               </div>
             )}
             {design.bg.type === 'color' && (
@@ -2943,7 +2986,7 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.15</b></div>
+        <div className="nd-row"><span>Version</span><b>0.16</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
         <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>
@@ -3502,13 +3545,16 @@ export default function App() {
               <label>Your Name (shown as the poet)</label>
               <input type="text" value={ownName} onChange={e => setOwnName(e.target.value)} placeholder="e.g. Ahmed Raza" />
               <label>Reel Scene</label>
-              <div className="scene-row">
-                {SCENES.map(s => (
-                  <button key={s.id} className={`scene-pick ${ownScene.id === s.id ? 'on' : ''}`} onClick={() => setOwnScene(s)}>
+              <ScenePicker
+                selectedId={ownScene.id}
+                onPick={(s) => setOwnScene(s)}
+                listClassName="scene-row"
+                renderItem={(s, isOn, pick) => (
+                  <button key={s.id} className={`scene-pick ${isOn ? 'on' : ''}`} onClick={() => pick(s)}>
                     <img src={s.img} alt={s.label} /><span>{s.label}</span>
                   </button>
-                ))}
-              </div>
+                )}
+              />
               <label>Line Animation</label>
               <div className="chips">
                 {REEL_ANIMS.map(a => (
