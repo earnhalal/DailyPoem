@@ -78,7 +78,7 @@ class UnityAdsPlugin : Plugin() {
         }
         val testMode = call.getBoolean("testMode") ?: false
         try {
-            if (UnityAds.isInitialized()) {
+            if (UnityAds.isInitialized) {
                 call.resolve()
                 return
             }
