@@ -32,6 +32,9 @@ input, textarea { font-family: inherit; }
 .app { max-width: 480px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column;
   background: radial-gradient(120% 50% at 50% -10%, rgba(212,175,55,.10), transparent 60%), var(--bg); }
 .main { flex: 1; overflow-y: auto; padding: 0 18px 96px; }
+/* Unity banner (sirf Library tab) bottom nav ke upar tairta hai — us ke doran
+   itni extra jagah ke scroll ka aakhri content banner ke peeche na chhupe */
+.app.banner-on .main { padding-bottom: 156px; }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; padding: 15px 18px 6px; }
 .logo { display: flex; align-items: center; gap: 10px; }

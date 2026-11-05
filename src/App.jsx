@@ -8,6 +8,7 @@ import { NOVEL_FALLBACK as LEGACY_NOVEL_FALLBACK, NOVEL_REMOTE_URL as LEGACY_NOV
 import { NOVELS_FALLBACK, NOVELS_REMOTE_URL } from './data/novels-data.js';
 import { BIO_LINES, BIO_CATEGORIES } from './data/bio-lines.js';
 import { fancyStyles, BIO_FRAMES, framed } from './data/fancy-text.js';
+import { initAds, showRewardedAd, showBannerAd, hideBannerAd, noteAdMilestone } from './ads.js';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 
 const FAV_KEY = 'dailypoem_favs_v1';
@@ -1304,12 +1305,17 @@ function NovelDetail({ toast, novel: nv, onBack, openN, onConsumeOpen }) {
   /* Sab se taaza reading position — Continue Reading isi se banta hai (shared helper) */
   const lastPos = novelLastPos(published, posMap);
 
-  const markRead = n => setReadSet(prev => {
-    if (prev.includes(n)) return prev;
-    const nr = [...prev, n];
-    lsSet(novelReadKey(nv.id), JSON.stringify(nr));
-    return nr;
-  });
+  const markRead = n => {
+    const isNew = !readSet.includes(n);
+    setReadSet(prev => {
+      if (prev.includes(n)) return prev;
+      const nr = [...prev, n];
+      lsSet(novelReadKey(nv.id), JSON.stringify(nr));
+      return nr;
+    });
+    /* Pehli dafa episode mukammal hua — ads milestone (har 3rd par interstitial) */
+    if (isNew) noteAdMilestone();
+  };
 
   const openEp = ep => {
     const p = posMap[ep.n];
@@ -2118,7 +2124,7 @@ function PhotoCardMaker({ poems, toast }) {
       const canvas = await edRenderCanvas(design, poems);
       if (kind === 'share') await shareCanvasFile(canvas, toast, 'dailypoem-design.png');
       else if (kind === 'jpg') await edSaveCanvas(canvas, 'image/jpeg', 'dailypoem-design.jpg', toast);
-      else await edSaveCanvas(canvas, 'image/png', 'dailypoem-design.png', toast);
+      else { await edSaveCanvas(canvas, 'image/png', 'dailypoem-design.png', toast); noteAdMilestone(); }
     } catch { toast('Export failed on this device'); }
     setBusy('');
   };
@@ -2955,6 +2961,15 @@ function BioStudio({ toast }) {
 
 function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poemsCount, novelCount, lang, onLang }) {
   const notify = toast || (() => {});
+  const [supportBusy, setSupportBusy] = useState(false);
+  const onSupport = async () => {
+    if (supportBusy) return;
+    setSupportBusy(true);
+    let ok = false;
+    try { ok = await showRewardedAd(); } catch { ok = false; }
+    setSupportBusy(false);
+    notify(ok ? 'Thank you! Your support keeps DailyPoem free.' : 'Ads are not available right now — thank you anyway!');
+  };
   const epAlerts = useAlertToggle('ep', notify, { on: 'Episode alerts on — daily at 8:00 PM', off: 'Episode alerts turned off' });
   return (
     <div>
@@ -2983,10 +2998,18 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
         </div>
       </div>
 
+      <div className="section-title"><h2>Support</h2></div>
+      <div className="nd-meta" style={{ marginTop: 2 }}>
+        <div className="nd-row">
+          <span>❤️ Support DailyPoem<span className="set-sub">Watch a short ad — it keeps the app free for everyone</span></span>
+          <button className="btn btn-gold" style={{ padding: '7px 13px', fontSize: 12.5 }} disabled={supportBusy} onClick={onSupport}>{supportBusy ? 'Loading…' : 'Watch Ad'}</button>
+        </div>
+      </div>
+
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.16</b></div>
+        <div className="nd-row"><span>Version</span><b>0.17</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
         <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>
@@ -3061,7 +3084,24 @@ export default function App() {
   const [lang, setLang] = useState(loadLang);
   const [notifOpen, setNotifOpen] = useState(false);
   const pickLang = v => { lsSet(LANG_KEY, v); setDisplayLang(v); setLang(v); };
-  useEffect(() => { rescheduleAlerts(); }, []);
+  useEffect(() => { rescheduleAlerts(); initAds(); }, []);
+
+  /* Unity banner sirf Poems (Library) tab par — tab badle ya koi overlay
+     (Reel player, Notifications, intro, language chooser) khule to band.
+     bannerOn sirf tab true hota hai jab native banner asal mein lag jaye,
+     taake web par fazool padding na aaye. */
+  const [bannerOn, setBannerOn] = useState(false);
+  useEffect(() => {
+    const shouldShow = tab === 'library' && !reel && !notifOpen && !intro && lang !== null;
+    if (shouldShow) {
+      let live = true;
+      showBannerAd().then(ok => { if (live) setBannerOn(!!ok); }).catch(() => {});
+      return () => { live = false; };
+    }
+    hideBannerAd();
+    setBannerOn(false);
+    return undefined;
+  }, [tab, reel, notifOpen, intro, lang]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -3251,7 +3291,7 @@ export default function App() {
   const startOwnReel = () => { const p = ownPoem(); if (p) setReel({ poem: p, scene: ownScene }); };
 
   return (
-    <div className="app">
+    <div className={'app' + (bannerOn ? ' banner-on' : '')}>
       {intro && <IntroSplash onDone={() => setIntro(false)} />}
       {!intro && lang === null && <LangChooser onPick={pickLang} />}
       {notifOpen && (
