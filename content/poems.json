@@ -2192,6 +2192,94 @@
     "only the love that was given away,",
     "and the prayer somebody still whispers for you."
    ]
+  },
+  {
+   "id": "l1",
+   "lang": "ur",
+   "poet": "laila",
+   "category": "mohabbat",
+   "urdu": [
+    "تیری یادوں کا چراغ دل کے طاق میں رکھا ہے",
+    "جتنی آندھی چلی، میں نے اسے بچا کے رکھا ہے",
+    "لوگ کہتے ہیں محبت میں خسارا ہی ملا",
+    "میں نے ہر زخم کو بھی سینے سے لگا کے رکھا ہے"
+   ],
+   "roman": [
+    "Teri yādoñ kā charāgh dil ke tāq mein rakhā hai",
+    "Jitnī āndhī chalī, mein ne use bachā ke rakhā hai",
+    "Log kehte hain mohabbat mein khasārā hī milā",
+    "Mein ne har zakhm ko bhī seene se lagā ke rakhā hai"
+   ],
+   "hi": [
+    "तेरी यादों का चराघ दिल के ताक़ में रखा है",
+    "जितनी आंधी चली, में ने उसे बचा के रखा है",
+    "लोग केह्ते हैं मोहब्बत में खसारा ही मिला",
+    "में ने हर ज़ख्म को भी सीने से लगा के रखा है"
+   ],
+   "english": [
+    "I have kept the lamp of your memories in a niche of my heart;",
+    "however fierce the storm, I have guarded it and kept it burning.",
+    "People say that in love I found nothing but loss —",
+    "yet every wound, too, I have pressed to my chest and kept."
+   ]
+  },
+  {
+   "id": "l2",
+   "lang": "ur",
+   "poet": "laila",
+   "category": "umeed",
+   "urdu": [
+    "کٹی ہے رات تو سویرا بھی آئے گا",
+    "جو صبر کی راہ چلے وہ منزل پائے گا",
+    "ٹوٹی ہوئی امید کو پھر تھام لے ذرا",
+    "ہر گری ہوئی شاخ پہ موسمِ بہار آئے گا"
+   ],
+   "roman": [
+    "Kaṭī hai rāt to saverā bhī āyegā",
+    "Jo ṣabr kī rāh chale, vo manzil pāyegā",
+    "Ṭūṭī huī ummeed ko phir thām le zarā",
+    "Har girī huī shākh pe mausam-e-bahār āyegā"
+   ],
+   "hi": [
+    "कटी है रात तो सवेरा भी आयेगा",
+    "जो सब्र की राह चले, वो मंज़िल पायेगा",
+    "टूटी हुई उम्मीद को फिर थाम ले ज़रा",
+    "हर गिरी हुई शाख पे मौसम-ए-बहार आयेगा"
+   ],
+   "english": [
+    "The night has ended — so the dawn will surely come.",
+    "Whoever walks the path of patience will reach the journey's end.",
+    "Take hold, once more, of the hope that had broken,",
+    "for on every fallen branch, the season of spring will come again."
+   ]
+  },
+  {
+   "id": "e17",
+   "lang": "en",
+   "poet": "laila",
+   "category": "mohabbat",
+   "title": "Your Name in the Quiet",
+   "lines": [
+    "I do not say your name out loud anymore;",
+    "the walls have heard it enough to keep it safe.",
+    "It lives in the quiet between my heartbeats,",
+    "in the pause before the kettle sings —",
+    "and every ordinary morning turns holy without asking."
+   ]
+  },
+  {
+   "id": "e18",
+   "lang": "en",
+   "poet": "laila",
+   "category": "umeed",
+   "title": "After the Long Rain",
+   "lines": [
+    "The rain did not ask if I was ready to heal;",
+    "it simply stayed, until the garden believed again.",
+    "So I will stay too — unhurried, unhidden —",
+    "until what is buried in me remembers",
+    "it was always a seed, never a stone."
+   ]
   }
  ]
 }
