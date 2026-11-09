@@ -1,2330 +1,2360 @@
 {
- "poems": [
-  {
-   "id": "g1",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "udaasi",
-   "urdu": [
-    "ہزاروں خواہشیں ایسی کہ ہر خواہش پہ دم نکلے",
-    "بہت نکلے میرے ارماں لیکن پھر بھی کم نکلے"
-   ],
-   "roman": [
-    "Hazāroñ khwāhishen aisī ke har khwāhish pe dam nikle",
-    "Bahut nikle mere armān lekin phir bhī kam nikle"
-   ],
-   "hi": [
-    "हज़ारों ख़्वाहिशें ऐसी कि हर ख़्वाहिश पे दम निकले",
-    "बहुत निकले मेरे अरमाँ लेकिन फिर भी कम निकले"
-   ],
-   "english": [
-    "A thousand desires, every one of them worth dying for;",
-    "So many longings were granted, yet they still seemed too few."
-   ]
-  },
-  {
-   "id": "g2",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "udaasi",
-   "urdu": [
-    "دل ناداں تجھے ہوا کیا ہے",
-    "آخر اس درد کی دوا کیا ہے"
-   ],
-   "roman": [
-    "Dil-e-nādāñ tujhe huā kyā hai",
-    "Ākhir is dard kī dawā kyā hai"
-   ],
-   "hi": [
-    "दिल-ए-नादां तुझे हुआ क्या है",
-    "आखिर इस दर्द की दवा क्या है"
-   ],
-   "english": [
-    "O innocent heart, what has come over you?",
-    "After all, what cure can there be for this pain?"
-   ]
-  },
-  {
-   "id": "g3",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "mohabbat",
-   "urdu": [
-    "محبت میں نہیں ہے فرق جینے اور مرنے کا",
-    "اسی کو دیکھ کر جیتے ہیں جس کافر پہ دم نکلے"
-   ],
-   "roman": [
-    "Mohabbat meñ nahīñ hai farq jeene aur marne kā",
-    "Usī ko dekh kar jeete haiñ jis kāfir pe dam nikle"
-   ],
-   "hi": [
-    "मोहब्बत में नहीं है फ़र्क़ जीने और मरने का",
-    "उसी को देख कर जीते हैं जिस काफ़िर पे दम निकले"
-   ],
-   "english": [
-    "In love, there is no difference between living and dying;",
-    "I live by gazing at the very one for whom I would die."
-   ]
-  },
-  {
-   "id": "g4",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "zindagi",
-   "urdu": [
-    "بازیچۂ اطفال ہے دنیا میرے آگے",
-    "ہوتا ہے شب و روز تماشا میرے آگے"
-   ],
-   "roman": [
-    "Bāzīcha-e-atfāl hai duniyā mere āge",
-    "Hotā hai shab-o-roz tamāshā mere āge"
-   ],
-   "hi": [
-    "बाज़ीच-ए-अत्फ़ाल है दुनिया मेरे आगे",
-    "होता है शब-ओ-रोज़ तमाशा मेरे आगे"
-   ],
-   "english": [
-    "The world before me is nothing but a children's playground;",
-    "Night and day, a spectacle keeps unfolding before my eyes."
-   ]
-  },
-  {
-   "id": "g5",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "sufi",
-   "urdu": [
-    "عشرت قطرہ ہے دریا میں فنا ہو جانا",
-    "درد کا حد سے گزرنا ہے دوا ہو جانا"
-   ],
-   "roman": [
-    "Ishrat-e-qatra hai dariyā meñ fanā ho jānā",
-    "Dard kā had se guzarnā hai dawā ho jānā"
-   ],
-   "hi": [
-    "इशरत-ए-क़तर है दरिया में फ़ना हो जाना",
-    "दर्द का हद से गुज़रना है दवा हो जाना"
-   ],
-   "english": [
-    "The drop finds its joy in being lost within the river;",
-    "Pain, once it passes every limit, becomes its own cure."
-   ]
-  },
-  {
-   "id": "g6",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "udaasi",
-   "urdu": [
-    "کہوں کس سے میں کہ کیا ہے شب غم بری بلا ہے",
-    "مجھے کیا برا تھا مرنا اگر ایک بار ہوتا"
-   ],
-   "roman": [
-    "Kahūñ kis se maiñ ke kyā hai, shab-e-gham burī balā hai",
-    "Mujhe kyā burā thā marnā, agar ek baar hotā"
-   ],
-   "hi": [
-    "कहूं किस से मैं के क्या है, शब-ए-ग़म बुरी बला है",
-    "मुझे क्या बुरा था मरना, अगर एक बार होता"
-   ],
-   "english": [
-    "To whom can I say what the night of grief is — a dreadful calamity;",
-    "What harm would dying do me, if only it happened once?"
-   ]
-  },
-  {
-   "id": "g7",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "mohabbat",
-   "urdu": [
-    "یہ نہ تھی ہماری قسمت کہ وصال یار ہوتا",
-    "اگر اور جیتے رہتے یہی انتظار ہوتا"
-   ],
-   "roman": [
-    "Ye na thī hamārī qismat ke wisāl-e-yār hotā",
-    "Agar aur jeete rehte yahī intezār hotā"
-   ],
-   "hi": [
-    "ये न थी हमारी क़िस्मत के विसाल-ए-यार होता",
-    "अगर और जीते रेह्ते यही इंतेज़ार होता"
-   ],
-   "english": [
-    "It was never my fate to be united with the beloved;",
-    "Had I lived any longer, it would only have been this same waiting."
-   ]
-  },
-  {
-   "id": "g8",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "zindagi",
-   "urdu": [
-    "رگوں میں دوڑنے پھرنے کے ہم نہیں قائل",
-    "جب آنکھ ہی سے نہ ٹپکا تو پھر لہو کیا ہے"
-   ],
-   "roman": [
-    "Ragoñ meñ dauṛne phirne ke ham nahīñ qāil",
-    "Jab āñkh hī se na ṭapkā to phir lahū kyā hai"
-   ],
-   "hi": [
-    "रगों में दौड़ने फिरने के हम नहीं क़ाइल",
-    "जब आंख ही से न टप्का तो फिर लहू क्या है"
-   ],
-   "english": [
-    "I hold no faith in blood merely running through the veins;",
-    "If it never wells up and drips from the eyes, what blood is it?"
-   ]
-  },
-  {
-   "id": "m1",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "sufi",
-   "urdu": [
-    "ہستی اپنی حباب کی سی ہے",
-    "یہ نمائش سراب کی سی ہے"
-   ],
-   "roman": [
-    "Hastī apnī hubāb kī sī hai",
-    "Ye numāish sarāb kī sī hai"
-   ],
-   "hi": [
-    "हस्ती अपनी हुबाब की सी है",
-    "ये नुमाइश सराब की सी है"
-   ],
-   "english": [
-    "My existence is like a bubble on the water;",
-    "This whole display is no more than a mirage."
-   ]
-  },
-  {
-   "id": "m2",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "mohabbat",
-   "urdu": [
-    "پتا پتا بوٹا بوٹا حال ہمارا جانے ہے",
-    "جانے نہ جانے گل ہی نہ جانے باغ تو سارا جانے ہے"
-   ],
-   "roman": [
-    "Pattā pattā būṭā būṭā hāl hamārā jāne hai",
-    "Jāne na jāne gul hī na jāne, bāgh to sārā jāne hai"
-   ],
-   "hi": [
-    "पत्ता पत्ता बूटा बूटा हाल हमारा जाने है",
-    "जाने न जाने गुल ही न जाने, बाघ तो सारा जाने है"
-   ],
-   "english": [
-    "Every leaf and every plant knows the state that I am in;",
-    "The flower alone may not know — but the entire garden knows."
-   ]
-  },
-  {
-   "id": "m3",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "mohabbat",
-   "urdu": [
-    "ابتدائے عشق ہے روتا ہے کیا",
-    "آگے آگے دیکھیے ہوتا ہے کیا"
-   ],
-   "roman": [
-    "Ibtidā-e-ishq hai rotā hai kyā",
-    "Āge āge dekhiye hotā hai kyā"
-   ],
-   "hi": [
-    "इब्तिदा-ए-इश्क़ है रोता है क्या",
-    "आगे आगे देखिये होता है क्या"
-   ],
-   "english": [
-    "This is only the beginning of love — why do you weep?",
-    "Wait, and see what is yet to come."
-   ]
-  },
-  {
-   "id": "m4",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "udaasi",
-   "urdu": [
-    "دکھائی دیے یوں کہ بے خود کیا",
-    "ہمیں آپ سے بھی جدا کر چلے"
-   ],
-   "roman": [
-    "Dikhāī diye yūñ ke bekhud kiyā",
-    "Hameñ āp se bhī judā kar chale"
-   ],
-   "hi": [
-    "दिखाई दिये यूं के बेखुद किया",
-    "हमें आप से भी जुदा कर चले"
-   ],
-   "english": [
-    "You appeared in such a way that I lost all awareness of myself;",
-    "You separated me even from my own self, and walked away."
-   ]
-  },
-  {
-   "id": "m5",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "udaasi",
-   "urdu": [
-    "سرہانے میر کے آہستہ بولو",
-    "ابھی ٹک روتے روتے سو گیا ہے"
-   ],
-   "roman": [
-    "Sarhāne Mīr ke āhistā bolo",
-    "Abhī ṭuk rote rote so gayā hai"
-   ],
-   "hi": [
-    "सर्हाने मीर के आहिस्ता बोलो",
-    "अभी टुक रोते रोते सो गया है"
-   ],
-   "english": [
-    "Speak softly by Mir's pillow-side;",
-    "Only just now, weeping and weeping, has he fallen asleep."
-   ]
-  },
-  {
-   "id": "m6",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "sufi",
-   "urdu": [
-    "خدا کے واسطے پردہ نہ کعبے سے اٹھا ظالم",
-    "کہیں ایسا نہ ہو یاں بھی وہی کافر صنم نکلے"
-   ],
-   "roman": [
-    "Khudā ke wāste pardā na Kaabe se uṭhā zālim",
-    "Kahīñ aisā na ho yāñ bhī wahī kāfir sanam nikle"
-   ],
-   "hi": [
-    "खुदा के वास्ते पर्दा न काबे से उठा ज़ालिम",
-    "कहीं ऐसा न हो यां भी वही काफ़िर सनम निकले"
-   ],
-   "english": [
-    "For God's sake, O tyrant, do not lift the veil from the Kaaba;",
-    "What if there, too, that same faithless idol is found?"
-   ]
-  },
-  {
-   "id": "i1",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "umeed",
-   "urdu": [
-    "خودی کو کر بلند اتنا کہ ہر تقدیر سے پہلے",
-    "خدا بندے سے خود پوچھے بتا تیری رضا کیا ہے"
-   ],
-   "roman": [
-    "Khudī ko kar buland itnā ke har taqdīr se pehle",
-    "Khudā bande se khud pūchhe, batā terī razā kyā hai"
-   ],
-   "hi": [
-    "खुदी को कर बुलंद इतना के हर तक़्दीर से पेहले",
-    "खुदा बंदे से ख़ुद पूछे, बता तेरी रज़ा क्या है"
-   ],
-   "english": [
-    "Raise the self so high that before every decree of fate,",
-    "God Himself turns to His servant and asks: what is your will?"
-   ]
-  },
-  {
-   "id": "i2",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "sufi",
-   "urdu": [
-    "منا کہ تیری دید کے قابل نہیں ہوں میں",
-    "تو میرا شوق دیکھ مرا انتظار دیکھ"
-   ],
-   "roman": [
-    "Manā ke terī dīd ke qābil nahīñ hūñ maiñ",
-    "Tū merā shauq dekh, merā intezār dekh"
-   ],
-   "hi": [
-    "मना के तेरी दीद के क़ाबिल नहीं हूं मैं",
-    "तू मेरा शौक़ देख, मेरा इंतेज़ार देख"
-   ],
-   "english": [
-    "Granted, I am not worthy of the sight of You;",
-    "Yet look at my longing — look at how I wait."
-   ]
-  },
-  {
-   "id": "i3",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "attitude",
-   "urdu": [
-    "تو شاہیں ہے پرواز ہے کام تیرا",
-    "تیرے سامنے آسماں اور بھی ہیں"
-   ],
-   "roman": [
-    "Tū shāhīñ hai parwāz hai kām terā",
-    "Tere sāmne āsmāñ aur bhī haiñ"
-   ],
-   "hi": [
-    "तू शाहीं है पर्वाज़ है काम तेरा",
-    "तेरे सामने आस्मां और भी हैं"
-   ],
-   "english": [
-    "You are a falcon, and flight is your true calling;",
-    "There are still more skies spread out before you."
-   ]
-  },
-  {
-   "id": "i4",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "attitude",
-   "urdu": [
-    "نہیں تیرا نشیمن قصر سلطانی کے گنبد پر",
-    "تو شاہیں ہے بسیرا کر پہاڑوں کی چٹانوں میں"
-   ],
-   "roman": [
-    "Nahīñ terā nasheman qasr-e-sultānī ke gumbad par",
-    "Tū shāhīñ hai baserā kar pahāṛoñ kī chaṭānoñ meñ"
-   ],
-   "hi": [
-    "नहीं तेरा नशेमन क़स्र-ए-सुल्तानी के गुम्बद पर",
-    "तू शाहीं है बसेरा कर पहाड़ों की चटानों में"
-   ],
-   "english": [
-    "Your nest is not upon the dome of a sultan's palace;",
-    "You are a falcon — make your dwelling among the mountain crags."
-   ]
-  },
-  {
-   "id": "i5",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "zindagi",
-   "urdu": [
-    "ہزاروں سال نرگس اپنی بے نوری پہ روتی ہے",
-    "بڑی مشکل سے ہوتا ہے چمن میں دیدہ ور پیدا"
-   ],
-   "roman": [
-    "Hazāroñ sāl nargis apnī benūrī pe rotī hai",
-    "Baṛī mushkil se hotā hai chaman meñ dīda-war paidā"
-   ],
-   "hi": [
-    "हज़ारों साल नर्गिस अपनी बेनूरी पे रोती है",
-    "बड़ी मुश्किल से होता है चमन में दीद-वर पैदा"
-   ],
-   "english": [
-    "For a thousand years the narcissus weeps over its own sightlessness;",
-    "Only with the greatest rarity is a true seer born in the garden."
-   ]
-  },
-  {
-   "id": "i6",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "umeed",
-   "urdu": [
-    "یقیں محکم عمل پیہم محبت فاتح عالم",
-    "جہاد زندگانی میں ہیں یہ مردوں کی شمشیریں"
-   ],
-   "roman": [
-    "Yaqīñ mohkam, amal paiham, mohabbat fātah-e-ālam",
-    "Jihād-e-zindagānī meñ haiñ ye mardoñ kī shamshīreñ"
-   ],
-   "hi": [
-    "यक़ीं मोह्कम, अमल पैहम, मोहब्बत फ़ातह-ए-आलम",
-    "जिहाद-ए-ज़िंदगानी में हैं ये मर्दों की शम्शीरें"
-   ],
-   "english": [
-    "Firm faith, unceasing action, a love that conquers the world —",
-    "In the struggle of life, these are the swords of true men."
-   ]
-  },
-  {
-   "id": "d1",
-   "lang": "ur",
-   "poet": "dagh",
-   "category": "attitude",
-   "urdu": [
-    "اردو ہے جس کا نام ہمیں جانتے ہیں داغ",
-    "ہندوستاں میں دھوم ہماری زباں کی ہے"
-   ],
-   "roman": [
-    "Urdū hai jis kā nām hamīñ jānte haiñ Dāgh",
-    "Hindustāñ meñ dhoom hamārī zabāñ kī hai"
-   ],
-   "hi": [
-    "उर्दू है जिस का नाम हमीं जांते हैं दाघ",
-    "हिंदुस्तां में धूम हमारी ज़बां की है"
-   ],
-   "english": [
-    "Urdu is its name — and we alone truly know it, says Dagh;",
-    "All through Hindustan, our language is the talk of the land."
-   ]
-  },
-  {
-   "id": "d2",
-   "lang": "ur",
-   "poet": "dagh",
-   "category": "attitude",
-   "urdu": [
-    "اردو ہے جس کا نام ہمیں جانتے ہیں داغ",
-    "سارے جہاں میں دھوم ہماری زباں کی ہے"
-   ],
-   "roman": [
-    "Urdū hai jiskā nām hamīñ jānte haiñ Dāgh",
-    "Sāre jahāñ meñ dhūm hamārī zubāñ kī hai"
-   ],
-   "hi": [
-    "उर्दू है जिस्का नाम हमीं जांते हैं दाघ",
-    "सारे जहां में धूम हमारी ज़ुबां की है"
-   ],
-   "english": [
-    "Urdu is its name — and we alone truly know it, says Dagh;",
-    "Through all the world, our language is renowned."
-   ]
-  },
-  {
-   "id": "mo1",
-   "lang": "ur",
-   "poet": "momin",
-   "category": "mohabbat",
-   "urdu": [
-    "تم میرے پاس ہوتے ہو گویا",
-    "جب کوئی دوسرا نہیں ہوتا"
-   ],
-   "roman": [
-    "Tum mere pās hote ho goyā",
-    "Jab koī dūsrā nahīñ hotā"
-   ],
-   "hi": [
-    "तुम मेरे पास होते हो गोया",
-    "जब कोई दूसरा नहीं होता"
-   ],
-   "english": [
-    "You are beside me, so to speak,",
-    "In just those moments when there is no one else."
-   ]
-  },
-  {
-   "id": "mo2",
-   "lang": "ur",
-   "poet": "momin",
-   "category": "mohabbat",
-   "urdu": [
-    "وہ جو ہم میں تم میں قرار تھا تمہیں یاد ہو کہ نہ یاد ہو",
-    "وہی یعنی وعدہ نباہ کا تمہیں یاد ہو کہ نہ یاد ہو"
-   ],
-   "roman": [
-    "Wo jo ham meñ tum meñ qarār thā tumheñ yād ho ke na yād ho",
-    "Wahī yaani wāda nibāh kā tumheñ yād ho ke na yād ho"
-   ],
-   "hi": [
-    "वो जो हम में तुम में क़रार था तुम्हें याद हो के न याद हो",
-    "वही यानि वाद निबाह का तुम्हें याद हो के न याद हो"
-   ],
-   "english": [
-    "That understanding there once was between you and me — whether you remember it or not;",
-    "That very promise, the pledge to remain true — whether you remember it or not."
-   ]
-  },
-  {
-   "id": "z1",
-   "lang": "ur",
-   "poet": "zafar",
-   "category": "udaasi",
-   "urdu": [
-    "لگتا نہیں ہے دل میرا اجڑے دیار میں",
-    "کس کی بنی ہے عالم ناپائیدار میں"
-   ],
-   "roman": [
-    "Lagtā nahīñ hai dil merā ujṛe dayār meñ",
-    "Kis kī banī hai ālam-e-nā-pāedār meñ"
-   ],
-   "hi": [
-    "लग्ता नहीं है दिल मेरा उज्ड़े दयार में",
-    "किस की बनी है आलम-ए-ना-पाएदार में"
-   ],
-   "english": [
-    "My heart finds no rest in this ruined land;",
-    "Whose life has ever prospered in this transient world?"
-   ]
-  },
-  {
-   "id": "g9",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "mohabbat",
-   "urdu": [
-    "عشق نے غالب نکما کر دیا",
-    "ورنہ ہم بھی آدمی تھے کام کے"
-   ],
-   "roman": [
-    "Ishq ne Ghālib nikammā kar diyā",
-    "Warna ham bhī ādmī thay kām ke"
-   ],
-   "hi": [
-    "इश्क़ ने घालिब निकम्मा कर दिया",
-    "वरन हम भी आद्मी थय काम के"
-   ],
-   "english": [
-    "Love has made Ghalib good for nothing;",
-    "Otherwise, I too was once a man of some use."
-   ]
-  },
-  {
-   "id": "g10",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "mohabbat",
-   "urdu": [
-    "ان کے دیکھے سے جو آ جاتی ہے منہ پر رونق",
-    "وہ سمجھتے ہیں کہ بیمار کا حال اچھا ہے"
-   ],
-   "roman": [
-    "Un ke dekhe se jo ā jātī hai muñh par raunaq",
-    "Wo samajhte haiñ ke bīmār kā hāl achhā hai"
-   ],
-   "hi": [
-    "उन के देखे से जो आ जाती है मुंह पर रौनक़",
-    "वो समझ्ते हैं के बीमार का हाल अछा है"
-   ],
-   "english": [
-    "When a glimpse of her brings a glow back to my face,",
-    "She imagines that the patient is doing well."
-   ]
-  },
-  {
-   "id": "g11",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "udaasi",
-   "urdu": [
-    "ہوئی مدت کہ غالب مر گیا پر یاد آتا ہے",
-    "وہ ہر اک بات پر کہنا کہ یوں ہوتا تو کیا ہوتا"
-   ],
-   "roman": [
-    "Huī muddat ke Ghālib mar gayā par yād ātā hai",
-    "Wo har ik baat par kehnā ke yūñ hotā to kyā hotā"
-   ],
-   "hi": [
-    "हुई मुद्दत के घालिब मर गया पर याद आता है",
-    "वो हर इक बात पर केहना के यूं होता तो क्या होता"
-   ],
-   "english": [
-    "Ages have passed since Ghalib died, yet he comes to mind —",
-    "That habit of his, at every turn: 'What if it had been otherwise?'"
-   ]
-  },
-  {
-   "id": "g12",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "zindagi",
-   "urdu": [
-    "قید حیات و بند غم اصل میں دونوں ایک ہیں",
-    "موت سے پہلے آدمی غم سے نجات پائے کیوں"
-   ],
-   "roman": [
-    "Qaid-e-hayāt o band-e-gham asl meñ donoñ ek haiñ",
-    "Maut se pehle ādmī gham se nijāt pāye kyūñ"
-   ],
-   "hi": [
-    "क़ैद-ए-हयात ओ बंद-ए-ग़म अस्ल में दोनों एक हैं",
-    "मौत से पेहले आद्मी ग़म से निजात पाये क्यूं"
-   ],
-   "english": [
-    "The prison of life and the chains of grief are, in truth, one thing;",
-    "Before death, how could a man ever win release from sorrow?"
-   ]
-  },
-  {
-   "id": "g13",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "sufi",
-   "urdu": [
-    "نہ تھا کچھ تو خدا تھا کچھ نہ ہوتا تو خدا ہوتا",
-    "ڈبویا مجھ کو ہونے نے نہ ہوتا میں تو کیا ہوتا"
-   ],
-   "roman": [
-    "Na thā kuchh to Khudā thā, kuchh na hotā to Khudā hotā",
-    "Duboyā mujh ko hone ne, na hotā maiñ to kyā hotā"
-   ],
-   "hi": [
-    "न था कुछ तो खुदा था, कुछ न होता तो खुदा होता",
-    "दुबोया मुझ को होने ने, न होता मैं तो क्या होता"
-   ],
-   "english": [
-    "When nothing existed, God was; had nothing existed, God would still be;",
-    "My own existence has drowned me — had I never been, what would I be?"
-   ]
-  },
-  {
-   "id": "g14",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "mohabbat",
-   "urdu": [
-    "دل سے تیری نگاہ جگر تک اتر گئی",
-    "دونوں کو اک ادا میں رضامند کر گئی"
-   ],
-   "roman": [
-    "Dil se terī nigāh jigar tak utar gaī",
-    "Donoñ ko ik adā meñ razā-mand kar gaī"
-   ],
-   "hi": [
-    "दिल से तेरी निगाह जिगर तक उतर गैइ",
-    "दोनों को इक अदा में रज़ा-मंद कर गैइ"
-   ],
-   "english": [
-    "Your glance sank from my heart down into my very soul;",
-    "With a single gesture, it won the consent of both."
-   ]
-  },
-  {
-   "id": "m7",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "mohabbat",
-   "urdu": [
-    "ہمارے آگے تیرا جب کسی نے نام لیا",
-    "دل ستم زدہ کو ہم نے تھام تھام لیا"
-   ],
-   "roman": [
-    "Hamāre āge terā jab kisī ne nām liyā",
-    "Dil-e-sitam-zada ko ham ne thām thām liyā"
-   ],
-   "hi": [
-    "हमारे आगे तेरा जब किसी ने नाम लिया",
-    "दिल-ए-सितम-ज़द को हम ने थाम थाम लिया"
-   ],
-   "english": [
-    "When someone happened to utter your name before me,",
-    "I clutched at my tormented heart and held it still."
-   ]
-  },
-  {
-   "id": "m8",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "udaasi",
-   "urdu": [
-    "الٹی ہو گئیں سب تدبیریں کچھ نہ دوا نے کام کیا",
-    "دیکھا اس بیماری دل نے آخر کام تمام کیا"
-   ],
-   "roman": [
-    "Ulṭī ho gaīñ sab tadbīreñ kuchh na dawā ne kām kiyā",
-    "Dekhā is bīmārī-e-dil ne ākhir kām tamām kiyā"
-   ],
-   "hi": [
-    "उल्टी हो गैइं सब तद्बीरें कुछ न दवा ने काम किया",
-    "देखा इस बीमारी-ए-दिल ने आखिर काम तमाम किया"
-   ],
-   "english": [
-    "Every remedy backfired; no medicine did any good;",
-    "In the end, this sickness of the heart finished the matter altogether."
-   ]
-  },
-  {
-   "id": "m9",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "zindagi",
-   "urdu": [
-    "موت اک ماندگی کا وقفہ ہے",
-    "یعنی آگے چلیں گے دم لے کر"
-   ],
-   "roman": [
-    "Maut ik māndagī kā waqfa hai",
-    "Yaani āge chaleñge dam le kar"
-   ],
-   "hi": [
-    "मौत इक मांदगी का वक़्फ़ है",
-    "यानि आगे चलेंगे दम ले कर"
-   ],
-   "english": [
-    "Death is merely a pause in the weariness;",
-    "That is, we shall travel on, once we have caught our breath."
-   ]
-  },
-  {
-   "id": "m10",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "udaasi",
-   "urdu": [
-    "بے خودی لے گئی کہاں ہم کو",
-    "دیر سے انتظار ہے اپنا"
-   ],
-   "roman": [
-    "Bekhudī le gaī kahāñ ham ko",
-    "Der se intezār hai apnā"
-   ],
-   "hi": [
-    "बेखुदी ले गैइ कहां हम को",
-    "देर से इंतेज़ार है अपना"
-   ],
-   "english": [
-    "Where has this loss of self carried me off to?",
-    "For a long time now, I have been waiting for myself."
-   ]
-  },
-  {
-   "id": "i7",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "umeed",
-   "urdu": [
-    "تندیٔ باد مخالف سے نہ گھبرا اے عقاب",
-    "یہ تو چلتی ہے تجھے اونچا اڑانے کے لیے"
-   ],
-   "roman": [
-    "Tundī-e-bād-e-mukhālif se na ghabrā ai uqāb",
-    "Ye to chaltī hai tujhe ūnchā uṛāne ke liye"
-   ],
-   "hi": [
-    "तुंदी-ए-बाद-ए-मुखालिफ़ से न घबरा ऐ उक़ाब",
-    "ये तो चल्ती है तुझे ऊंचा उड़ाने के लिये"
-   ],
-   "english": [
-    "Do not be daunted by the fury of the headwind, O eagle;",
-    "It blows only in order to carry you higher."
-   ]
-  },
-  {
-   "id": "i8",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "zindagi",
-   "urdu": [
-    "اپنے من میں ڈوب کر پا جا سراغ زندگی",
-    "تو اگر میرا نہیں بنتا نہ بن اپنا تو بن"
-   ],
-   "roman": [
-    "Apne man meñ ḍūb kar pā jā surāgh-e-zindagī",
-    "Tū agar merā nahīñ bantā na ban, apnā to ban"
-   ],
-   "hi": [
-    "अपने मन में डूब कर पा जा सुराघ-ए-ज़िंदगी",
-    "तू अगर मेरा नहीं बंता न बन, अपना तो बन"
-   ],
-   "english": [
-    "Dive deep into your own heart, and there find the clue to life;",
-    "If you will not be mine, so be it — at least be your own."
-   ]
-  },
-  {
-   "id": "i9",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "attitude",
-   "urdu": [
-    "ہر لحظہ ہے مومن کی نئی شان نئی آن",
-    "گفتار میں کردار میں اللہ کی برہان"
-   ],
-   "roman": [
-    "Har lehza hai momin kī naī shān naī ān",
-    "Guftār meñ kirdār meñ Allāh kī burhān"
-   ],
-   "hi": [
-    "हर लेह्ज़ है मोमिन की नैइ शान नैइ आन",
-    "गुफ़्तार में किर्दार में अललाह की बुर्हान"
-   ],
-   "english": [
-    "At every moment the believer has a new majesty, a new splendour;",
-    "In word and in deed, he is a living proof of God."
-   ]
-  },
-  {
-   "id": "i10",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "zindagi",
-   "urdu": [
-    "وجود زن سے ہے تصویر کائنات میں رنگ",
-    "اسی کے ساز سے ہے زندگی کا سوز دروں"
-   ],
-   "roman": [
-    "Wujūd-e-zan se hai taswīr-e-kāināt meñ rang",
-    "Isī ke sāz se hai zindagī kā soz-e-darūñ"
-   ],
-   "hi": [
-    "वुजूद-ए-ज़न से है तस्वीर-ए-काइनात में रंग",
-    "इसी के साज़ से है ज़िंदगी का सोज़-ए-दरूं"
-   ],
-   "english": [
-    "It is the being of woman that lends colour to the portrait of the universe;",
-    "It is her music that holds the inner fire of life."
-   ]
-  },
-  {
-   "id": "d3",
-   "lang": "ur",
-   "poet": "dagh",
-   "category": "mohabbat",
-   "urdu": [
-    "ستم ہی کرنا جفا ہی کرنا نگاہ الفت کبھی نہ کرنا",
-    "تمہیں قسم ہے ہمارے سر کی ہمارے حق میں کمی نہ کرنا"
-   ],
-   "roman": [
-    "Sitam hī karnā, jafā hī karnā, nigāh-e-ulfat kabhī na karnā",
-    "Tumheñ qasam hai hamāre sar kī, hamāre haq meñ kamī na karnā"
-   ],
-   "hi": [
-    "सितम ही करना, जफ़ा ही करना, निगाह-ए-उल्फ़त कभी न करना",
-    "तुम्हें क़सम है हमारे सर की, हमारे हक़ में कमी न करना"
-   ],
-   "english": [
-    "Torment me if you will, be cruel if you will — but never glance at me with love;",
-    "By my head I swear you: in my case, let there be no falling short."
-   ]
-  },
-  {
-   "id": "mo3",
-   "lang": "ur",
-   "poet": "momin",
-   "category": "udaasi",
-   "urdu": [
-    "اثر اس کو ذرا نہیں ہوتا",
-    "رنج راحت فزا نہیں ہوتا"
-   ],
-   "roman": [
-    "Asar us ko zarā nahīñ hotā",
-    "Ranj rāhat-fazā nahīñ hotā"
-   ],
-   "hi": [
-    "असर उस को ज़रा नहीं होता",
-    "रंज राहत-फ़ज़ा नहीं होता"
-   ],
-   "english": [
-    "It makes not the slightest impression on that heart;",
-    "Grief was never a thing that increases one's ease."
-   ]
-  },
-  {
-   "id": "z2",
-   "lang": "ur",
-   "poet": "zafar",
-   "category": "udaasi",
-   "urdu": [
-    "کتنا ہے بدنصیب ظفر دفن کے لیے",
-    "دو گز زمین بھی نہ ملی کوئے یار میں"
-   ],
-   "roman": [
-    "Kitnā hai badnasīb Zafar dafan ke liye",
-    "Do gaz zamīn bhī na milī kū-e-yār meñ"
-   ],
-   "hi": [
-    "कितना है बदनसीब ज़फ़र दफ़न के लिये",
-    "दो गज़ ज़मीं भी न मिली कू-ए-यार में"
-   ],
-   "english": [
-    "How ill-fated is Zafar — that even for his burial",
-    "Two yards of earth were not to be had in the beloved's street."
-   ]
-  },
-  {
-   "id": "z3",
-   "lang": "ur",
-   "poet": "zafar",
-   "category": "udaasi",
-   "urdu": [
-    "نہ کسی کی آنکھ کا نور ہوں نہ کسی کے دل کا قرار ہوں",
-    "جو کسی کے کام نہ آ سکے میں وہ ایک مشت غبار ہوں"
-   ],
-   "roman": [
-    "Na kisī kī ānkh kā nūr hūñ, na kisī ke dil kā qarār hūñ",
-    "Jo kisī ke kām na ā sake, maiñ wo ek musht-e-ghubār hūñ"
-   ],
-   "hi": [
-    "न किसी की आंख का नूर हूं, न किसी के दिल का क़रार हूं",
-    "जो किसी के काम न आ सके, मैं वो एक मुश्त-ए-घुबार हूं"
-   ],
-   "english": [
-    "I am the light of no one's eyes, nor the repose of anyone's heart;",
-    "I am a mere handful of dust that could be of use to none."
-   ]
-  },
-  {
-   "id": "g15",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "udaasi",
-   "urdu": [
-    "رہیے اب ایسی جگہ چل کر جہاں کوئی نہ ہو",
-    "ہم سخن کوئی نہ ہو اور ہم زباں کوئی نہ ہو"
-   ],
-   "roman": [
-    "Rahiye ab aisī jagah chal kar jahāñ koī na ho",
-    "Ham-sukhan koī na ho aur ham-zabāñ koī na ho"
-   ],
-   "hi": [
-    "रहिये अब ऐसी जगह चल कर जहां कोई न हो",
-    "हम-सुखन कोई न हो और हम-ज़बां कोई न हो"
-   ],
-   "english": [
-    "Come, let us go and live where there is no one at all;",
-    "No one to talk to, no one who speaks our tongue."
-   ]
-  },
-  {
-   "id": "g16",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "zindagi",
-   "urdu": [
-    "نہ گل نغمہ ہوں نہ پردۂ ساز",
-    "میں ہوں اپنی شکست کی آواز"
-   ],
-   "roman": [
-    "Na gul-e-naghma hūñ na parda-e-sāz",
-    "Maiñ hūñ apnī shikast kī āwāz"
-   ],
-   "hi": [
-    "न गुल-ए-नघ्म हूं न पर्द-ए-साज़",
-    "मैं हूं अपनी शिकस्त की आवाज़"
-   ],
-   "english": [
-    "I am neither the flower of a song nor the fret of an instrument;",
-    "I am the voice of my own defeat."
-   ]
-  },
-  {
-   "id": "g17",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "attitude",
-   "urdu": [
-    "گو ہاتھ کو جنبش نہیں آنکھوں میں تو دم ہے",
-    "رہنے دو ابھی ساغر و مینا میرے آگے"
-   ],
-   "roman": [
-    "Go hāth ko jumbish nahīñ āñkhoñ meñ to dam hai",
-    "Rehne do abhī sāghar-o-mīnā mere āge"
-   ],
-   "hi": [
-    "गो हाथ को जुम्बिश नहीं आंखों में तो दम है",
-    "रेहने दो अभी साघर-ओ-मीना मेरे आगे"
-   ],
-   "english": [
-    "My hand may no longer move, but there is life in my eyes yet;",
-    "Leave the cup and the wine-flask before me a little longer."
-   ]
-  },
-  {
-   "id": "g18",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "zindagi",
-   "urdu": [
-    "رنج سے خوگر ہوا انساں تو مٹ جاتا ہے رنج",
-    "مشکلیں مجھ پر پڑیں اتنی کہ آساں ہو گئیں"
-   ],
-   "roman": [
-    "Ranj se khūgar huā insāñ to mit jātā hai ranj",
-    "Mushkileñ mujh par paṛīñ itnī ke āsāñ ho gaīñ"
-   ],
-   "hi": [
-    "रंज से खूगर हुआ इंसां तो मित जाता है रंज",
-    "मुश्किलें मुझ पर पड़ीं इतनी के आसां हो गैइं"
-   ],
-   "english": [
-    "Once a man grows used to grief, the grief itself wears away;",
-    "So many hardships fell upon me that hardship grew easy."
-   ]
-  },
-  {
-   "id": "g19",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "udaasi",
-   "urdu": [
-    "درد دل لکھوں کب تک جاؤں ان کو دکھلا دوں",
-    "انگلیاں فگار اپنی خامہ خوں چکاں اپنا"
-   ],
-   "roman": [
-    "Dard-e-dil likhūñ kab tak, jāūñ un ko dikhlā dūñ",
-    "Ungliyāñ figār apnī, khāma khūñ-chakāñ apnā"
-   ],
-   "hi": [
-    "दर्द-ए-दिल लिखूं कब तक, जाऊं उन को दिखला दूं",
-    "उंगलियां फ़िगार अपनी, खाम खूं-चकां अपना"
-   ],
-   "english": [
-    "How long shall I go on writing of this heart's pain? Let me go and show her instead —",
-    "These fingers of mine, all wounded; this pen of mine, dripping blood."
-   ]
-  },
-  {
-   "id": "g20",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "zindagi",
-   "urdu": [
-    "سب کہاں کچھ لالہ و گل میں نمایاں ہو گئیں",
-    "خاک میں کیا صورتیں ہوں گی کہ پنہاں ہو گئیں"
-   ],
-   "roman": [
-    "Sab kahāñ kuchh lāla-o-gul meñ numāyāñ ho gaīñ",
-    "Khāk meñ kyā sūrateñ hoñgī ke pinhāñ ho gaīñ"
-   ],
-   "hi": [
-    "सब कहां कुछ लाल-ओ-गुल में नुमायां हो गैइं",
-    "ख़ाक में क्या सूरतें होंगी के पिंहां हो गैइं"
-   ],
-   "english": [
-    "Only a few of them reappeared among the tulips and the roses;",
-    "Who knows what lovely faces lie hidden in the dust."
-   ]
-  },
-  {
-   "id": "g21",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "mohabbat",
-   "urdu": [
-    "مدت ہوئی ہے یار کو مہماں کیے ہوئے",
-    "جوش قدح سے بزم چراغاں کیے ہوئے"
-   ],
-   "roman": [
-    "Muddat huī hai yār ko mehmāñ kiye hue",
-    "Josh-e-qadah se bazm chirāghāñ kiye hue"
-   ],
-   "hi": [
-    "मुद्दत हुई है यार को मेह्मां किये हुए",
-    "जोश-ए-क़दह से बज़्म चिराघां किये हुए"
-   ],
-   "english": [
-    "It has been long since I last had the beloved as my guest,",
-    "Since the gathering blazed with lamps from the fervour of the cup."
-   ]
-  },
-  {
-   "id": "m11",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "zindagi",
-   "urdu": [
-    "لے سانس بھی آہستہ کہ نازک ہے بہت کام",
-    "آفاق کی اس کارگہ شیشہ گری کا"
-   ],
-   "roman": [
-    "Le sāñs bhī āhista ke nāzuk hai bahut kām",
-    "Āfāq kī is kār-gah-e-shīsha-garī kā"
-   ],
-   "hi": [
-    "ले सांस भी आहिस्त के नाज़ुक है बहुत काम",
-    "आफ़ाक़ की इस कार-गह-ए-शीश-गरी का"
-   ],
-   "english": [
-    "Breathe gently, for the work is exceedingly delicate —",
-    "The work of this glass-making workshop of the heavens."
-   ]
-  },
-  {
-   "id": "m12",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "udaasi",
-   "urdu": [
-    "عرض نیاز عشق کے قابل نہیں رہا",
-    "جس دل پہ ناز تھا مجھے وہ دل نہیں رہا"
-   ],
-   "roman": [
-    "Arz-e-niyāz-e-ishq ke qābil nahīñ rahā",
-    "Jis dil pe nāz thā mujhe wo dil nahīñ rahā"
-   ],
-   "hi": [
-    "अर्ज़-ए-नियाज़-ए-इश्क़ के क़ाबिल नहीं रहा",
-    "जिस दिल पे नाज़ था मुझे वो दिल नहीं रहा"
-   ],
-   "english": [
-    "I am no longer worthy of laying love's plea before anyone;",
-    "The heart I once took such pride in is no longer mine."
-   ]
-  },
-  {
-   "id": "m13",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "udaasi",
-   "urdu": [
-    "کیا کہوں تم سے میں کہ کیا ہے شب غم",
-    "بری بلا ہے مجھے یہ پہچانیے"
-   ],
-   "roman": [
-    "Kyā kahūñ tum se maiñ ke kyā hai shab-e-gham",
-    "Burī balā hai mujhe ye pehchāniye"
-   ],
-   "hi": [
-    "क्या कहूं तुम से मैं के क्या है शब-ए-ग़म",
-    "बुरी बला है मुझे ये पेह्चानिये"
-   ],
-   "english": [
-    "What can I tell you of what the night of sorrow is?",
-    "A dreadful calamity — know that it has claimed me."
-   ]
-  },
-  {
-   "id": "i11",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "umeed",
-   "urdu": [
-    "ستاروں سے آگے جہاں اور بھی ہیں",
-    "ابھی عشق کے امتحاں اور بھی ہیں"
-   ],
-   "roman": [
-    "Sitāroñ se āge jahāñ aur bhī haiñ",
-    "Abhī ishq ke imtihāñ aur bhī haiñ"
-   ],
-   "hi": [
-    "सितारों से आगे जहाँ और भी हैं",
-    "अभी इश्क़ के इम्तिहाँ और भी हैं"
-   ],
-   "english": [
-    "Beyond the stars, there are still more worlds;",
-    "And love still has more trials yet to pass."
-   ]
-  },
-  {
-   "id": "i12",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "attitude",
-   "urdu": [
-    "تو شاہین ہے پرواز ہے کام تیرا",
-    "تیرے سامنے آسماں اور بھی ہیں"
-   ],
-   "roman": [
-    "Tū shāheen hai parwāz hai kām terā",
-    "Tere sāmne āsmāñ aur bhī haiñ"
-   ],
-   "hi": [
-    "तू शाहीं है पर्वाज़ है काम तेरा",
-    "तेरे सामने आस्मां और भी हैं"
-   ],
-   "english": [
-    "You are a falcon, and flight is your true calling;",
-    "There are still more skies spread out before you."
-   ]
-  },
-  {
-   "id": "i13",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "sufi",
-   "urdu": [
-    "عقل عیار ہے سو بھیس بنا لیتی ہے",
-    "عشق بے چارہ نہ ملا ہے نہ زاہد نہ حکیم"
-   ],
-   "roman": [
-    "Aqal ayyār hai sau bhes banā letī hai",
-    "Ishq bechāra na mullā hai na zāhid na hakīm"
-   ],
-   "hi": [
-    "अक़ल अय्यार है सौ भेस बना लेती है",
-    "इश्क़ बेचार न मुलला है न ज़ाहिद न हकीम"
-   ],
-   "english": [
-    "Reason is a trickster — it can put on a hundred disguises;",
-    "Poor love is neither a cleric, nor an ascetic, nor a sage."
-   ]
-  },
-  {
-   "id": "i14",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "mohabbat",
-   "urdu": [
-    "تیرے عشق کی انتہا چاہتا ہوں",
-    "میری سادگی دیکھ کیا چاہتا ہوں"
-   ],
-   "roman": [
-    "Tere ishq kī intehā chāhtā hūñ",
-    "Merī sādgī dekh kyā chāhtā hūñ"
-   ],
-   "hi": [
-    "तेरे इश्क़ की इंतेहा चाह्ता हूं",
-    "मेरी साद्गी देख क्या चाह्ता हूं"
-   ],
-   "english": [
-    "I want the very utmost of Your love;",
-    "Behold my simplicity — just see what it is I want."
-   ]
-  },
-  {
-   "id": "i15",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "sufi",
-   "urdu": [
-    "غریب و سادہ و رنگیں ہے داستان حرم",
-    "نہایت اس کی حسین ابتدا ہے اسمعیل"
-   ],
-   "roman": [
-    "Gharīb o sādā o rangīñ hai dāstān-e-haram",
-    "Nihāyat is kī Husain, ibtidā hai Ismāīl"
-   ],
-   "hi": [
-    "घरीब ओ सादा ओ रंगीं है दास्तान-ए-हरम",
-    "निहायत इस की हुसैं, इब्तिदा है इस्माईल"
-   ],
-   "english": [
-    "Strange, simple, and deeply coloured is the story of the Sacred House;",
-    "Its ending is Husain, and its beginning is Ismail."
-   ]
-  },
-  {
-   "id": "d4",
-   "lang": "ur",
-   "poet": "dagh",
-   "category": "mohabbat",
-   "urdu": [
-    "خاطر سے یا لحاظ سے میں مان تو گیا",
-    "جھوٹی قسم سے آپ کا ایمان تو گیا"
-   ],
-   "roman": [
-    "Khātir se yā lihāz se maiñ mān to gayā",
-    "Jhūṭī qasam se āp kā īmān to gayā"
-   ],
-   "hi": [
-    "खातिर से या लिहाज़ से मैं मान तो गया",
-    "झूटी क़सम से आप का ईमान तो गया"
-   ],
-   "english": [
-    "Out of regard for you, or out of courtesy, I did at last give in;",
-    "But by that false oath of yours, your faith itself was lost."
-   ]
-  },
-  {
-   "id": "mo4",
-   "lang": "ur",
-   "poet": "momin",
-   "category": "mohabbat",
-   "urdu": [
-    "الفت میں برابر ہے وفا ہو کہ جفا ہو",
-    "ہر بات میں لذت ہے اگر دل میں مزہ ہو"
-   ],
-   "roman": [
-    "Ulfat meñ barābar hai wafā ho ke jafā ho",
-    "Har bāt meñ lazzat hai agar dil meñ mazā ho"
-   ],
-   "hi": [
-    "उल्फ़त में बराबर है वफ़ा हो के जफ़ा हो",
-    "हर बात में लज़्ज़त है अगर दिल में मज़ा हो"
-   ],
-   "english": [
-    "In love, faithfulness and cruelty amount to the same;",
-    "There is relish in everything, if only the heart has a taste for joy."
-   ]
-  },
-  {
-   "id": "z4",
-   "lang": "ur",
-   "poet": "zafar",
-   "category": "udaasi",
-   "urdu": [
-    "عمر دراز مانگ کے لائے تھے چار دن",
-    "دو آرزو میں کٹ گئے دو انتظار میں"
-   ],
-   "roman": [
-    "Umr-e-darāz māñg ke lāye thay chār din",
-    "Do ārzū meñ kaṭ gaye do intezār meñ"
-   ],
-   "hi": [
-    "उम्र-ए-दराज़ मांग के लाये थय चार दिन",
-    "दो आर्ज़ू में कट गये दो इंतेज़ार में"
-   ],
-   "english": [
-    "I begged and brought back a long life — of four days in all;",
-    "Two of them passed in yearning, and two in waiting."
-   ]
-  },
-  {
-   "id": "hm1",
-   "lang": "ur",
-   "poet": "hasrat",
-   "category": "mohabbat",
-   "urdu": [
-    "چپکے چپکے رات دن آنسو بہانا یاد ہے",
-    "ہم کو اب تک عاشقی کا وہ زمانہ یاد ہے"
-   ],
-   "roman": [
-    "Chupke chupke rāt din āñsū bahānā yād hai",
-    "Ham ko ab tak āshiqī kā wo zamānā yād hai"
-   ],
-   "hi": [
-    "चुप्के चुप्के रात दिन आंसू बहाना याद है",
-    "हम को अब तक आशिक़ी का वो ज़माना याद है"
-   ],
-   "english": [
-    "Silently shedding tears, night and day — I still remember;",
-    "Even now I remember those days of being in love."
-   ]
-  },
-  {
-   "id": "ak1",
-   "lang": "ur",
-   "poet": "akbar",
-   "category": "attitude",
-   "urdu": [
-    "ہنگامہ ہے کیوں برپا تھوڑی سی جو پی لی ہے",
-    "ڈاکہ تو نہیں ڈالا چوری تو نہیں کی ہے"
-   ],
-   "roman": [
-    "Hungāma hai kyūñ barpā thoṛī sī jo pī lī hai",
-    "Ḍāka to nahīñ ḍālā chorī to nahīñ kī hai"
-   ],
-   "hi": [
-    "हुंगाम है क्यूं बर्पा थोड़ी सी जो पी ली है",
-    "डाक तो नहीं डाला चोरी तो नहीं की है"
-   ],
-   "english": [
-    "Why this whole uproar, just because I drank a little?",
-    "I have committed no robbery, nor any theft."
-   ]
-  },
-  {
-   "id": "g22",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "mohabbat",
-   "urdu": [
-    "آہ کو چاہیے اک عمر اثر ہونے تک",
-    "کون جیتا ہے تیری زلف کے سر ہونے تک"
-   ],
-   "roman": [
-    "Āh ko chāhiye ik umr asar hone tak",
-    "Kaun jītā hai terī zulf ke sar hone tak"
-   ],
-   "hi": [
-    "आह को चाहिये इक उम्र असर होने तक",
-    "कौन जीता है तेरी ज़ुल्फ़ के सर होने तक"
-   ],
-   "english": [
-    "A sigh needs a whole lifetime before it can take effect;",
-    "Who could live long enough for your tangled tresses to be set right?"
-   ]
-  },
-  {
-   "id": "g23",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "udaasi",
-   "urdu": [
-    "درد منت کش دوا نہ ہوا",
-    "میں نہ اچھا ہوا نہ برا ہوا"
-   ],
-   "roman": [
-    "Dard minnat-kash-e-dawā na huā",
-    "Maiñ na achhā huā na burā huā"
-   ],
-   "hi": [
-    "दर्द मिंनत-कश-ए-दवा न हुआ",
-    "मैं न अछा हुआ न बुरा हुआ"
-   ],
-   "english": [
-    "My pain never stood in debt to any medicine;",
-    "I neither recovered, nor did I grow any worse."
-   ]
-  },
-  {
-   "id": "g24",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "zindagi",
-   "urdu": [
-    "ہم کو معلوم ہے جنت کی حقیقت لیکن",
-    "دل کے خوش رکھنے کو غالب خیال اچھا ہے"
-   ],
-   "roman": [
-    "Ham ko mālūm hai jannat kī haqīqat lekin",
-    "Dil ke khush rakhne ko Ghālib khayāl achhā hai"
-   ],
-   "hi": [
-    "हम को मालूम है जंनत की हक़ीक़त लेकिन",
-    "दिल के खुश रखने को घालिब खयाल अछा है"
-   ],
-   "english": [
-    "We know full well what Paradise truly is, and yet —",
-    "It is a pleasant thought, Ghalib, to keep the heart content."
-   ]
-  },
-  {
-   "id": "g25",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "udaasi",
-   "urdu": [
-    "حیراں ہوں دل کو روؤں کہ پیٹوں جگر کو میں",
-    "مقدور ہو تو ساتھ رکھوں نوحہ گر کو میں"
-   ],
-   "roman": [
-    "Hairāñ hūñ dil ko roūñ ke pīṭūñ jigar ko maiñ",
-    "Maqdūr ho to sāth rakhūñ nauha-gar ko maiñ"
-   ],
-   "hi": [
-    "हैरां हूं दिल को रोऊं के पीटूं जिगर को मैं",
-    "मक़्दूर हो तो साथ रखूं नौह-गर को मैं"
-   ],
-   "english": [
-    "I am at a loss — shall I weep for my heart, or beat my breast for my soul?",
-    "If only I could, I would keep a hired mourner ever beside me."
-   ]
-  },
-  {
-   "id": "g26",
-   "lang": "ur",
-   "poet": "ghalib",
-   "category": "mohabbat",
-   "urdu": [
-    "آئینہ دیکھ اپنا سا منہ لے کے رہ گئے",
-    "صاحب کو دل نہ دینے پہ کتنا غرور تھا"
-   ],
-   "roman": [
-    "Āīna dekh apnā sā muñh le ke reh gaye",
-    "Sāhib ko dil na dene pe kitnā ghuroor thā"
-   ],
-   "hi": [
-    "आईन देख अपना सा मुंह ले के रेह गये",
-    "साहिब को दिल न देने पे कितना घुरूर था"
-   ],
-   "english": [
-    "She saw her own face in the mirror and stood there, transfixed;",
-    "How proud she was of never giving her heart away!"
-   ]
-  },
-  {
-   "id": "m14",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "udaasi",
-   "urdu": [
-    "دیکھ تو دل کہ جاں سے اٹھتا ہے",
-    "یہ دھواں سا کہاں سے اٹھتا ہے"
-   ],
-   "roman": [
-    "Dekh to dil ke jāñ se uṭhtā hai",
-    "Ye dhuāñ sā kahāñ se uṭhtā hai"
-   ],
-   "hi": [
-    "देख तो दिल के जां से उठ्ता है",
-    "ये धुआं सा कहां से उठ्ता है"
-   ],
-   "english": [
-    "Look — does it rise from the heart, or from the soul?",
-    "This wisp of smoke, from where does it rise?"
-   ]
-  },
-  {
-   "id": "m15",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "mohabbat",
-   "urdu": [
-    "ہم ہوئے تم ہوئے کہ میر ہوئے",
-    "اس کی زلفوں کے سب اسیر ہوئے"
-   ],
-   "roman": [
-    "Ham hue tum hue ke Mīr hue",
-    "Us kī zulfoñ ke sab asīr hue"
-   ],
-   "hi": [
-    "हम हुए तुम हुए के मीर हुए",
-    "उस की ज़ुल्फ़ों के सब असीर हुए"
-   ],
-   "english": [
-    "Whether it was I, or you, or Mir himself —",
-    "Every one of us became a captive of her tresses."
-   ]
-  },
-  {
-   "id": "m16",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "zindagi",
-   "urdu": [
-    "دلی جو ایک شہر تھا عالم میں انتخاب",
-    "رہتے تھے منتخب ہی جہاں روزگار کے"
-   ],
-   "roman": [
-    "Dillī jo ek sheher thā ālam meñ intekhāb",
-    "Rehte thay muntakhab hī jahāñ rozgār ke"
-   ],
-   "hi": [
-    "दिलली जो एक शेहेर था आलम में इंतेखाब",
-    "रेह्ते थय मुंतखब ही जहां रोज़्गार के"
-   ],
-   "english": [
-    "Delhi — that city, the chosen jewel of the world;",
-    "Only the elect of the age once lived within her."
-   ]
-  },
-  {
-   "id": "m17",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "mohabbat",
-   "urdu": [
-    "میر ان نیم باز آنکھوں میں",
-    "ساری مستی شراب کی سی ہے"
-   ],
-   "roman": [
-    "Mīr in nīm-bāz āñkhoñ meñ",
-    "Sārī mastī sharāb kī sī hai"
-   ],
-   "hi": [
-    "मीर इन नीम-बाज़ आंखों में",
-    "सारी मस्ती शराब की सी है"
-   ],
-   "english": [
-    "Mir — in those half-open eyes of hers",
-    "There is all the intoxication of wine."
-   ]
-  },
-  {
-   "id": "m18",
-   "lang": "ur",
-   "poet": "mir",
-   "category": "zindagi",
-   "urdu": [
-    "جس سر کو غرور آج ہے یاں تاجوری کا",
-    "کل اس پہ یہیں شور ہے پھر نوحہ گری کا"
-   ],
-   "roman": [
-    "Jis sar ko ghuroor āj hai yāñ tājwarī kā",
-    "Kal us pe yahīñ shor hai phir nauha-garī kā"
-   ],
-   "hi": [
-    "जिस सर को घुरूर आज है यां ताज्वरी का",
-    "कल उस पे यहीं शोर है फिर नौह-गरी का"
-   ],
-   "english": [
-    "The head that today swells with pride in its crown —",
-    "Tomorrow, above that same head, the wailing of mourners will rise."
-   ]
-  },
-  {
-   "id": "i16",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "attitude",
-   "urdu": [
-    "اپنے بھی خفا مجھ سے ہیں بیگانے بھی ناخوش",
-    "میں زہر ہلاہل کو کبھی کہہ نہ سکا قند"
-   ],
-   "roman": [
-    "Apne bhī khafā mujh se haiñ begāne bhī nākhush",
-    "Maiñ zahr-e-halāhal ko kabhī keh na sakā qand"
-   ],
-   "hi": [
-    "अपने भी खफ़ा मुझ से हैं बेगाने भी नाखुश",
-    "मैं ज़ह्र-ए-हलाहल को कभी केह न सका क़ंद"
-   ],
-   "english": [
-    "My own people are cross with me, and strangers are displeased too;",
-    "Never could I bring myself to call deadly poison 'sweet'."
-   ]
-  },
-  {
-   "id": "i17",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "umeed",
-   "urdu": [
-    "افراد کے ہاتھوں میں ہے اقوام کی تقدیر",
-    "ہر فرد ہے ملت کے مقدر کا ستارہ"
-   ],
-   "roman": [
-    "Afrād ke hāthoñ meñ hai aqwām kī taqdīr",
-    "Har fard hai millat ke muqaddar kā sitāra"
-   ],
-   "hi": [
-    "अफ़राद के हाथों में है अक़्वाम की तक़्दीर",
-    "हर फ़र्द है मिललत के मुक़द्दर का सितार"
-   ],
-   "english": [
-    "The fate of nations rests in the hands of individuals;",
-    "Every single person is a star in the destiny of the community."
-   ]
-  },
-  {
-   "id": "i18",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "zindagi",
-   "urdu": [
-    "ترے آزاد بندوں کی نہ یہ دنیا نہ وہ دنیا",
-    "یہاں مرنے کی پابندی وہاں جینے کی پابندی"
-   ],
-   "roman": [
-    "Tere āzād bandoñ kī na ye duniyā na wo duniyā",
-    "Yahāñ marne kī pābandī wahāñ jeene kī pābandī"
-   ],
-   "hi": [
-    "तेरे आज़ाद बंदों की न ये दुनिया न वो दुनिया",
-    "यहां मरने की पाबंदी वहां जीने की पाबंदी"
-   ],
-   "english": [
-    "For Your free servants, neither this world nor the next will do:",
-    "Here, the restriction of death; there, the restriction of life."
-   ]
-  },
-  {
-   "id": "i19",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "umeed",
-   "urdu": [
-    "تو ابھی رہ گزر میں ہے قید مقام سے گزر",
-    "مصر و حجاز سے گزر پارس و شام سے گزر"
-   ],
-   "roman": [
-    "Tū abhī rah-guzar meñ hai qaid-e-maqām se guzar",
-    "Misr-o-Hijāz se guzar Pāras-o-Shām se guzar"
-   ],
-   "hi": [
-    "तू अभी रह-गुज़र में है क़ैद-ए-मक़ाम से गुज़र",
-    "मिस्र-ओ-हिजाज़ से गुज़र पारस-ओ-शाम से गुज़र"
-   ],
-   "english": [
-    "You are still on the way — pass beyond the bondage of halting-places;",
-    "Pass beyond Egypt and Hijaz, pass beyond Persia and Syria."
-   ]
-  },
-  {
-   "id": "i20",
-   "lang": "ur",
-   "poet": "iqbal",
-   "category": "sufi",
-   "urdu": [
-    "قوت عشق سے ہر پست کو بالا کر دے",
-    "دہر میں اسم محمد سے اجالا کر دے"
-   ],
-   "roman": [
-    "Quwwat-e-ishq se har past ko bālā kar de",
-    "Dahr meñ ism-e-Muhammad se ujālā kar de"
-   ],
-   "hi": [
-    "क़ुव्वत-ए-इश्क़ से हर पस्त को बाला कर दे",
-    "दह्र में इस्म-ए-मुहम्मद से उजाला कर दे"
-   ],
-   "english": [
-    "With the power of love, raise up everything that lies low;",
-    "And fill this world with light by the name of Muhammad."
-   ]
-  },
-  {
-   "id": "d5",
-   "lang": "ur",
-   "poet": "dagh",
-   "category": "udaasi",
-   "urdu": [
-    "زمانہ بڑے شوق سے سن رہا تھا",
-    "ہمیں سو گئے داستاں کہتے کہتے"
-   ],
-   "roman": [
-    "Zamāna baṛe shauq se sun rahā thā",
-    "Hamīñ so gaye dāstāñ kehte kehte"
-   ],
-   "hi": [
-    "ज़माना बड़े शौक़ से सुन रहा था",
-    "हमीं सो गये दास्तां केह्ते केह्ते"
-   ],
-   "english": [
-    "The whole world was listening with the keenest delight;",
-    "It was I who fell asleep while telling the tale."
-   ]
-  },
-  {
-   "id": "d6",
-   "lang": "ur",
-   "poet": "dagh",
-   "category": "mohabbat",
-   "urdu": [
-    "رنج کی جب گفتگو ہونے لگی",
-    "آپ سے تم تم سے تو ہونے لگی"
-   ],
-   "roman": [
-    "Ranj kī jab guftagū hone lagī",
-    "Āp se tum tum se tū hone lagī"
-   ],
-   "hi": [
-    "रंज की जब गुफ़्तगू होने लगी",
-    "आप से तुम तुम से तू होने लगी"
-   ],
-   "english": [
-    "When the talk between us turned to sorrows,",
-    "The formal 'aap' melted into 'tum', and 'tum' into 'tu'."
-   ]
-  },
-  {
-   "id": "d7",
-   "lang": "ur",
-   "poet": "dagh",
-   "category": "mohabbat",
-   "urdu": [
-    "خوب پردہ ہے کہ چلمن سے لگے بیٹھے ہیں",
-    "صاف چھپتے بھی نہیں سامنے آتے بھی نہیں"
-   ],
-   "roman": [
-    "Khoob parda hai ke chilman se lage baiṭhe haiñ",
-    "Sāf chhupte bhī nahīñ sāmne āte bhī nahīñ"
-   ],
-   "hi": [
-    "खूब पर्द है के चिल्मन से लगे बैठे हैं",
-    "साफ़ छुप्ते भी नहीं सामने आते भी नहीं"
-   ],
-   "english": [
-    "What a fine veil — she sits pressed close against the curtain;",
-    "Neither properly hidden, nor willing to come into view."
-   ]
-  },
-  {
-   "id": "mo5",
-   "lang": "ur",
-   "poet": "momin",
-   "category": "attitude",
-   "urdu": [
-    "شب جو مسجد میں جا پھنسے مومن",
-    "رات کاٹی خدا خدا کر کے"
-   ],
-   "roman": [
-    "Shab jo masjid meñ jā phanse Momin",
-    "Rāt kāṭī Khudā Khudā kar ke"
-   ],
-   "hi": [
-    "शब जो मस्जिद में जा फंसे मोमिन",
-    "रात काटी खुदा खुदा कर के"
-   ],
-   "english": [
-    "The night Momin got himself trapped in the mosque,",
-    "He got through the night taking God's name, over and over."
-   ]
-  },
-  {
-   "id": "mo6",
-   "lang": "ur",
-   "poet": "momin",
-   "category": "mohabbat",
-   "urdu": [
-    "کچھ اس ادا سے آج وہ پہلو نشیں رہے",
-    "جب تک ہمارے پاس رہے ہم نہیں رہے"
-   ],
-   "roman": [
-    "Kuchh is adā se āj wo pehlu-nashīñ rahe",
-    "Jab tak hamāre pās rahe ham nahīñ rahe"
-   ],
-   "hi": [
-    "कुछ इस अदा से आज वो पेहलु-नशीं रहे",
-    "जब तक हमारे पास रहे हम नहीं रहे"
-   ],
-   "english": [
-    "With such captivating grace did she sit beside me today,",
-    "That while she remained near me, I was no longer myself."
-   ]
-  },
-  {
-   "id": "z5",
-   "lang": "ur",
-   "poet": "zafar",
-   "category": "mohabbat",
-   "urdu": [
-    "بات کرنی مجھے مشکل کبھی ایسی تو نہ تھی",
-    "جیسی اب ہے تیری محفل کبھی ایسی تو نہ تھی"
-   ],
-   "roman": [
-    "Bāt karnī mujhe mushkil kabhī aisī to na thī",
-    "Jaisī ab hai terī mehfil kabhī aisī to na thī"
-   ],
-   "hi": [
-    "बात करनी मुझे मुश्किल कभी ऐसी तो न थी",
-    "जैसी अब है तेरी मेह्फ़िल कभी ऐसी तो न थी"
-   ],
-   "english": [
-    "Never before was speaking so difficult for me;",
-    "And your assembly, as it is now, was never like this before."
-   ]
-  },
-  {
-   "id": "z6",
-   "lang": "ur",
-   "poet": "zafar",
-   "category": "sufi",
-   "urdu": [
-    "ظفر آدمی اس کو نہ جانیے گا ہو وہ کسی حال میں",
-    "جسے عیش میں یاد خدا نہ رہی جسے طیش میں خوف خدا نہ رہا"
-   ],
-   "roman": [
-    "Zafar ādmī us ko na jāniye gā ho wo kisī hāl meñ",
-    "Jise aish meñ yād-e-Khudā na rahī jise taish meñ khauf-e-Khudā na rahā"
-   ],
-   "hi": [
-    "ज़फ़र आद्मी उस को न जानिये गा हो वो किसी हाल में",
-    "जिसे ऐश में याद-ए-खुदा न रही जिसे तैश में खौफ़-ए-खुदा न रहा"
-   ],
-   "english": [
-    "Zafar — do not reckon that person a human being, whatever his condition,",
-    "Who in his ease forgets God, and in his anger has no fear of Him."
-   ]
-  },
-  {
-   "id": "hm2",
-   "lang": "ur",
-   "poet": "hasrat",
-   "category": "mohabbat",
-   "urdu": [
-    "نگاہ ناز جسے آشناۓ راز کرے",
-    "وہ اپنی خوبی قسمت پہ کیوں نہ ناز کرے"
-   ],
-   "roman": [
-    "Nigāh-e-nāz jise āshnā-e-rāz kare",
-    "Wo apnī khoobī-e-qismat pe kyūñ na nāz kare"
-   ],
-   "hi": [
-    "निगाह-ए-नाज़ जिसे आशना-ए-राज़ करे",
-    "वो अपनी खूबी-ए-क़िस्मत पे क्यूं न नाज़ करे"
-   ],
-   "english": [
-    "One whom her proud, enchanting glance admits into its secret —",
-    "Why should he not take pride in the kindness of his fate?"
-   ]
-  },
-  {
-   "id": "ak2",
-   "lang": "ur",
-   "poet": "akbar",
-   "category": "attitude",
-   "urdu": [
-    "ہم آہ بھی کرتے ہیں تو ہو جاتے ہیں بدنام",
-    "وہ قتل بھی کرتے ہیں تو چرچا نہیں ہوتا"
-   ],
-   "roman": [
-    "Ham āh bhī karte haiñ to ho jāte haiñ badnām",
-    "Wo qatl bhī karte haiñ to charchā nahīñ hotā"
-   ],
-   "hi": [
-    "हम आह भी कर्ते हैं तो हो जाते हैं बदनाम",
-    "वो क़त्ल भी कर्ते हैं तो चर्चा नहीं होता"
-   ],
-   "english": [
-    "If I so much as heave a sigh, I am branded with disgrace;",
-    "They may even commit murder, and no word of it is spoken."
-   ]
-  },
-  {
-   "id": "e1",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e1.mp3",
-   "category": "mohabbat",
-   "title": "The Light I Chose",
-   "lines": [
-    "I did not choose you to escape my silence.",
-    "My nights were never empty — they were mine.",
-    "I learned to sit with storms and call it peace,",
-    "and wore my shadows like a familiar coat.",
-    "But then your morning walked into my world,",
-    "and suddenly, the dark felt less like home.",
-    "I did not need the light — I wanted it.",
-    "So I stepped out, not rescued, not repaired —",
-    "just a man who saw your light, and chose to stand in it."
-   ]
-  },
-  {
-   "id": "e2",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e2.mp3",
-   "category": "udaasi",
-   "title": "The Room I Kept",
-   "lines": [
-    "I never asked the night to leave me.",
-    "I had made my peace with empty rooms,",
-    "with coffee gone cold, with songs I never finished.",
-    "I told myself that wanting more was weakness,",
-    "so I folded every letter I never sent",
-    "and called the silence mine.",
-    "But then your morning walked into my world,",
-    "quiet as light through a door I had left open.",
-    "You did not rescue me, you did not repair me —",
-    "you simply stood there,",
-    "and the dark felt less like home."
-   ]
-  },
-  {
-   "id": "e3",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e3.mp3",
-   "category": "udaasi",
-   "title": "Unposted",
-   "lines": [
-    "I wrote you a hundred messages",
-    "and sent none of them.",
-    "They live in my notes now,",
-    "a small grey city of almosts.",
-    "Every night I visit one street of it,",
-    "read your name at the top,",
-    "and practise the bravery",
-    "of leaving it unsent."
-   ]
-  },
-  {
-   "id": "e4",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e4.mp3",
-   "category": "umeed",
-   "title": "What the Rain Kept",
-   "lines": [
-    "The rain does not ask the roof for permission,",
-    "it simply finds the cracks we hid.",
-    "Grief is like that too.",
-    "But so is mercy.",
-    "One morning you will wake and notice",
-    "the crack lets the light in now,",
-    "and what entered as a storm",
-    "has stayed as a garden."
-   ]
-  },
-  {
-   "id": "e5",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e5.mp3",
-   "category": "zindagi",
-   "title": "Half of Me",
-   "lines": [
-    "Half of me is patient, half of me is late.",
-    "Half of me forgives, half keeps the gate.",
-    "I am not torn — I am twice as wide,",
-    "with room for the storm and the calm inside.",
-    "Do not ask me to choose a side of my soul;",
-    "I was never a half. I was always whole."
-   ]
-  },
-  {
-   "id": "e6",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e6.mp3",
-   "category": "mohabbat",
-   "title": "The Quiet Hours",
-   "lines": [
-    "Love me in the quiet hours,",
-    "when the house has gone to sleep,",
-    "when there is nothing left to prove",
-    "and the tea has gone cold between us.",
-    "Anyone can love a celebration.",
-    "Stay for the ordinary Tuesdays —",
-    "that is where forever hides."
-   ]
-  },
-  {
-   "id": "e7",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e7.mp3",
-   "category": "umeed",
-   "title": "Paper Boats",
-   "lines": [
-    "We folded our hopes into paper boats",
-    "and set them on the rain.",
-    "Some sank at the doorstep,",
-    "some reached the drain and vanished.",
-    "But one — one is still sailing",
-    "somewhere past the street of giving up,",
-    "carrying everything we were afraid to say."
-   ]
-  },
-  {
-   "id": "e8",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e8.mp3",
-   "category": "udaasi",
-   "title": "The Last Page",
-   "lines": [
-    "Every story warns you about the ending,",
-    "except the ones we live.",
-    "I kept reading us like a favourite book,",
-    "slower and slower near the end,",
-    "as if turning the pages gently",
-    "could keep the last page from coming.",
-    "It came anyway. It always does.",
-    "But oh — the chapters were worth it."
-   ]
-  },
-  {
-   "id": "e9",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e9.mp3",
-   "category": "mohabbat",
-   "title": "Small Hours",
-   "lines": [
-    "Meet me in the small hours,",
-    "when the world has stopped performing,",
-    "when your voice is still honest from sleep.",
-    "Daylight love is easy — it has an audience.",
-    "But three in the morning,",
-    "with nothing left to hide behind —",
-    "that is where I keep my truest heart."
-   ]
-  },
-  {
-   "id": "e10",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e10.mp3",
-   "category": "zindagi",
-   "title": "Borrowed Light",
-   "lines": [
-    "The moon is not ashamed of borrowed light.",
-    "It takes the sun's fire and returns it softer,",
-    "so the night can bear to look at it.",
-    "Be like that with what you've been given —",
-    "take the brightness life lends you,",
-    "and hand it on, gentler than you found it."
-   ]
-  },
-  {
-   "id": "e11",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e11.mp3",
-   "category": "udaasi",
-   "title": "The Bench",
-   "lines": [
-    "The bench by the gate still faces the road,",
-    "as if you might come back and sit down.",
-    "Two winters of rain have silvered its wood,",
-    "and the pigeons have claimed your side.",
-    "I still stop there on my way home —",
-    "not waiting, exactly.",
-    "Just keeping the seat of you warm in my memory."
-   ]
-  },
-  {
-   "id": "e12",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e12.mp3",
-   "category": "mohabbat",
-   "title": "Letters I Never Sent",
-   "lines": [
-    "I have a drawer of letters I never sent,",
-    "each one braver than I was.",
-    "They say the things my mouth kept editing —",
-    "stay. I was wrong. The door was never locked.",
-    "If love is judged by what we manage to say,",
-    "then I loved you in drafts,",
-    "and the final version is still unwritten."
-   ]
-  },
-  {
-   "id": "e13",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e13.mp3",
-   "category": "zindagi",
-   "title": "Gravity of Kindness",
-   "lines": [
-    "Kindness has its own gravity.",
-    "It does not shout; it pulls, quietly,",
-    "until strangers orbit a little closer",
-    "and enemies land softer than they planned.",
-    "Be the heaviest gentle thing in the room —",
-    "let the world fall toward you,",
-    "and call it coming home."
-   ]
-  },
-  {
-   "id": "e14",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e14.mp3",
-   "category": "umeed",
-   "title": "Half-Light",
-   "lines": [
-    "There is an hour before the sunrise",
-    "when nothing is promised and everything is possible.",
-    "The dark has not left, but it has lost.",
-    "Stand in that half-light a moment longer —",
-    "most miracles are not loud arrivals.",
-    "They are the slow decision of the sky",
-    "to try again."
-   ]
-  },
-  {
-   "id": "e15",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e15.mp3",
-   "category": "zindagi",
-   "title": "The Guest Room",
-   "lines": [
-    "My grandmother kept a guest room ready",
-    "for forty years — fresh sheets, folded towels,",
-    "for travellers who mostly never came.",
-    "When I asked why, she said: a house",
-    "should always expect mercy at the door.",
-    "She is gone now. The room is still ready.",
-    "I did not inherit furniture. I inherited a door kept open."
-   ]
-  },
-  {
-   "id": "e16",
-   "lang": "en",
-   "poet": "dailypoem",
-   "audio": "audio/e16.mp3",
-   "category": "sufi",
-   "title": "What Stays",
-   "lines": [
-    "Empires keep their names on coins,",
-    "and the coins end up in museums, silent.",
-    "But a kind word spoken in a kitchen outlives marble.",
-    "Ask what stays when everything is taken:",
-    "not the gold, not the gate, not the name —",
-    "only the love that was given away,",
-    "and the prayer somebody still whispers for you."
-   ]
-  },
-  {
-   "id": "l1",
-   "lang": "ur",
-   "poet": "laila",
-   "category": "mohabbat",
-   "urdu": [
-    "تیری یادوں کا چراغ دل کے طاق میں رکھا ہے",
-    "جتنی آندھی چلی، میں نے اسے بچا کے رکھا ہے",
-    "لوگ کہتے ہیں محبت میں خسارا ہی ملا",
-    "میں نے ہر زخم کو بھی سینے سے لگا کے رکھا ہے"
-   ],
-   "roman": [
-    "Teri yādoñ kā charāgh dil ke tāq mein rakhā hai",
-    "Jitnī āndhī chalī, mein ne use bachā ke rakhā hai",
-    "Log kehte hain mohabbat mein khasārā hī milā",
-    "Mein ne har zakhm ko bhī seene se lagā ke rakhā hai"
-   ],
-   "hi": [
-    "तेरी यादों का चराघ दिल के ताक़ में रखा है",
-    "जितनी आंधी चली, में ने उसे बचा के रखा है",
-    "लोग केह्ते हैं मोहब्बत में खसारा ही मिला",
-    "में ने हर ज़ख्म को भी सीने से लगा के रखा है"
-   ],
-   "english": [
-    "I have kept the lamp of your memories in a niche of my heart;",
-    "however fierce the storm, I have guarded it and kept it burning.",
-    "People say that in love I found nothing but loss —",
-    "yet every wound, too, I have pressed to my chest and kept."
-   ]
-  },
-  {
-   "id": "l2",
-   "lang": "ur",
-   "poet": "laila",
-   "category": "umeed",
-   "urdu": [
-    "کٹی ہے رات تو سویرا بھی آئے گا",
-    "جو صبر کی راہ چلے وہ منزل پائے گا",
-    "ٹوٹی ہوئی امید کو پھر تھام لے ذرا",
-    "ہر گری ہوئی شاخ پہ موسمِ بہار آئے گا"
-   ],
-   "roman": [
-    "Kaṭī hai rāt to saverā bhī āyegā",
-    "Jo ṣabr kī rāh chale, vo manzil pāyegā",
-    "Ṭūṭī huī ummeed ko phir thām le zarā",
-    "Har girī huī shākh pe mausam-e-bahār āyegā"
-   ],
-   "hi": [
-    "कटी है रात तो सवेरा भी आयेगा",
-    "जो सब्र की राह चले, वो मंज़िल पायेगा",
-    "टूटी हुई उम्मीद को फिर थाम ले ज़रा",
-    "हर गिरी हुई शाख पे मौसम-ए-बहार आयेगा"
-   ],
-   "english": [
-    "The night has ended — so the dawn will surely come.",
-    "Whoever walks the path of patience will reach the journey's end.",
-    "Take hold, once more, of the hope that had broken,",
-    "for on every fallen branch, the season of spring will come again."
-   ]
-  },
-  {
-   "id": "e17",
-   "lang": "en",
-   "poet": "laila",
-   "category": "mohabbat",
-   "title": "Your Name in the Quiet",
-   "lines": [
-    "I do not say your name out loud anymore;",
-    "the walls have heard it enough to keep it safe.",
-    "It lives in the quiet between my heartbeats,",
-    "in the pause before the kettle sings —",
-    "and every ordinary morning turns holy without asking."
-   ]
-  },
-  {
-   "id": "e18",
-   "lang": "en",
-   "poet": "laila",
-   "category": "umeed",
-   "title": "After the Long Rain",
-   "lines": [
-    "The rain did not ask if I was ready to heal;",
-    "it simply stayed, until the garden believed again.",
-    "So I will stay too — unhurried, unhidden —",
-    "until what is buried in me remembers",
-    "it was always a seed, never a stone."
-   ]
-  },
-  {
-   "id": "l3",
-   "lang": "ur",
-   "poet": "laila",
-   "category": "zindagi",
-   "urdu": [
-    "زندگی نے ہر موڑ پہ مجھ کو آزمایا ہے",
-    "مگر میں نے ہر زخم کو ہنر سے چھپایا ہے",
-    "جو خواب ٹوٹے، ان کو بھی سنبھالا ہے",
-    "ہر ٹوٹے خواب سے ایک نیا چراغ جلایا ہے"
-   ],
-   "roman": [
-    "Zindagī ne har moṛ pe mujh ko āzmāyā hai",
-    "Magar mein ne har zakhm ko hunar se chhupāyā hai",
-    "Jo khwāb ṭūṭe, un ko bhī sambhālā hai",
-    "Har ṭūṭe khwāb se ek nayā charāgh jalāyā hai"
-   ],
-   "hi": [
-    "ज़िंदगी ने हर मोड़ पे मुझ को आज़माया है",
-    "मगर में ने हर ज़ख्म को हुनर से छुपाया है",
-    "जो ख्वाब टूटे, उन को भी संभाला है",
-    "हर टूटे ख्वाब से एक नया चराग़ जलाया है"
-   ],
-   "english": [
-    "Life has tested me at every turn;",
-    "yet every wound I have hidden away with grace.",
-    "The dreams that broke, I gathered them too;",
-    "and from every broken dream I lit a new lamp."
-   ]
-  },
-  {
-   "id": "e19",
-   "lang": "en",
-   "poet": "laila",
-   "category": "udaasi",
-   "title": "The Chair by the Window",
-   "lines": [
-    "The chair by the window still holds your shape at dusk;",
-    "I leave the tea to cool, because some habits refuse to learn.",
-    "Grief is a quiet tenant; it pays its rent in silence,",
-    "and teaches the heart a language no one else can hear.",
-    "Still, I keep the lamp lit — not for your return,",
-    "but so the dark knows it was never welcome here."
-   ]
-  }
- ]
+  "poems": [
+    {
+      "id": "g1",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "udaasi",
+      "urdu": [
+        "ہزاروں خواہشیں ایسی کہ ہر خواہش پہ دم نکلے",
+        "بہت نکلے میرے ارماں لیکن پھر بھی کم نکلے"
+      ],
+      "roman": [
+        "Hazāroñ khwāhishen aisī ke har khwāhish pe dam nikle",
+        "Bahut nikle mere armān lekin phir bhī kam nikle"
+      ],
+      "hi": [
+        "हज़ारों ख़्वाहिशें ऐसी कि हर ख़्वाहिश पे दम निकले",
+        "बहुत निकले मेरे अरमाँ लेकिन फिर भी कम निकले"
+      ],
+      "english": [
+        "A thousand desires, every one of them worth dying for;",
+        "So many longings were granted, yet they still seemed too few."
+      ]
+    },
+    {
+      "id": "g2",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "udaasi",
+      "urdu": [
+        "دل ناداں تجھے ہوا کیا ہے",
+        "آخر اس درد کی دوا کیا ہے"
+      ],
+      "roman": [
+        "Dil-e-nādāñ tujhe huā kyā hai",
+        "Ākhir is dard kī dawā kyā hai"
+      ],
+      "hi": [
+        "दिल-ए-नादां तुझे हुआ क्या है",
+        "आखिर इस दर्द की दवा क्या है"
+      ],
+      "english": [
+        "O innocent heart, what has come over you?",
+        "After all, what cure can there be for this pain?"
+      ]
+    },
+    {
+      "id": "g3",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "mohabbat",
+      "urdu": [
+        "محبت میں نہیں ہے فرق جینے اور مرنے کا",
+        "اسی کو دیکھ کر جیتے ہیں جس کافر پہ دم نکلے"
+      ],
+      "roman": [
+        "Mohabbat meñ nahīñ hai farq jeene aur marne kā",
+        "Usī ko dekh kar jeete haiñ jis kāfir pe dam nikle"
+      ],
+      "hi": [
+        "मोहब्बत में नहीं है फ़र्क़ जीने और मरने का",
+        "उसी को देख कर जीते हैं जिस काफ़िर पे दम निकले"
+      ],
+      "english": [
+        "In love, there is no difference between living and dying;",
+        "I live by gazing at the very one for whom I would die."
+      ]
+    },
+    {
+      "id": "g4",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "zindagi",
+      "urdu": [
+        "بازیچۂ اطفال ہے دنیا میرے آگے",
+        "ہوتا ہے شب و روز تماشا میرے آگے"
+      ],
+      "roman": [
+        "Bāzīcha-e-atfāl hai duniyā mere āge",
+        "Hotā hai shab-o-roz tamāshā mere āge"
+      ],
+      "hi": [
+        "बाज़ीच-ए-अत्फ़ाल है दुनिया मेरे आगे",
+        "होता है शब-ओ-रोज़ तमाशा मेरे आगे"
+      ],
+      "english": [
+        "The world before me is nothing but a children's playground;",
+        "Night and day, a spectacle keeps unfolding before my eyes."
+      ]
+    },
+    {
+      "id": "g5",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "sufi",
+      "urdu": [
+        "عشرت قطرہ ہے دریا میں فنا ہو جانا",
+        "درد کا حد سے گزرنا ہے دوا ہو جانا"
+      ],
+      "roman": [
+        "Ishrat-e-qatra hai dariyā meñ fanā ho jānā",
+        "Dard kā had se guzarnā hai dawā ho jānā"
+      ],
+      "hi": [
+        "इशरत-ए-क़तर है दरिया में फ़ना हो जाना",
+        "दर्द का हद से गुज़रना है दवा हो जाना"
+      ],
+      "english": [
+        "The drop finds its joy in being lost within the river;",
+        "Pain, once it passes every limit, becomes its own cure."
+      ]
+    },
+    {
+      "id": "g6",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "udaasi",
+      "urdu": [
+        "کہوں کس سے میں کہ کیا ہے شب غم بری بلا ہے",
+        "مجھے کیا برا تھا مرنا اگر ایک بار ہوتا"
+      ],
+      "roman": [
+        "Kahūñ kis se maiñ ke kyā hai, shab-e-gham burī balā hai",
+        "Mujhe kyā burā thā marnā, agar ek baar hotā"
+      ],
+      "hi": [
+        "कहूं किस से मैं के क्या है, शब-ए-ग़म बुरी बला है",
+        "मुझे क्या बुरा था मरना, अगर एक बार होता"
+      ],
+      "english": [
+        "To whom can I say what the night of grief is — a dreadful calamity;",
+        "What harm would dying do me, if only it happened once?"
+      ]
+    },
+    {
+      "id": "g7",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "mohabbat",
+      "urdu": [
+        "یہ نہ تھی ہماری قسمت کہ وصال یار ہوتا",
+        "اگر اور جیتے رہتے یہی انتظار ہوتا"
+      ],
+      "roman": [
+        "Ye na thī hamārī qismat ke wisāl-e-yār hotā",
+        "Agar aur jeete rehte yahī intezār hotā"
+      ],
+      "hi": [
+        "ये न थी हमारी क़िस्मत के विसाल-ए-यार होता",
+        "अगर और जीते रेह्ते यही इंतेज़ार होता"
+      ],
+      "english": [
+        "It was never my fate to be united with the beloved;",
+        "Had I lived any longer, it would only have been this same waiting."
+      ]
+    },
+    {
+      "id": "g8",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "zindagi",
+      "urdu": [
+        "رگوں میں دوڑنے پھرنے کے ہم نہیں قائل",
+        "جب آنکھ ہی سے نہ ٹپکا تو پھر لہو کیا ہے"
+      ],
+      "roman": [
+        "Ragoñ meñ dauṛne phirne ke ham nahīñ qāil",
+        "Jab āñkh hī se na ṭapkā to phir lahū kyā hai"
+      ],
+      "hi": [
+        "रगों में दौड़ने फिरने के हम नहीं क़ाइल",
+        "जब आंख ही से न टप्का तो फिर लहू क्या है"
+      ],
+      "english": [
+        "I hold no faith in blood merely running through the veins;",
+        "If it never wells up and drips from the eyes, what blood is it?"
+      ]
+    },
+    {
+      "id": "m1",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "sufi",
+      "urdu": [
+        "ہستی اپنی حباب کی سی ہے",
+        "یہ نمائش سراب کی سی ہے"
+      ],
+      "roman": [
+        "Hastī apnī hubāb kī sī hai",
+        "Ye numāish sarāb kī sī hai"
+      ],
+      "hi": [
+        "हस्ती अपनी हुबाब की सी है",
+        "ये नुमाइश सराब की सी है"
+      ],
+      "english": [
+        "My existence is like a bubble on the water;",
+        "This whole display is no more than a mirage."
+      ]
+    },
+    {
+      "id": "m2",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "mohabbat",
+      "urdu": [
+        "پتا پتا بوٹا بوٹا حال ہمارا جانے ہے",
+        "جانے نہ جانے گل ہی نہ جانے باغ تو سارا جانے ہے"
+      ],
+      "roman": [
+        "Pattā pattā būṭā būṭā hāl hamārā jāne hai",
+        "Jāne na jāne gul hī na jāne, bāgh to sārā jāne hai"
+      ],
+      "hi": [
+        "पत्ता पत्ता बूटा बूटा हाल हमारा जाने है",
+        "जाने न जाने गुल ही न जाने, बाघ तो सारा जाने है"
+      ],
+      "english": [
+        "Every leaf and every plant knows the state that I am in;",
+        "The flower alone may not know — but the entire garden knows."
+      ]
+    },
+    {
+      "id": "m3",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "mohabbat",
+      "urdu": [
+        "ابتدائے عشق ہے روتا ہے کیا",
+        "آگے آگے دیکھیے ہوتا ہے کیا"
+      ],
+      "roman": [
+        "Ibtidā-e-ishq hai rotā hai kyā",
+        "Āge āge dekhiye hotā hai kyā"
+      ],
+      "hi": [
+        "इब्तिदा-ए-इश्क़ है रोता है क्या",
+        "आगे आगे देखिये होता है क्या"
+      ],
+      "english": [
+        "This is only the beginning of love — why do you weep?",
+        "Wait, and see what is yet to come."
+      ]
+    },
+    {
+      "id": "m4",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "udaasi",
+      "urdu": [
+        "دکھائی دیے یوں کہ بے خود کیا",
+        "ہمیں آپ سے بھی جدا کر چلے"
+      ],
+      "roman": [
+        "Dikhāī diye yūñ ke bekhud kiyā",
+        "Hameñ āp se bhī judā kar chale"
+      ],
+      "hi": [
+        "दिखाई दिये यूं के बेखुद किया",
+        "हमें आप से भी जुदा कर चले"
+      ],
+      "english": [
+        "You appeared in such a way that I lost all awareness of myself;",
+        "You separated me even from my own self, and walked away."
+      ]
+    },
+    {
+      "id": "m5",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "udaasi",
+      "urdu": [
+        "سرہانے میر کے آہستہ بولو",
+        "ابھی ٹک روتے روتے سو گیا ہے"
+      ],
+      "roman": [
+        "Sarhāne Mīr ke āhistā bolo",
+        "Abhī ṭuk rote rote so gayā hai"
+      ],
+      "hi": [
+        "सर्हाने मीर के आहिस्ता बोलो",
+        "अभी टुक रोते रोते सो गया है"
+      ],
+      "english": [
+        "Speak softly by Mir's pillow-side;",
+        "Only just now, weeping and weeping, has he fallen asleep."
+      ]
+    },
+    {
+      "id": "m6",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "sufi",
+      "urdu": [
+        "خدا کے واسطے پردہ نہ کعبے سے اٹھا ظالم",
+        "کہیں ایسا نہ ہو یاں بھی وہی کافر صنم نکلے"
+      ],
+      "roman": [
+        "Khudā ke wāste pardā na Kaabe se uṭhā zālim",
+        "Kahīñ aisā na ho yāñ bhī wahī kāfir sanam nikle"
+      ],
+      "hi": [
+        "खुदा के वास्ते पर्दा न काबे से उठा ज़ालिम",
+        "कहीं ऐसा न हो यां भी वही काफ़िर सनम निकले"
+      ],
+      "english": [
+        "For God's sake, O tyrant, do not lift the veil from the Kaaba;",
+        "What if there, too, that same faithless idol is found?"
+      ]
+    },
+    {
+      "id": "i1",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "umeed",
+      "urdu": [
+        "خودی کو کر بلند اتنا کہ ہر تقدیر سے پہلے",
+        "خدا بندے سے خود پوچھے بتا تیری رضا کیا ہے"
+      ],
+      "roman": [
+        "Khudī ko kar buland itnā ke har taqdīr se pehle",
+        "Khudā bande se khud pūchhe, batā terī razā kyā hai"
+      ],
+      "hi": [
+        "खुदी को कर बुलंद इतना के हर तक़्दीर से पेहले",
+        "खुदा बंदे से ख़ुद पूछे, बता तेरी रज़ा क्या है"
+      ],
+      "english": [
+        "Raise the self so high that before every decree of fate,",
+        "God Himself turns to His servant and asks: what is your will?"
+      ]
+    },
+    {
+      "id": "i2",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "sufi",
+      "urdu": [
+        "منا کہ تیری دید کے قابل نہیں ہوں میں",
+        "تو میرا شوق دیکھ مرا انتظار دیکھ"
+      ],
+      "roman": [
+        "Manā ke terī dīd ke qābil nahīñ hūñ maiñ",
+        "Tū merā shauq dekh, merā intezār dekh"
+      ],
+      "hi": [
+        "मना के तेरी दीद के क़ाबिल नहीं हूं मैं",
+        "तू मेरा शौक़ देख, मेरा इंतेज़ार देख"
+      ],
+      "english": [
+        "Granted, I am not worthy of the sight of You;",
+        "Yet look at my longing — look at how I wait."
+      ]
+    },
+    {
+      "id": "i3",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "attitude",
+      "urdu": [
+        "تو شاہیں ہے پرواز ہے کام تیرا",
+        "تیرے سامنے آسماں اور بھی ہیں"
+      ],
+      "roman": [
+        "Tū shāhīñ hai parwāz hai kām terā",
+        "Tere sāmne āsmāñ aur bhī haiñ"
+      ],
+      "hi": [
+        "तू शाहीं है पर्वाज़ है काम तेरा",
+        "तेरे सामने आस्मां और भी हैं"
+      ],
+      "english": [
+        "You are a falcon, and flight is your true calling;",
+        "There are still more skies spread out before you."
+      ]
+    },
+    {
+      "id": "i4",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "attitude",
+      "urdu": [
+        "نہیں تیرا نشیمن قصر سلطانی کے گنبد پر",
+        "تو شاہیں ہے بسیرا کر پہاڑوں کی چٹانوں میں"
+      ],
+      "roman": [
+        "Nahīñ terā nasheman qasr-e-sultānī ke gumbad par",
+        "Tū shāhīñ hai baserā kar pahāṛoñ kī chaṭānoñ meñ"
+      ],
+      "hi": [
+        "नहीं तेरा नशेमन क़स्र-ए-सुल्तानी के गुम्बद पर",
+        "तू शाहीं है बसेरा कर पहाड़ों की चटानों में"
+      ],
+      "english": [
+        "Your nest is not upon the dome of a sultan's palace;",
+        "You are a falcon — make your dwelling among the mountain crags."
+      ]
+    },
+    {
+      "id": "i5",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "zindagi",
+      "urdu": [
+        "ہزاروں سال نرگس اپنی بے نوری پہ روتی ہے",
+        "بڑی مشکل سے ہوتا ہے چمن میں دیدہ ور پیدا"
+      ],
+      "roman": [
+        "Hazāroñ sāl nargis apnī benūrī pe rotī hai",
+        "Baṛī mushkil se hotā hai chaman meñ dīda-war paidā"
+      ],
+      "hi": [
+        "हज़ारों साल नर्गिस अपनी बेनूरी पे रोती है",
+        "बड़ी मुश्किल से होता है चमन में दीद-वर पैदा"
+      ],
+      "english": [
+        "For a thousand years the narcissus weeps over its own sightlessness;",
+        "Only with the greatest rarity is a true seer born in the garden."
+      ]
+    },
+    {
+      "id": "i6",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "umeed",
+      "urdu": [
+        "یقیں محکم عمل پیہم محبت فاتح عالم",
+        "جہاد زندگانی میں ہیں یہ مردوں کی شمشیریں"
+      ],
+      "roman": [
+        "Yaqīñ mohkam, amal paiham, mohabbat fātah-e-ālam",
+        "Jihād-e-zindagānī meñ haiñ ye mardoñ kī shamshīreñ"
+      ],
+      "hi": [
+        "यक़ीं मोह्कम, अमल पैहम, मोहब्बत फ़ातह-ए-आलम",
+        "जिहाद-ए-ज़िंदगानी में हैं ये मर्दों की शम्शीरें"
+      ],
+      "english": [
+        "Firm faith, unceasing action, a love that conquers the world —",
+        "In the struggle of life, these are the swords of true men."
+      ]
+    },
+    {
+      "id": "d1",
+      "lang": "ur",
+      "poet": "dagh",
+      "category": "attitude",
+      "urdu": [
+        "اردو ہے جس کا نام ہمیں جانتے ہیں داغ",
+        "ہندوستاں میں دھوم ہماری زباں کی ہے"
+      ],
+      "roman": [
+        "Urdū hai jis kā nām hamīñ jānte haiñ Dāgh",
+        "Hindustāñ meñ dhoom hamārī zabāñ kī hai"
+      ],
+      "hi": [
+        "उर्दू है जिस का नाम हमीं जांते हैं दाघ",
+        "हिंदुस्तां में धूम हमारी ज़बां की है"
+      ],
+      "english": [
+        "Urdu is its name — and we alone truly know it, says Dagh;",
+        "All through Hindustan, our language is the talk of the land."
+      ]
+    },
+    {
+      "id": "d2",
+      "lang": "ur",
+      "poet": "dagh",
+      "category": "attitude",
+      "urdu": [
+        "اردو ہے جس کا نام ہمیں جانتے ہیں داغ",
+        "سارے جہاں میں دھوم ہماری زباں کی ہے"
+      ],
+      "roman": [
+        "Urdū hai jiskā nām hamīñ jānte haiñ Dāgh",
+        "Sāre jahāñ meñ dhūm hamārī zubāñ kī hai"
+      ],
+      "hi": [
+        "उर्दू है जिस्का नाम हमीं जांते हैं दाघ",
+        "सारे जहां में धूम हमारी ज़ुबां की है"
+      ],
+      "english": [
+        "Urdu is its name — and we alone truly know it, says Dagh;",
+        "Through all the world, our language is renowned."
+      ]
+    },
+    {
+      "id": "mo1",
+      "lang": "ur",
+      "poet": "momin",
+      "category": "mohabbat",
+      "urdu": [
+        "تم میرے پاس ہوتے ہو گویا",
+        "جب کوئی دوسرا نہیں ہوتا"
+      ],
+      "roman": [
+        "Tum mere pās hote ho goyā",
+        "Jab koī dūsrā nahīñ hotā"
+      ],
+      "hi": [
+        "तुम मेरे पास होते हो गोया",
+        "जब कोई दूसरा नहीं होता"
+      ],
+      "english": [
+        "You are beside me, so to speak,",
+        "In just those moments when there is no one else."
+      ]
+    },
+    {
+      "id": "mo2",
+      "lang": "ur",
+      "poet": "momin",
+      "category": "mohabbat",
+      "urdu": [
+        "وہ جو ہم میں تم میں قرار تھا تمہیں یاد ہو کہ نہ یاد ہو",
+        "وہی یعنی وعدہ نباہ کا تمہیں یاد ہو کہ نہ یاد ہو"
+      ],
+      "roman": [
+        "Wo jo ham meñ tum meñ qarār thā tumheñ yād ho ke na yād ho",
+        "Wahī yaani wāda nibāh kā tumheñ yād ho ke na yād ho"
+      ],
+      "hi": [
+        "वो जो हम में तुम में क़रार था तुम्हें याद हो के न याद हो",
+        "वही यानि वाद निबाह का तुम्हें याद हो के न याद हो"
+      ],
+      "english": [
+        "That understanding there once was between you and me — whether you remember it or not;",
+        "That very promise, the pledge to remain true — whether you remember it or not."
+      ]
+    },
+    {
+      "id": "z1",
+      "lang": "ur",
+      "poet": "zafar",
+      "category": "udaasi",
+      "urdu": [
+        "لگتا نہیں ہے دل میرا اجڑے دیار میں",
+        "کس کی بنی ہے عالم ناپائیدار میں"
+      ],
+      "roman": [
+        "Lagtā nahīñ hai dil merā ujṛe dayār meñ",
+        "Kis kī banī hai ālam-e-nā-pāedār meñ"
+      ],
+      "hi": [
+        "लग्ता नहीं है दिल मेरा उज्ड़े दयार में",
+        "किस की बनी है आलम-ए-ना-पाएदार में"
+      ],
+      "english": [
+        "My heart finds no rest in this ruined land;",
+        "Whose life has ever prospered in this transient world?"
+      ]
+    },
+    {
+      "id": "g9",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "mohabbat",
+      "urdu": [
+        "عشق نے غالب نکما کر دیا",
+        "ورنہ ہم بھی آدمی تھے کام کے"
+      ],
+      "roman": [
+        "Ishq ne Ghālib nikammā kar diyā",
+        "Warna ham bhī ādmī thay kām ke"
+      ],
+      "hi": [
+        "इश्क़ ने घालिब निकम्मा कर दिया",
+        "वरन हम भी आद्मी थय काम के"
+      ],
+      "english": [
+        "Love has made Ghalib good for nothing;",
+        "Otherwise, I too was once a man of some use."
+      ]
+    },
+    {
+      "id": "g10",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "mohabbat",
+      "urdu": [
+        "ان کے دیکھے سے جو آ جاتی ہے منہ پر رونق",
+        "وہ سمجھتے ہیں کہ بیمار کا حال اچھا ہے"
+      ],
+      "roman": [
+        "Un ke dekhe se jo ā jātī hai muñh par raunaq",
+        "Wo samajhte haiñ ke bīmār kā hāl achhā hai"
+      ],
+      "hi": [
+        "उन के देखे से जो आ जाती है मुंह पर रौनक़",
+        "वो समझ्ते हैं के बीमार का हाल अछा है"
+      ],
+      "english": [
+        "When a glimpse of her brings a glow back to my face,",
+        "She imagines that the patient is doing well."
+      ]
+    },
+    {
+      "id": "g11",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "udaasi",
+      "urdu": [
+        "ہوئی مدت کہ غالب مر گیا پر یاد آتا ہے",
+        "وہ ہر اک بات پر کہنا کہ یوں ہوتا تو کیا ہوتا"
+      ],
+      "roman": [
+        "Huī muddat ke Ghālib mar gayā par yād ātā hai",
+        "Wo har ik baat par kehnā ke yūñ hotā to kyā hotā"
+      ],
+      "hi": [
+        "हुई मुद्दत के घालिब मर गया पर याद आता है",
+        "वो हर इक बात पर केहना के यूं होता तो क्या होता"
+      ],
+      "english": [
+        "Ages have passed since Ghalib died, yet he comes to mind —",
+        "That habit of his, at every turn: 'What if it had been otherwise?'"
+      ]
+    },
+    {
+      "id": "g12",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "zindagi",
+      "urdu": [
+        "قید حیات و بند غم اصل میں دونوں ایک ہیں",
+        "موت سے پہلے آدمی غم سے نجات پائے کیوں"
+      ],
+      "roman": [
+        "Qaid-e-hayāt o band-e-gham asl meñ donoñ ek haiñ",
+        "Maut se pehle ādmī gham se nijāt pāye kyūñ"
+      ],
+      "hi": [
+        "क़ैद-ए-हयात ओ बंद-ए-ग़म अस्ल में दोनों एक हैं",
+        "मौत से पेहले आद्मी ग़म से निजात पाये क्यूं"
+      ],
+      "english": [
+        "The prison of life and the chains of grief are, in truth, one thing;",
+        "Before death, how could a man ever win release from sorrow?"
+      ]
+    },
+    {
+      "id": "g13",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "sufi",
+      "urdu": [
+        "نہ تھا کچھ تو خدا تھا کچھ نہ ہوتا تو خدا ہوتا",
+        "ڈبویا مجھ کو ہونے نے نہ ہوتا میں تو کیا ہوتا"
+      ],
+      "roman": [
+        "Na thā kuchh to Khudā thā, kuchh na hotā to Khudā hotā",
+        "Duboyā mujh ko hone ne, na hotā maiñ to kyā hotā"
+      ],
+      "hi": [
+        "न था कुछ तो खुदा था, कुछ न होता तो खुदा होता",
+        "दुबोया मुझ को होने ने, न होता मैं तो क्या होता"
+      ],
+      "english": [
+        "When nothing existed, God was; had nothing existed, God would still be;",
+        "My own existence has drowned me — had I never been, what would I be?"
+      ]
+    },
+    {
+      "id": "g14",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "mohabbat",
+      "urdu": [
+        "دل سے تیری نگاہ جگر تک اتر گئی",
+        "دونوں کو اک ادا میں رضامند کر گئی"
+      ],
+      "roman": [
+        "Dil se terī nigāh jigar tak utar gaī",
+        "Donoñ ko ik adā meñ razā-mand kar gaī"
+      ],
+      "hi": [
+        "दिल से तेरी निगाह जिगर तक उतर गैइ",
+        "दोनों को इक अदा में रज़ा-मंद कर गैइ"
+      ],
+      "english": [
+        "Your glance sank from my heart down into my very soul;",
+        "With a single gesture, it won the consent of both."
+      ]
+    },
+    {
+      "id": "m7",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "mohabbat",
+      "urdu": [
+        "ہمارے آگے تیرا جب کسی نے نام لیا",
+        "دل ستم زدہ کو ہم نے تھام تھام لیا"
+      ],
+      "roman": [
+        "Hamāre āge terā jab kisī ne nām liyā",
+        "Dil-e-sitam-zada ko ham ne thām thām liyā"
+      ],
+      "hi": [
+        "हमारे आगे तेरा जब किसी ने नाम लिया",
+        "दिल-ए-सितम-ज़द को हम ने थाम थाम लिया"
+      ],
+      "english": [
+        "When someone happened to utter your name before me,",
+        "I clutched at my tormented heart and held it still."
+      ]
+    },
+    {
+      "id": "m8",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "udaasi",
+      "urdu": [
+        "الٹی ہو گئیں سب تدبیریں کچھ نہ دوا نے کام کیا",
+        "دیکھا اس بیماری دل نے آخر کام تمام کیا"
+      ],
+      "roman": [
+        "Ulṭī ho gaīñ sab tadbīreñ kuchh na dawā ne kām kiyā",
+        "Dekhā is bīmārī-e-dil ne ākhir kām tamām kiyā"
+      ],
+      "hi": [
+        "उल्टी हो गैइं सब तद्बीरें कुछ न दवा ने काम किया",
+        "देखा इस बीमारी-ए-दिल ने आखिर काम तमाम किया"
+      ],
+      "english": [
+        "Every remedy backfired; no medicine did any good;",
+        "In the end, this sickness of the heart finished the matter altogether."
+      ]
+    },
+    {
+      "id": "m9",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "zindagi",
+      "urdu": [
+        "موت اک ماندگی کا وقفہ ہے",
+        "یعنی آگے چلیں گے دم لے کر"
+      ],
+      "roman": [
+        "Maut ik māndagī kā waqfa hai",
+        "Yaani āge chaleñge dam le kar"
+      ],
+      "hi": [
+        "मौत इक मांदगी का वक़्फ़ है",
+        "यानि आगे चलेंगे दम ले कर"
+      ],
+      "english": [
+        "Death is merely a pause in the weariness;",
+        "That is, we shall travel on, once we have caught our breath."
+      ]
+    },
+    {
+      "id": "m10",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "udaasi",
+      "urdu": [
+        "بے خودی لے گئی کہاں ہم کو",
+        "دیر سے انتظار ہے اپنا"
+      ],
+      "roman": [
+        "Bekhudī le gaī kahāñ ham ko",
+        "Der se intezār hai apnā"
+      ],
+      "hi": [
+        "बेखुदी ले गैइ कहां हम को",
+        "देर से इंतेज़ार है अपना"
+      ],
+      "english": [
+        "Where has this loss of self carried me off to?",
+        "For a long time now, I have been waiting for myself."
+      ]
+    },
+    {
+      "id": "i7",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "umeed",
+      "urdu": [
+        "تندیٔ باد مخالف سے نہ گھبرا اے عقاب",
+        "یہ تو چلتی ہے تجھے اونچا اڑانے کے لیے"
+      ],
+      "roman": [
+        "Tundī-e-bād-e-mukhālif se na ghabrā ai uqāb",
+        "Ye to chaltī hai tujhe ūnchā uṛāne ke liye"
+      ],
+      "hi": [
+        "तुंदी-ए-बाद-ए-मुखालिफ़ से न घबरा ऐ उक़ाब",
+        "ये तो चल्ती है तुझे ऊंचा उड़ाने के लिये"
+      ],
+      "english": [
+        "Do not be daunted by the fury of the headwind, O eagle;",
+        "It blows only in order to carry you higher."
+      ]
+    },
+    {
+      "id": "i8",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "zindagi",
+      "urdu": [
+        "اپنے من میں ڈوب کر پا جا سراغ زندگی",
+        "تو اگر میرا نہیں بنتا نہ بن اپنا تو بن"
+      ],
+      "roman": [
+        "Apne man meñ ḍūb kar pā jā surāgh-e-zindagī",
+        "Tū agar merā nahīñ bantā na ban, apnā to ban"
+      ],
+      "hi": [
+        "अपने मन में डूब कर पा जा सुराघ-ए-ज़िंदगी",
+        "तू अगर मेरा नहीं बंता न बन, अपना तो बन"
+      ],
+      "english": [
+        "Dive deep into your own heart, and there find the clue to life;",
+        "If you will not be mine, so be it — at least be your own."
+      ]
+    },
+    {
+      "id": "i9",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "attitude",
+      "urdu": [
+        "ہر لحظہ ہے مومن کی نئی شان نئی آن",
+        "گفتار میں کردار میں اللہ کی برہان"
+      ],
+      "roman": [
+        "Har lehza hai momin kī naī shān naī ān",
+        "Guftār meñ kirdār meñ Allāh kī burhān"
+      ],
+      "hi": [
+        "हर लेह्ज़ है मोमिन की नैइ शान नैइ आन",
+        "गुफ़्तार में किर्दार में अललाह की बुर्हान"
+      ],
+      "english": [
+        "At every moment the believer has a new majesty, a new splendour;",
+        "In word and in deed, he is a living proof of God."
+      ]
+    },
+    {
+      "id": "i10",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "zindagi",
+      "urdu": [
+        "وجود زن سے ہے تصویر کائنات میں رنگ",
+        "اسی کے ساز سے ہے زندگی کا سوز دروں"
+      ],
+      "roman": [
+        "Wujūd-e-zan se hai taswīr-e-kāināt meñ rang",
+        "Isī ke sāz se hai zindagī kā soz-e-darūñ"
+      ],
+      "hi": [
+        "वुजूद-ए-ज़न से है तस्वीर-ए-काइनात में रंग",
+        "इसी के साज़ से है ज़िंदगी का सोज़-ए-दरूं"
+      ],
+      "english": [
+        "It is the being of woman that lends colour to the portrait of the universe;",
+        "It is her music that holds the inner fire of life."
+      ]
+    },
+    {
+      "id": "d3",
+      "lang": "ur",
+      "poet": "dagh",
+      "category": "mohabbat",
+      "urdu": [
+        "ستم ہی کرنا جفا ہی کرنا نگاہ الفت کبھی نہ کرنا",
+        "تمہیں قسم ہے ہمارے سر کی ہمارے حق میں کمی نہ کرنا"
+      ],
+      "roman": [
+        "Sitam hī karnā, jafā hī karnā, nigāh-e-ulfat kabhī na karnā",
+        "Tumheñ qasam hai hamāre sar kī, hamāre haq meñ kamī na karnā"
+      ],
+      "hi": [
+        "सितम ही करना, जफ़ा ही करना, निगाह-ए-उल्फ़त कभी न करना",
+        "तुम्हें क़सम है हमारे सर की, हमारे हक़ में कमी न करना"
+      ],
+      "english": [
+        "Torment me if you will, be cruel if you will — but never glance at me with love;",
+        "By my head I swear you: in my case, let there be no falling short."
+      ]
+    },
+    {
+      "id": "mo3",
+      "lang": "ur",
+      "poet": "momin",
+      "category": "udaasi",
+      "urdu": [
+        "اثر اس کو ذرا نہیں ہوتا",
+        "رنج راحت فزا نہیں ہوتا"
+      ],
+      "roman": [
+        "Asar us ko zarā nahīñ hotā",
+        "Ranj rāhat-fazā nahīñ hotā"
+      ],
+      "hi": [
+        "असर उस को ज़रा नहीं होता",
+        "रंज राहत-फ़ज़ा नहीं होता"
+      ],
+      "english": [
+        "It makes not the slightest impression on that heart;",
+        "Grief was never a thing that increases one's ease."
+      ]
+    },
+    {
+      "id": "z2",
+      "lang": "ur",
+      "poet": "zafar",
+      "category": "udaasi",
+      "urdu": [
+        "کتنا ہے بدنصیب ظفر دفن کے لیے",
+        "دو گز زمین بھی نہ ملی کوئے یار میں"
+      ],
+      "roman": [
+        "Kitnā hai badnasīb Zafar dafan ke liye",
+        "Do gaz zamīn bhī na milī kū-e-yār meñ"
+      ],
+      "hi": [
+        "कितना है बदनसीब ज़फ़र दफ़न के लिये",
+        "दो गज़ ज़मीं भी न मिली कू-ए-यार में"
+      ],
+      "english": [
+        "How ill-fated is Zafar — that even for his burial",
+        "Two yards of earth were not to be had in the beloved's street."
+      ]
+    },
+    {
+      "id": "z3",
+      "lang": "ur",
+      "poet": "zafar",
+      "category": "udaasi",
+      "urdu": [
+        "نہ کسی کی آنکھ کا نور ہوں نہ کسی کے دل کا قرار ہوں",
+        "جو کسی کے کام نہ آ سکے میں وہ ایک مشت غبار ہوں"
+      ],
+      "roman": [
+        "Na kisī kī ānkh kā nūr hūñ, na kisī ke dil kā qarār hūñ",
+        "Jo kisī ke kām na ā sake, maiñ wo ek musht-e-ghubār hūñ"
+      ],
+      "hi": [
+        "न किसी की आंख का नूर हूं, न किसी के दिल का क़रार हूं",
+        "जो किसी के काम न आ सके, मैं वो एक मुश्त-ए-घुबार हूं"
+      ],
+      "english": [
+        "I am the light of no one's eyes, nor the repose of anyone's heart;",
+        "I am a mere handful of dust that could be of use to none."
+      ]
+    },
+    {
+      "id": "g15",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "udaasi",
+      "urdu": [
+        "رہیے اب ایسی جگہ چل کر جہاں کوئی نہ ہو",
+        "ہم سخن کوئی نہ ہو اور ہم زباں کوئی نہ ہو"
+      ],
+      "roman": [
+        "Rahiye ab aisī jagah chal kar jahāñ koī na ho",
+        "Ham-sukhan koī na ho aur ham-zabāñ koī na ho"
+      ],
+      "hi": [
+        "रहिये अब ऐसी जगह चल कर जहां कोई न हो",
+        "हम-सुखन कोई न हो और हम-ज़बां कोई न हो"
+      ],
+      "english": [
+        "Come, let us go and live where there is no one at all;",
+        "No one to talk to, no one who speaks our tongue."
+      ]
+    },
+    {
+      "id": "g16",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "zindagi",
+      "urdu": [
+        "نہ گل نغمہ ہوں نہ پردۂ ساز",
+        "میں ہوں اپنی شکست کی آواز"
+      ],
+      "roman": [
+        "Na gul-e-naghma hūñ na parda-e-sāz",
+        "Maiñ hūñ apnī shikast kī āwāz"
+      ],
+      "hi": [
+        "न गुल-ए-नघ्म हूं न पर्द-ए-साज़",
+        "मैं हूं अपनी शिकस्त की आवाज़"
+      ],
+      "english": [
+        "I am neither the flower of a song nor the fret of an instrument;",
+        "I am the voice of my own defeat."
+      ]
+    },
+    {
+      "id": "g17",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "attitude",
+      "urdu": [
+        "گو ہاتھ کو جنبش نہیں آنکھوں میں تو دم ہے",
+        "رہنے دو ابھی ساغر و مینا میرے آگے"
+      ],
+      "roman": [
+        "Go hāth ko jumbish nahīñ āñkhoñ meñ to dam hai",
+        "Rehne do abhī sāghar-o-mīnā mere āge"
+      ],
+      "hi": [
+        "गो हाथ को जुम्बिश नहीं आंखों में तो दम है",
+        "रेहने दो अभी साघर-ओ-मीना मेरे आगे"
+      ],
+      "english": [
+        "My hand may no longer move, but there is life in my eyes yet;",
+        "Leave the cup and the wine-flask before me a little longer."
+      ]
+    },
+    {
+      "id": "g18",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "zindagi",
+      "urdu": [
+        "رنج سے خوگر ہوا انساں تو مٹ جاتا ہے رنج",
+        "مشکلیں مجھ پر پڑیں اتنی کہ آساں ہو گئیں"
+      ],
+      "roman": [
+        "Ranj se khūgar huā insāñ to mit jātā hai ranj",
+        "Mushkileñ mujh par paṛīñ itnī ke āsāñ ho gaīñ"
+      ],
+      "hi": [
+        "रंज से खूगर हुआ इंसां तो मित जाता है रंज",
+        "मुश्किलें मुझ पर पड़ीं इतनी के आसां हो गैइं"
+      ],
+      "english": [
+        "Once a man grows used to grief, the grief itself wears away;",
+        "So many hardships fell upon me that hardship grew easy."
+      ]
+    },
+    {
+      "id": "g19",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "udaasi",
+      "urdu": [
+        "درد دل لکھوں کب تک جاؤں ان کو دکھلا دوں",
+        "انگلیاں فگار اپنی خامہ خوں چکاں اپنا"
+      ],
+      "roman": [
+        "Dard-e-dil likhūñ kab tak, jāūñ un ko dikhlā dūñ",
+        "Ungliyāñ figār apnī, khāma khūñ-chakāñ apnā"
+      ],
+      "hi": [
+        "दर्द-ए-दिल लिखूं कब तक, जाऊं उन को दिखला दूं",
+        "उंगलियां फ़िगार अपनी, खाम खूं-चकां अपना"
+      ],
+      "english": [
+        "How long shall I go on writing of this heart's pain? Let me go and show her instead —",
+        "These fingers of mine, all wounded; this pen of mine, dripping blood."
+      ]
+    },
+    {
+      "id": "g20",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "zindagi",
+      "urdu": [
+        "سب کہاں کچھ لالہ و گل میں نمایاں ہو گئیں",
+        "خاک میں کیا صورتیں ہوں گی کہ پنہاں ہو گئیں"
+      ],
+      "roman": [
+        "Sab kahāñ kuchh lāla-o-gul meñ numāyāñ ho gaīñ",
+        "Khāk meñ kyā sūrateñ hoñgī ke pinhāñ ho gaīñ"
+      ],
+      "hi": [
+        "सब कहां कुछ लाल-ओ-गुल में नुमायां हो गैइं",
+        "ख़ाक में क्या सूरतें होंगी के पिंहां हो गैइं"
+      ],
+      "english": [
+        "Only a few of them reappeared among the tulips and the roses;",
+        "Who knows what lovely faces lie hidden in the dust."
+      ]
+    },
+    {
+      "id": "g21",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "mohabbat",
+      "urdu": [
+        "مدت ہوئی ہے یار کو مہماں کیے ہوئے",
+        "جوش قدح سے بزم چراغاں کیے ہوئے"
+      ],
+      "roman": [
+        "Muddat huī hai yār ko mehmāñ kiye hue",
+        "Josh-e-qadah se bazm chirāghāñ kiye hue"
+      ],
+      "hi": [
+        "मुद्दत हुई है यार को मेह्मां किये हुए",
+        "जोश-ए-क़दह से बज़्म चिराघां किये हुए"
+      ],
+      "english": [
+        "It has been long since I last had the beloved as my guest,",
+        "Since the gathering blazed with lamps from the fervour of the cup."
+      ]
+    },
+    {
+      "id": "m11",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "zindagi",
+      "urdu": [
+        "لے سانس بھی آہستہ کہ نازک ہے بہت کام",
+        "آفاق کی اس کارگہ شیشہ گری کا"
+      ],
+      "roman": [
+        "Le sāñs bhī āhista ke nāzuk hai bahut kām",
+        "Āfāq kī is kār-gah-e-shīsha-garī kā"
+      ],
+      "hi": [
+        "ले सांस भी आहिस्त के नाज़ुक है बहुत काम",
+        "आफ़ाक़ की इस कार-गह-ए-शीश-गरी का"
+      ],
+      "english": [
+        "Breathe gently, for the work is exceedingly delicate —",
+        "The work of this glass-making workshop of the heavens."
+      ]
+    },
+    {
+      "id": "m12",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "udaasi",
+      "urdu": [
+        "عرض نیاز عشق کے قابل نہیں رہا",
+        "جس دل پہ ناز تھا مجھے وہ دل نہیں رہا"
+      ],
+      "roman": [
+        "Arz-e-niyāz-e-ishq ke qābil nahīñ rahā",
+        "Jis dil pe nāz thā mujhe wo dil nahīñ rahā"
+      ],
+      "hi": [
+        "अर्ज़-ए-नियाज़-ए-इश्क़ के क़ाबिल नहीं रहा",
+        "जिस दिल पे नाज़ था मुझे वो दिल नहीं रहा"
+      ],
+      "english": [
+        "I am no longer worthy of laying love's plea before anyone;",
+        "The heart I once took such pride in is no longer mine."
+      ]
+    },
+    {
+      "id": "m13",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "udaasi",
+      "urdu": [
+        "کیا کہوں تم سے میں کہ کیا ہے شب غم",
+        "بری بلا ہے مجھے یہ پہچانیے"
+      ],
+      "roman": [
+        "Kyā kahūñ tum se maiñ ke kyā hai shab-e-gham",
+        "Burī balā hai mujhe ye pehchāniye"
+      ],
+      "hi": [
+        "क्या कहूं तुम से मैं के क्या है शब-ए-ग़म",
+        "बुरी बला है मुझे ये पेह्चानिये"
+      ],
+      "english": [
+        "What can I tell you of what the night of sorrow is?",
+        "A dreadful calamity — know that it has claimed me."
+      ]
+    },
+    {
+      "id": "i11",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "umeed",
+      "urdu": [
+        "ستاروں سے آگے جہاں اور بھی ہیں",
+        "ابھی عشق کے امتحاں اور بھی ہیں"
+      ],
+      "roman": [
+        "Sitāroñ se āge jahāñ aur bhī haiñ",
+        "Abhī ishq ke imtihāñ aur bhī haiñ"
+      ],
+      "hi": [
+        "सितारों से आगे जहाँ और भी हैं",
+        "अभी इश्क़ के इम्तिहाँ और भी हैं"
+      ],
+      "english": [
+        "Beyond the stars, there are still more worlds;",
+        "And love still has more trials yet to pass."
+      ]
+    },
+    {
+      "id": "i12",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "attitude",
+      "urdu": [
+        "تو شاہین ہے پرواز ہے کام تیرا",
+        "تیرے سامنے آسماں اور بھی ہیں"
+      ],
+      "roman": [
+        "Tū shāheen hai parwāz hai kām terā",
+        "Tere sāmne āsmāñ aur bhī haiñ"
+      ],
+      "hi": [
+        "तू शाहीं है पर्वाज़ है काम तेरा",
+        "तेरे सामने आस्मां और भी हैं"
+      ],
+      "english": [
+        "You are a falcon, and flight is your true calling;",
+        "There are still more skies spread out before you."
+      ]
+    },
+    {
+      "id": "i13",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "sufi",
+      "urdu": [
+        "عقل عیار ہے سو بھیس بنا لیتی ہے",
+        "عشق بے چارہ نہ ملا ہے نہ زاہد نہ حکیم"
+      ],
+      "roman": [
+        "Aqal ayyār hai sau bhes banā letī hai",
+        "Ishq bechāra na mullā hai na zāhid na hakīm"
+      ],
+      "hi": [
+        "अक़ल अय्यार है सौ भेस बना लेती है",
+        "इश्क़ बेचार न मुलला है न ज़ाहिद न हकीम"
+      ],
+      "english": [
+        "Reason is a trickster — it can put on a hundred disguises;",
+        "Poor love is neither a cleric, nor an ascetic, nor a sage."
+      ]
+    },
+    {
+      "id": "i14",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "mohabbat",
+      "urdu": [
+        "تیرے عشق کی انتہا چاہتا ہوں",
+        "میری سادگی دیکھ کیا چاہتا ہوں"
+      ],
+      "roman": [
+        "Tere ishq kī intehā chāhtā hūñ",
+        "Merī sādgī dekh kyā chāhtā hūñ"
+      ],
+      "hi": [
+        "तेरे इश्क़ की इंतेहा चाह्ता हूं",
+        "मेरी साद्गी देख क्या चाह्ता हूं"
+      ],
+      "english": [
+        "I want the very utmost of Your love;",
+        "Behold my simplicity — just see what it is I want."
+      ]
+    },
+    {
+      "id": "i15",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "sufi",
+      "urdu": [
+        "غریب و سادہ و رنگیں ہے داستان حرم",
+        "نہایت اس کی حسین ابتدا ہے اسمعیل"
+      ],
+      "roman": [
+        "Gharīb o sādā o rangīñ hai dāstān-e-haram",
+        "Nihāyat is kī Husain, ibtidā hai Ismāīl"
+      ],
+      "hi": [
+        "घरीब ओ सादा ओ रंगीं है दास्तान-ए-हरम",
+        "निहायत इस की हुसैं, इब्तिदा है इस्माईल"
+      ],
+      "english": [
+        "Strange, simple, and deeply coloured is the story of the Sacred House;",
+        "Its ending is Husain, and its beginning is Ismail."
+      ]
+    },
+    {
+      "id": "d4",
+      "lang": "ur",
+      "poet": "dagh",
+      "category": "mohabbat",
+      "urdu": [
+        "خاطر سے یا لحاظ سے میں مان تو گیا",
+        "جھوٹی قسم سے آپ کا ایمان تو گیا"
+      ],
+      "roman": [
+        "Khātir se yā lihāz se maiñ mān to gayā",
+        "Jhūṭī qasam se āp kā īmān to gayā"
+      ],
+      "hi": [
+        "खातिर से या लिहाज़ से मैं मान तो गया",
+        "झूटी क़सम से आप का ईमान तो गया"
+      ],
+      "english": [
+        "Out of regard for you, or out of courtesy, I did at last give in;",
+        "But by that false oath of yours, your faith itself was lost."
+      ]
+    },
+    {
+      "id": "mo4",
+      "lang": "ur",
+      "poet": "momin",
+      "category": "mohabbat",
+      "urdu": [
+        "الفت میں برابر ہے وفا ہو کہ جفا ہو",
+        "ہر بات میں لذت ہے اگر دل میں مزہ ہو"
+      ],
+      "roman": [
+        "Ulfat meñ barābar hai wafā ho ke jafā ho",
+        "Har bāt meñ lazzat hai agar dil meñ mazā ho"
+      ],
+      "hi": [
+        "उल्फ़त में बराबर है वफ़ा हो के जफ़ा हो",
+        "हर बात में लज़्ज़त है अगर दिल में मज़ा हो"
+      ],
+      "english": [
+        "In love, faithfulness and cruelty amount to the same;",
+        "There is relish in everything, if only the heart has a taste for joy."
+      ]
+    },
+    {
+      "id": "z4",
+      "lang": "ur",
+      "poet": "zafar",
+      "category": "udaasi",
+      "urdu": [
+        "عمر دراز مانگ کے لائے تھے چار دن",
+        "دو آرزو میں کٹ گئے دو انتظار میں"
+      ],
+      "roman": [
+        "Umr-e-darāz māñg ke lāye thay chār din",
+        "Do ārzū meñ kaṭ gaye do intezār meñ"
+      ],
+      "hi": [
+        "उम्र-ए-दराज़ मांग के लाये थय चार दिन",
+        "दो आर्ज़ू में कट गये दो इंतेज़ार में"
+      ],
+      "english": [
+        "I begged and brought back a long life — of four days in all;",
+        "Two of them passed in yearning, and two in waiting."
+      ]
+    },
+    {
+      "id": "hm1",
+      "lang": "ur",
+      "poet": "hasrat",
+      "category": "mohabbat",
+      "urdu": [
+        "چپکے چپکے رات دن آنسو بہانا یاد ہے",
+        "ہم کو اب تک عاشقی کا وہ زمانہ یاد ہے"
+      ],
+      "roman": [
+        "Chupke chupke rāt din āñsū bahānā yād hai",
+        "Ham ko ab tak āshiqī kā wo zamānā yād hai"
+      ],
+      "hi": [
+        "चुप्के चुप्के रात दिन आंसू बहाना याद है",
+        "हम को अब तक आशिक़ी का वो ज़माना याद है"
+      ],
+      "english": [
+        "Silently shedding tears, night and day — I still remember;",
+        "Even now I remember those days of being in love."
+      ]
+    },
+    {
+      "id": "ak1",
+      "lang": "ur",
+      "poet": "akbar",
+      "category": "attitude",
+      "urdu": [
+        "ہنگامہ ہے کیوں برپا تھوڑی سی جو پی لی ہے",
+        "ڈاکہ تو نہیں ڈالا چوری تو نہیں کی ہے"
+      ],
+      "roman": [
+        "Hungāma hai kyūñ barpā thoṛī sī jo pī lī hai",
+        "Ḍāka to nahīñ ḍālā chorī to nahīñ kī hai"
+      ],
+      "hi": [
+        "हुंगाम है क्यूं बर्पा थोड़ी सी जो पी ली है",
+        "डाक तो नहीं डाला चोरी तो नहीं की है"
+      ],
+      "english": [
+        "Why this whole uproar, just because I drank a little?",
+        "I have committed no robbery, nor any theft."
+      ]
+    },
+    {
+      "id": "g22",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "mohabbat",
+      "urdu": [
+        "آہ کو چاہیے اک عمر اثر ہونے تک",
+        "کون جیتا ہے تیری زلف کے سر ہونے تک"
+      ],
+      "roman": [
+        "Āh ko chāhiye ik umr asar hone tak",
+        "Kaun jītā hai terī zulf ke sar hone tak"
+      ],
+      "hi": [
+        "आह को चाहिये इक उम्र असर होने तक",
+        "कौन जीता है तेरी ज़ुल्फ़ के सर होने तक"
+      ],
+      "english": [
+        "A sigh needs a whole lifetime before it can take effect;",
+        "Who could live long enough for your tangled tresses to be set right?"
+      ]
+    },
+    {
+      "id": "g23",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "udaasi",
+      "urdu": [
+        "درد منت کش دوا نہ ہوا",
+        "میں نہ اچھا ہوا نہ برا ہوا"
+      ],
+      "roman": [
+        "Dard minnat-kash-e-dawā na huā",
+        "Maiñ na achhā huā na burā huā"
+      ],
+      "hi": [
+        "दर्द मिंनत-कश-ए-दवा न हुआ",
+        "मैं न अछा हुआ न बुरा हुआ"
+      ],
+      "english": [
+        "My pain never stood in debt to any medicine;",
+        "I neither recovered, nor did I grow any worse."
+      ]
+    },
+    {
+      "id": "g24",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "zindagi",
+      "urdu": [
+        "ہم کو معلوم ہے جنت کی حقیقت لیکن",
+        "دل کے خوش رکھنے کو غالب خیال اچھا ہے"
+      ],
+      "roman": [
+        "Ham ko mālūm hai jannat kī haqīqat lekin",
+        "Dil ke khush rakhne ko Ghālib khayāl achhā hai"
+      ],
+      "hi": [
+        "हम को मालूम है जंनत की हक़ीक़त लेकिन",
+        "दिल के खुश रखने को घालिब खयाल अछा है"
+      ],
+      "english": [
+        "We know full well what Paradise truly is, and yet —",
+        "It is a pleasant thought, Ghalib, to keep the heart content."
+      ]
+    },
+    {
+      "id": "g25",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "udaasi",
+      "urdu": [
+        "حیراں ہوں دل کو روؤں کہ پیٹوں جگر کو میں",
+        "مقدور ہو تو ساتھ رکھوں نوحہ گر کو میں"
+      ],
+      "roman": [
+        "Hairāñ hūñ dil ko roūñ ke pīṭūñ jigar ko maiñ",
+        "Maqdūr ho to sāth rakhūñ nauha-gar ko maiñ"
+      ],
+      "hi": [
+        "हैरां हूं दिल को रोऊं के पीटूं जिगर को मैं",
+        "मक़्दूर हो तो साथ रखूं नौह-गर को मैं"
+      ],
+      "english": [
+        "I am at a loss — shall I weep for my heart, or beat my breast for my soul?",
+        "If only I could, I would keep a hired mourner ever beside me."
+      ]
+    },
+    {
+      "id": "g26",
+      "lang": "ur",
+      "poet": "ghalib",
+      "category": "mohabbat",
+      "urdu": [
+        "آئینہ دیکھ اپنا سا منہ لے کے رہ گئے",
+        "صاحب کو دل نہ دینے پہ کتنا غرور تھا"
+      ],
+      "roman": [
+        "Āīna dekh apnā sā muñh le ke reh gaye",
+        "Sāhib ko dil na dene pe kitnā ghuroor thā"
+      ],
+      "hi": [
+        "आईन देख अपना सा मुंह ले के रेह गये",
+        "साहिब को दिल न देने पे कितना घुरूर था"
+      ],
+      "english": [
+        "She saw her own face in the mirror and stood there, transfixed;",
+        "How proud she was of never giving her heart away!"
+      ]
+    },
+    {
+      "id": "m14",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "udaasi",
+      "urdu": [
+        "دیکھ تو دل کہ جاں سے اٹھتا ہے",
+        "یہ دھواں سا کہاں سے اٹھتا ہے"
+      ],
+      "roman": [
+        "Dekh to dil ke jāñ se uṭhtā hai",
+        "Ye dhuāñ sā kahāñ se uṭhtā hai"
+      ],
+      "hi": [
+        "देख तो दिल के जां से उठ्ता है",
+        "ये धुआं सा कहां से उठ्ता है"
+      ],
+      "english": [
+        "Look — does it rise from the heart, or from the soul?",
+        "This wisp of smoke, from where does it rise?"
+      ]
+    },
+    {
+      "id": "m15",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "mohabbat",
+      "urdu": [
+        "ہم ہوئے تم ہوئے کہ میر ہوئے",
+        "اس کی زلفوں کے سب اسیر ہوئے"
+      ],
+      "roman": [
+        "Ham hue tum hue ke Mīr hue",
+        "Us kī zulfoñ ke sab asīr hue"
+      ],
+      "hi": [
+        "हम हुए तुम हुए के मीर हुए",
+        "उस की ज़ुल्फ़ों के सब असीर हुए"
+      ],
+      "english": [
+        "Whether it was I, or you, or Mir himself —",
+        "Every one of us became a captive of her tresses."
+      ]
+    },
+    {
+      "id": "m16",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "zindagi",
+      "urdu": [
+        "دلی جو ایک شہر تھا عالم میں انتخاب",
+        "رہتے تھے منتخب ہی جہاں روزگار کے"
+      ],
+      "roman": [
+        "Dillī jo ek sheher thā ālam meñ intekhāb",
+        "Rehte thay muntakhab hī jahāñ rozgār ke"
+      ],
+      "hi": [
+        "दिलली जो एक शेहेर था आलम में इंतेखाब",
+        "रेह्ते थय मुंतखब ही जहां रोज़्गार के"
+      ],
+      "english": [
+        "Delhi — that city, the chosen jewel of the world;",
+        "Only the elect of the age once lived within her."
+      ]
+    },
+    {
+      "id": "m17",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "mohabbat",
+      "urdu": [
+        "میر ان نیم باز آنکھوں میں",
+        "ساری مستی شراب کی سی ہے"
+      ],
+      "roman": [
+        "Mīr in nīm-bāz āñkhoñ meñ",
+        "Sārī mastī sharāb kī sī hai"
+      ],
+      "hi": [
+        "मीर इन नीम-बाज़ आंखों में",
+        "सारी मस्ती शराब की सी है"
+      ],
+      "english": [
+        "Mir — in those half-open eyes of hers",
+        "There is all the intoxication of wine."
+      ]
+    },
+    {
+      "id": "m18",
+      "lang": "ur",
+      "poet": "mir",
+      "category": "zindagi",
+      "urdu": [
+        "جس سر کو غرور آج ہے یاں تاجوری کا",
+        "کل اس پہ یہیں شور ہے پھر نوحہ گری کا"
+      ],
+      "roman": [
+        "Jis sar ko ghuroor āj hai yāñ tājwarī kā",
+        "Kal us pe yahīñ shor hai phir nauha-garī kā"
+      ],
+      "hi": [
+        "जिस सर को घुरूर आज है यां ताज्वरी का",
+        "कल उस पे यहीं शोर है फिर नौह-गरी का"
+      ],
+      "english": [
+        "The head that today swells with pride in its crown —",
+        "Tomorrow, above that same head, the wailing of mourners will rise."
+      ]
+    },
+    {
+      "id": "i16",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "attitude",
+      "urdu": [
+        "اپنے بھی خفا مجھ سے ہیں بیگانے بھی ناخوش",
+        "میں زہر ہلاہل کو کبھی کہہ نہ سکا قند"
+      ],
+      "roman": [
+        "Apne bhī khafā mujh se haiñ begāne bhī nākhush",
+        "Maiñ zahr-e-halāhal ko kabhī keh na sakā qand"
+      ],
+      "hi": [
+        "अपने भी खफ़ा मुझ से हैं बेगाने भी नाखुश",
+        "मैं ज़ह्र-ए-हलाहल को कभी केह न सका क़ंद"
+      ],
+      "english": [
+        "My own people are cross with me, and strangers are displeased too;",
+        "Never could I bring myself to call deadly poison 'sweet'."
+      ]
+    },
+    {
+      "id": "i17",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "umeed",
+      "urdu": [
+        "افراد کے ہاتھوں میں ہے اقوام کی تقدیر",
+        "ہر فرد ہے ملت کے مقدر کا ستارہ"
+      ],
+      "roman": [
+        "Afrād ke hāthoñ meñ hai aqwām kī taqdīr",
+        "Har fard hai millat ke muqaddar kā sitāra"
+      ],
+      "hi": [
+        "अफ़राद के हाथों में है अक़्वाम की तक़्दीर",
+        "हर फ़र्द है मिललत के मुक़द्दर का सितार"
+      ],
+      "english": [
+        "The fate of nations rests in the hands of individuals;",
+        "Every single person is a star in the destiny of the community."
+      ]
+    },
+    {
+      "id": "i18",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "zindagi",
+      "urdu": [
+        "ترے آزاد بندوں کی نہ یہ دنیا نہ وہ دنیا",
+        "یہاں مرنے کی پابندی وہاں جینے کی پابندی"
+      ],
+      "roman": [
+        "Tere āzād bandoñ kī na ye duniyā na wo duniyā",
+        "Yahāñ marne kī pābandī wahāñ jeene kī pābandī"
+      ],
+      "hi": [
+        "तेरे आज़ाद बंदों की न ये दुनिया न वो दुनिया",
+        "यहां मरने की पाबंदी वहां जीने की पाबंदी"
+      ],
+      "english": [
+        "For Your free servants, neither this world nor the next will do:",
+        "Here, the restriction of death; there, the restriction of life."
+      ]
+    },
+    {
+      "id": "i19",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "umeed",
+      "urdu": [
+        "تو ابھی رہ گزر میں ہے قید مقام سے گزر",
+        "مصر و حجاز سے گزر پارس و شام سے گزر"
+      ],
+      "roman": [
+        "Tū abhī rah-guzar meñ hai qaid-e-maqām se guzar",
+        "Misr-o-Hijāz se guzar Pāras-o-Shām se guzar"
+      ],
+      "hi": [
+        "तू अभी रह-गुज़र में है क़ैद-ए-मक़ाम से गुज़र",
+        "मिस्र-ओ-हिजाज़ से गुज़र पारस-ओ-शाम से गुज़र"
+      ],
+      "english": [
+        "You are still on the way — pass beyond the bondage of halting-places;",
+        "Pass beyond Egypt and Hijaz, pass beyond Persia and Syria."
+      ]
+    },
+    {
+      "id": "i20",
+      "lang": "ur",
+      "poet": "iqbal",
+      "category": "sufi",
+      "urdu": [
+        "قوت عشق سے ہر پست کو بالا کر دے",
+        "دہر میں اسم محمد سے اجالا کر دے"
+      ],
+      "roman": [
+        "Quwwat-e-ishq se har past ko bālā kar de",
+        "Dahr meñ ism-e-Muhammad se ujālā kar de"
+      ],
+      "hi": [
+        "क़ुव्वत-ए-इश्क़ से हर पस्त को बाला कर दे",
+        "दह्र में इस्म-ए-मुहम्मद से उजाला कर दे"
+      ],
+      "english": [
+        "With the power of love, raise up everything that lies low;",
+        "And fill this world with light by the name of Muhammad."
+      ]
+    },
+    {
+      "id": "d5",
+      "lang": "ur",
+      "poet": "dagh",
+      "category": "udaasi",
+      "urdu": [
+        "زمانہ بڑے شوق سے سن رہا تھا",
+        "ہمیں سو گئے داستاں کہتے کہتے"
+      ],
+      "roman": [
+        "Zamāna baṛe shauq se sun rahā thā",
+        "Hamīñ so gaye dāstāñ kehte kehte"
+      ],
+      "hi": [
+        "ज़माना बड़े शौक़ से सुन रहा था",
+        "हमीं सो गये दास्तां केह्ते केह्ते"
+      ],
+      "english": [
+        "The whole world was listening with the keenest delight;",
+        "It was I who fell asleep while telling the tale."
+      ]
+    },
+    {
+      "id": "d6",
+      "lang": "ur",
+      "poet": "dagh",
+      "category": "mohabbat",
+      "urdu": [
+        "رنج کی جب گفتگو ہونے لگی",
+        "آپ سے تم تم سے تو ہونے لگی"
+      ],
+      "roman": [
+        "Ranj kī jab guftagū hone lagī",
+        "Āp se tum tum se tū hone lagī"
+      ],
+      "hi": [
+        "रंज की जब गुफ़्तगू होने लगी",
+        "आप से तुम तुम से तू होने लगी"
+      ],
+      "english": [
+        "When the talk between us turned to sorrows,",
+        "The formal 'aap' melted into 'tum', and 'tum' into 'tu'."
+      ]
+    },
+    {
+      "id": "d7",
+      "lang": "ur",
+      "poet": "dagh",
+      "category": "mohabbat",
+      "urdu": [
+        "خوب پردہ ہے کہ چلمن سے لگے بیٹھے ہیں",
+        "صاف چھپتے بھی نہیں سامنے آتے بھی نہیں"
+      ],
+      "roman": [
+        "Khoob parda hai ke chilman se lage baiṭhe haiñ",
+        "Sāf chhupte bhī nahīñ sāmne āte bhī nahīñ"
+      ],
+      "hi": [
+        "खूब पर्द है के चिल्मन से लगे बैठे हैं",
+        "साफ़ छुप्ते भी नहीं सामने आते भी नहीं"
+      ],
+      "english": [
+        "What a fine veil — she sits pressed close against the curtain;",
+        "Neither properly hidden, nor willing to come into view."
+      ]
+    },
+    {
+      "id": "mo5",
+      "lang": "ur",
+      "poet": "momin",
+      "category": "attitude",
+      "urdu": [
+        "شب جو مسجد میں جا پھنسے مومن",
+        "رات کاٹی خدا خدا کر کے"
+      ],
+      "roman": [
+        "Shab jo masjid meñ jā phanse Momin",
+        "Rāt kāṭī Khudā Khudā kar ke"
+      ],
+      "hi": [
+        "शब जो मस्जिद में जा फंसे मोमिन",
+        "रात काटी खुदा खुदा कर के"
+      ],
+      "english": [
+        "The night Momin got himself trapped in the mosque,",
+        "He got through the night taking God's name, over and over."
+      ]
+    },
+    {
+      "id": "mo6",
+      "lang": "ur",
+      "poet": "momin",
+      "category": "mohabbat",
+      "urdu": [
+        "کچھ اس ادا سے آج وہ پہلو نشیں رہے",
+        "جب تک ہمارے پاس رہے ہم نہیں رہے"
+      ],
+      "roman": [
+        "Kuchh is adā se āj wo pehlu-nashīñ rahe",
+        "Jab tak hamāre pās rahe ham nahīñ rahe"
+      ],
+      "hi": [
+        "कुछ इस अदा से आज वो पेहलु-नशीं रहे",
+        "जब तक हमारे पास रहे हम नहीं रहे"
+      ],
+      "english": [
+        "With such captivating grace did she sit beside me today,",
+        "That while she remained near me, I was no longer myself."
+      ]
+    },
+    {
+      "id": "z5",
+      "lang": "ur",
+      "poet": "zafar",
+      "category": "mohabbat",
+      "urdu": [
+        "بات کرنی مجھے مشکل کبھی ایسی تو نہ تھی",
+        "جیسی اب ہے تیری محفل کبھی ایسی تو نہ تھی"
+      ],
+      "roman": [
+        "Bāt karnī mujhe mushkil kabhī aisī to na thī",
+        "Jaisī ab hai terī mehfil kabhī aisī to na thī"
+      ],
+      "hi": [
+        "बात करनी मुझे मुश्किल कभी ऐसी तो न थी",
+        "जैसी अब है तेरी मेह्फ़िल कभी ऐसी तो न थी"
+      ],
+      "english": [
+        "Never before was speaking so difficult for me;",
+        "And your assembly, as it is now, was never like this before."
+      ]
+    },
+    {
+      "id": "z6",
+      "lang": "ur",
+      "poet": "zafar",
+      "category": "sufi",
+      "urdu": [
+        "ظفر آدمی اس کو نہ جانیے گا ہو وہ کسی حال میں",
+        "جسے عیش میں یاد خدا نہ رہی جسے طیش میں خوف خدا نہ رہا"
+      ],
+      "roman": [
+        "Zafar ādmī us ko na jāniye gā ho wo kisī hāl meñ",
+        "Jise aish meñ yād-e-Khudā na rahī jise taish meñ khauf-e-Khudā na rahā"
+      ],
+      "hi": [
+        "ज़फ़र आद्मी उस को न जानिये गा हो वो किसी हाल में",
+        "जिसे ऐश में याद-ए-खुदा न रही जिसे तैश में खौफ़-ए-खुदा न रहा"
+      ],
+      "english": [
+        "Zafar — do not reckon that person a human being, whatever his condition,",
+        "Who in his ease forgets God, and in his anger has no fear of Him."
+      ]
+    },
+    {
+      "id": "hm2",
+      "lang": "ur",
+      "poet": "hasrat",
+      "category": "mohabbat",
+      "urdu": [
+        "نگاہ ناز جسے آشناۓ راز کرے",
+        "وہ اپنی خوبی قسمت پہ کیوں نہ ناز کرے"
+      ],
+      "roman": [
+        "Nigāh-e-nāz jise āshnā-e-rāz kare",
+        "Wo apnī khoobī-e-qismat pe kyūñ na nāz kare"
+      ],
+      "hi": [
+        "निगाह-ए-नाज़ जिसे आशना-ए-राज़ करे",
+        "वो अपनी खूबी-ए-क़िस्मत पे क्यूं न नाज़ करे"
+      ],
+      "english": [
+        "One whom her proud, enchanting glance admits into its secret —",
+        "Why should he not take pride in the kindness of his fate?"
+      ]
+    },
+    {
+      "id": "ak2",
+      "lang": "ur",
+      "poet": "akbar",
+      "category": "attitude",
+      "urdu": [
+        "ہم آہ بھی کرتے ہیں تو ہو جاتے ہیں بدنام",
+        "وہ قتل بھی کرتے ہیں تو چرچا نہیں ہوتا"
+      ],
+      "roman": [
+        "Ham āh bhī karte haiñ to ho jāte haiñ badnām",
+        "Wo qatl bhī karte haiñ to charchā nahīñ hotā"
+      ],
+      "hi": [
+        "हम आह भी कर्ते हैं तो हो जाते हैं बदनाम",
+        "वो क़त्ल भी कर्ते हैं तो चर्चा नहीं होता"
+      ],
+      "english": [
+        "If I so much as heave a sigh, I am branded with disgrace;",
+        "They may even commit murder, and no word of it is spoken."
+      ]
+    },
+    {
+      "id": "e1",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e1.mp3",
+      "category": "mohabbat",
+      "title": "The Light I Chose",
+      "lines": [
+        "I did not choose you to escape my silence.",
+        "My nights were never empty — they were mine.",
+        "I learned to sit with storms and call it peace,",
+        "and wore my shadows like a familiar coat.",
+        "But then your morning walked into my world,",
+        "and suddenly, the dark felt less like home.",
+        "I did not need the light — I wanted it.",
+        "So I stepped out, not rescued, not repaired —",
+        "just a man who saw your light, and chose to stand in it."
+      ]
+    },
+    {
+      "id": "e2",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e2.mp3",
+      "category": "udaasi",
+      "title": "The Room I Kept",
+      "lines": [
+        "I never asked the night to leave me.",
+        "I had made my peace with empty rooms,",
+        "with coffee gone cold, with songs I never finished.",
+        "I told myself that wanting more was weakness,",
+        "so I folded every letter I never sent",
+        "and called the silence mine.",
+        "But then your morning walked into my world,",
+        "quiet as light through a door I had left open.",
+        "You did not rescue me, you did not repair me —",
+        "you simply stood there,",
+        "and the dark felt less like home."
+      ]
+    },
+    {
+      "id": "e3",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e3.mp3",
+      "category": "udaasi",
+      "title": "Unposted",
+      "lines": [
+        "I wrote you a hundred messages",
+        "and sent none of them.",
+        "They live in my notes now,",
+        "a small grey city of almosts.",
+        "Every night I visit one street of it,",
+        "read your name at the top,",
+        "and practise the bravery",
+        "of leaving it unsent."
+      ]
+    },
+    {
+      "id": "e4",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e4.mp3",
+      "category": "umeed",
+      "title": "What the Rain Kept",
+      "lines": [
+        "The rain does not ask the roof for permission,",
+        "it simply finds the cracks we hid.",
+        "Grief is like that too.",
+        "But so is mercy.",
+        "One morning you will wake and notice",
+        "the crack lets the light in now,",
+        "and what entered as a storm",
+        "has stayed as a garden."
+      ]
+    },
+    {
+      "id": "e5",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e5.mp3",
+      "category": "zindagi",
+      "title": "Half of Me",
+      "lines": [
+        "Half of me is patient, half of me is late.",
+        "Half of me forgives, half keeps the gate.",
+        "I am not torn — I am twice as wide,",
+        "with room for the storm and the calm inside.",
+        "Do not ask me to choose a side of my soul;",
+        "I was never a half. I was always whole."
+      ]
+    },
+    {
+      "id": "e6",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e6.mp3",
+      "category": "mohabbat",
+      "title": "The Quiet Hours",
+      "lines": [
+        "Love me in the quiet hours,",
+        "when the house has gone to sleep,",
+        "when there is nothing left to prove",
+        "and the tea has gone cold between us.",
+        "Anyone can love a celebration.",
+        "Stay for the ordinary Tuesdays —",
+        "that is where forever hides."
+      ]
+    },
+    {
+      "id": "e7",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e7.mp3",
+      "category": "umeed",
+      "title": "Paper Boats",
+      "lines": [
+        "We folded our hopes into paper boats",
+        "and set them on the rain.",
+        "Some sank at the doorstep,",
+        "some reached the drain and vanished.",
+        "But one — one is still sailing",
+        "somewhere past the street of giving up,",
+        "carrying everything we were afraid to say."
+      ]
+    },
+    {
+      "id": "e8",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e8.mp3",
+      "category": "udaasi",
+      "title": "The Last Page",
+      "lines": [
+        "Every story warns you about the ending,",
+        "except the ones we live.",
+        "I kept reading us like a favourite book,",
+        "slower and slower near the end,",
+        "as if turning the pages gently",
+        "could keep the last page from coming.",
+        "It came anyway. It always does.",
+        "But oh — the chapters were worth it."
+      ]
+    },
+    {
+      "id": "e9",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e9.mp3",
+      "category": "mohabbat",
+      "title": "Small Hours",
+      "lines": [
+        "Meet me in the small hours,",
+        "when the world has stopped performing,",
+        "when your voice is still honest from sleep.",
+        "Daylight love is easy — it has an audience.",
+        "But three in the morning,",
+        "with nothing left to hide behind —",
+        "that is where I keep my truest heart."
+      ]
+    },
+    {
+      "id": "e10",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e10.mp3",
+      "category": "zindagi",
+      "title": "Borrowed Light",
+      "lines": [
+        "The moon is not ashamed of borrowed light.",
+        "It takes the sun's fire and returns it softer,",
+        "so the night can bear to look at it.",
+        "Be like that with what you've been given —",
+        "take the brightness life lends you,",
+        "and hand it on, gentler than you found it."
+      ]
+    },
+    {
+      "id": "e11",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e11.mp3",
+      "category": "udaasi",
+      "title": "The Bench",
+      "lines": [
+        "The bench by the gate still faces the road,",
+        "as if you might come back and sit down.",
+        "Two winters of rain have silvered its wood,",
+        "and the pigeons have claimed your side.",
+        "I still stop there on my way home —",
+        "not waiting, exactly.",
+        "Just keeping the seat of you warm in my memory."
+      ]
+    },
+    {
+      "id": "e12",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e12.mp3",
+      "category": "mohabbat",
+      "title": "Letters I Never Sent",
+      "lines": [
+        "I have a drawer of letters I never sent,",
+        "each one braver than I was.",
+        "They say the things my mouth kept editing —",
+        "stay. I was wrong. The door was never locked.",
+        "If love is judged by what we manage to say,",
+        "then I loved you in drafts,",
+        "and the final version is still unwritten."
+      ]
+    },
+    {
+      "id": "e13",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e13.mp3",
+      "category": "zindagi",
+      "title": "Gravity of Kindness",
+      "lines": [
+        "Kindness has its own gravity.",
+        "It does not shout; it pulls, quietly,",
+        "until strangers orbit a little closer",
+        "and enemies land softer than they planned.",
+        "Be the heaviest gentle thing in the room —",
+        "let the world fall toward you,",
+        "and call it coming home."
+      ]
+    },
+    {
+      "id": "e14",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e14.mp3",
+      "category": "umeed",
+      "title": "Half-Light",
+      "lines": [
+        "There is an hour before the sunrise",
+        "when nothing is promised and everything is possible.",
+        "The dark has not left, but it has lost.",
+        "Stand in that half-light a moment longer —",
+        "most miracles are not loud arrivals.",
+        "They are the slow decision of the sky",
+        "to try again."
+      ]
+    },
+    {
+      "id": "e15",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e15.mp3",
+      "category": "zindagi",
+      "title": "The Guest Room",
+      "lines": [
+        "My grandmother kept a guest room ready",
+        "for forty years — fresh sheets, folded towels,",
+        "for travellers who mostly never came.",
+        "When I asked why, she said: a house",
+        "should always expect mercy at the door.",
+        "She is gone now. The room is still ready.",
+        "I did not inherit furniture. I inherited a door kept open."
+      ]
+    },
+    {
+      "id": "e16",
+      "lang": "en",
+      "poet": "dailypoem",
+      "audio": "audio/e16.mp3",
+      "category": "sufi",
+      "title": "What Stays",
+      "lines": [
+        "Empires keep their names on coins,",
+        "and the coins end up in museums, silent.",
+        "But a kind word spoken in a kitchen outlives marble.",
+        "Ask what stays when everything is taken:",
+        "not the gold, not the gate, not the name —",
+        "only the love that was given away,",
+        "and the prayer somebody still whispers for you."
+      ]
+    },
+    {
+      "id": "l1",
+      "lang": "ur",
+      "poet": "laila",
+      "category": "mohabbat",
+      "urdu": [
+        "تیری یادوں کا چراغ دل کے طاق میں رکھا ہے",
+        "جتنی آندھی چلی، میں نے اسے بچا کے رکھا ہے",
+        "لوگ کہتے ہیں محبت میں خسارا ہی ملا",
+        "میں نے ہر زخم کو بھی سینے سے لگا کے رکھا ہے"
+      ],
+      "roman": [
+        "Teri yādoñ kā charāgh dil ke tāq mein rakhā hai",
+        "Jitnī āndhī chalī, mein ne use bachā ke rakhā hai",
+        "Log kehte hain mohabbat mein khasārā hī milā",
+        "Mein ne har zakhm ko bhī seene se lagā ke rakhā hai"
+      ],
+      "hi": [
+        "तेरी यादों का चराघ दिल के ताक़ में रखा है",
+        "जितनी आंधी चली, में ने उसे बचा के रखा है",
+        "लोग केह्ते हैं मोहब्बत में खसारा ही मिला",
+        "में ने हर ज़ख्म को भी सीने से लगा के रखा है"
+      ],
+      "english": [
+        "I have kept the lamp of your memories in a niche of my heart;",
+        "however fierce the storm, I have guarded it and kept it burning.",
+        "People say that in love I found nothing but loss —",
+        "yet every wound, too, I have pressed to my chest and kept."
+      ]
+    },
+    {
+      "id": "l2",
+      "lang": "ur",
+      "poet": "laila",
+      "category": "umeed",
+      "urdu": [
+        "کٹی ہے رات تو سویرا بھی آئے گا",
+        "جو صبر کی راہ چلے وہ منزل پائے گا",
+        "ٹوٹی ہوئی امید کو پھر تھام لے ذرا",
+        "ہر گری ہوئی شاخ پہ موسمِ بہار آئے گا"
+      ],
+      "roman": [
+        "Kaṭī hai rāt to saverā bhī āyegā",
+        "Jo ṣabr kī rāh chale, vo manzil pāyegā",
+        "Ṭūṭī huī ummeed ko phir thām le zarā",
+        "Har girī huī shākh pe mausam-e-bahār āyegā"
+      ],
+      "hi": [
+        "कटी है रात तो सवेरा भी आयेगा",
+        "जो सब्र की राह चले, वो मंज़िल पायेगा",
+        "टूटी हुई उम्मीद को फिर थाम ले ज़रा",
+        "हर गिरी हुई शाख पे मौसम-ए-बहार आयेगा"
+      ],
+      "english": [
+        "The night has ended — so the dawn will surely come.",
+        "Whoever walks the path of patience will reach the journey's end.",
+        "Take hold, once more, of the hope that had broken,",
+        "for on every fallen branch, the season of spring will come again."
+      ]
+    },
+    {
+      "id": "e17",
+      "lang": "en",
+      "poet": "laila",
+      "category": "mohabbat",
+      "title": "Your Name in the Quiet",
+      "lines": [
+        "I do not say your name out loud anymore;",
+        "the walls have heard it enough to keep it safe.",
+        "It lives in the quiet between my heartbeats,",
+        "in the pause before the kettle sings —",
+        "and every ordinary morning turns holy without asking."
+      ]
+    },
+    {
+      "id": "e18",
+      "lang": "en",
+      "poet": "laila",
+      "category": "umeed",
+      "title": "After the Long Rain",
+      "lines": [
+        "The rain did not ask if I was ready to heal;",
+        "it simply stayed, until the garden believed again.",
+        "So I will stay too — unhurried, unhidden —",
+        "until what is buried in me remembers",
+        "it was always a seed, never a stone."
+      ]
+    },
+    {
+      "id": "l3",
+      "lang": "ur",
+      "poet": "laila",
+      "category": "zindagi",
+      "urdu": [
+        "زندگی نے ہر موڑ پہ مجھ کو آزمایا ہے",
+        "مگر میں نے ہر زخم کو ہنر سے چھپایا ہے",
+        "جو خواب ٹوٹے، ان کو بھی سنبھالا ہے",
+        "ہر ٹوٹے خواب سے ایک نیا چراغ جلایا ہے"
+      ],
+      "roman": [
+        "Zindagī ne har moṛ pe mujh ko āzmāyā hai",
+        "Magar mein ne har zakhm ko hunar se chhupāyā hai",
+        "Jo khwāb ṭūṭe, un ko bhī sambhālā hai",
+        "Har ṭūṭe khwāb se ek nayā charāgh jalāyā hai"
+      ],
+      "hi": [
+        "ज़िंदगी ने हर मोड़ पे मुझ को आज़माया है",
+        "मगर में ने हर ज़ख्म को हुनर से छुपाया है",
+        "जो ख्वाब टूटे, उन को भी संभाला है",
+        "हर टूटे ख्वाब से एक नया चराग़ जलाया है"
+      ],
+      "english": [
+        "Life has tested me at every turn;",
+        "yet every wound I have hidden away with grace.",
+        "The dreams that broke, I gathered them too;",
+        "and from every broken dream I lit a new lamp."
+      ]
+    },
+    {
+      "id": "e19",
+      "lang": "en",
+      "poet": "laila",
+      "category": "udaasi",
+      "title": "The Chair by the Window",
+      "lines": [
+        "The chair by the window still holds your shape at dusk;",
+        "I leave the tea to cool, because some habits refuse to learn.",
+        "Grief is a quiet tenant; it pays its rent in silence,",
+        "and teaches the heart a language no one else can hear.",
+        "Still, I keep the lamp lit — not for your return,",
+        "but so the dark knows it was never welcome here."
+      ]
+    },
+    {
+      "id": "l4",
+      "lang": "ur",
+      "poet": "laila",
+      "category": "sufi",
+      "urdu": [
+        "دل کے آنگن میں جب اُس کا نور اُترا",
+        "تو ہر خواہش خود بخود سجدے میں گِرا",
+        "نہ دنیا کی چاہ، نہ جنت کی طلب",
+        "بس اُسی کا نام، اُسی کی رضا، اُسی کا درا"
+      ],
+      "roman": [
+        "Dil ke āngan mein jab us kā nūr utrā",
+        "To har khwāhish khud-bakhud sajde mein girā",
+        "Na duniyā kī chāh, na jannat kī talab",
+        "Bas usī kā nām, usī kī razā, usī kā darā"
+      ],
+      "hi": [
+        "दिल के आंगन में जब उस का नूर उतरा",
+        "तो हर ख्वाहिश खुद-बखुद सजदे में गिरा",
+        "न दुनिया की चाह, न जन्नत की तलब",
+        "बस उसी का नाम, उसी की रज़ा, उसी का दरा"
+      ],
+      "english": [
+        "When His light descended into the courtyard of my heart,",
+        "every desire fell into prostration on its own.",
+        "No longing for the world, no craving for paradise —",
+        "only His name, only His pleasure, only His door."
+      ]
+    }
+  ]
 }
