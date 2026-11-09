@@ -21,6 +21,7 @@ export const POETS = [
   { id: 'zafar', name: 'Bahadur Shah Zafar', urdu: 'بہادر شاہ ظفر', years: '1775–1862' },
   { id: 'hasrat', name: 'Hasrat Mohani', urdu: 'حسرت موہانی', years: '1875–1951' },
   { id: 'akbar', name: 'Akbar Allahabadi', urdu: 'اکبر الہ آبادی', years: '1846–1921' },
+  { id: 'laila', name: 'Laila', urdu: 'لیلیٰ', years: 'Original Poetry' },
   { id: 'dailypoem', name: 'DailyPoem Originals', urdu: 'اوریجنل', years: 'English Poetry' },
 ];
 

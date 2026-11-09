@@ -13,15 +13,7 @@ import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 
 const FAV_KEY = 'dailypoem_favs_v1';
 
-/* ---------------- Reels — vertical video feed ---------------- */
-const REELS_REMOTE_URL = 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/content/reels.json';
 const MUSIC_REMOTE_BASE = 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/music/';
-const REELS_CACHE_KEY = 'dailypoem_reels_cache';
-const REELS_FALLBACK = [
-  { id: 'reel-e1', poemId: 'e1', video: 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e1.mp4', title: 'The Light I Chose', poet: 'DailyPoem Originals' },
-  { id: 'reel-e2', poemId: 'e2', video: 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e2.mp4', title: 'The Room I Kept', poet: 'DailyPoem Originals' },
-  { id: 'reel-e3', poemId: 'e3', video: 'https://raw.githubusercontent.com/earnhalal/DailyPoem/main/videos/reel-e3.mp4', title: 'Unposted', poet: 'DailyPoem Originals' },
-];
 
 function loadFavs() {
   try { const v = JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); return new Set(Array.isArray(v) ? v.filter(x => typeof x === 'string') : []); } catch { return new Set(); }
@@ -2583,252 +2575,6 @@ function HomeSlider({ today, todayScene, poems, novelCount, isFav, onToggleFav, 
   );
 }
 
-function ReelsFeed({ startIndex = 0, onCreate, favs, onFav, toast }) {
-  const notify = toast || (() => {});
-  const [reels, setReels] = useState(() => { try { return JSON.parse(localStorage.getItem(REELS_CACHE_KEY)) || REELS_FALLBACK; } catch { return REELS_FALLBACK; } });
-  const [muted, setMuted] = useState(() => { try { return localStorage.getItem('dailypoem_reels_muted') !== '0'; } catch { return true; } });
-  const [active, setActive] = useState(() => Math.max(0, startIndex || 0));
-  const [pausedId, setPausedId] = useState(null);
-  const [errIds, setErrIds] = useState(() => new Set());
-  const [retryMap, setRetryMap] = useState({});
-  const videoRefs = useRef({});
-  const itemRefs = useRef({});
-  const progRefs = useRef({});
-  const feedRef = useRef(null);
-  const activeRef = useRef(Math.max(0, startIndex || 0));
-  const startRef = useRef(Math.max(0, startIndex || 0));
-  const didStartScroll = useRef(false);
-  const pausedRef = useRef(null);
-  const hiddenRef = useRef(false);
-  /* Likes sirf isi phone par save hote hain (server nahi) — is liye koi global count nahi dikhate */
-  const [likes, setLikes] = useState(() => {
-    try { const v = JSON.parse(localStorage.getItem('dailypoem_reel_likes') || '[]'); return new Set(Array.isArray(v) ? v.filter(x => typeof x === 'string') : []); }
-    catch { return new Set(); }
-  });
-  const toggleLike = id => setLikes(prev => {
-    const n = new Set(prev);
-    if (n.has(id)) n.delete(id); else n.add(id);
-    try { localStorage.setItem('dailypoem_reel_likes', JSON.stringify([...n])); } catch { /* noop */ }
-    return n;
-  });
-  const shareReel = async (e, r) => {
-    e.stopPropagation();
-    const text = (r.title || 'A DailyPoem reel') + (r.poet ? ' — ' + r.poet : '') + '\n' + r.video;
-    try {
-      if (Capacitor.isNativePlatform()) {
-        await Share.share({ title: 'DailyPoem Reel', text, url: r.video, dialogTitle: 'Share this reel' });
-        return;
-      }
-      if (navigator.share) { await navigator.share({ title: 'DailyPoem Reel', text, url: r.video }); return; }
-      throw new Error('share unavailable');
-    } catch (err) {
-      if (err && /cancel/i.test(err.message || '')) return; // user ne sheet band ki — error nahi
-      try { await navigator.clipboard.writeText(text); notify('🔗 Reel link copied'); }
-      catch { notify('Sharing is not available on this device'); }
-    }
-  };
-
-  useEffect(() => {
-    let live = true;
-    fetch(REELS_REMOTE_URL, { cache: 'no-store' })
-      .then(r => (r.ok ? r.json() : null))
-      .then(j => {
-        const list = Array.isArray(j) ? j : (j && j.reels);
-        const clean = Array.isArray(list) ? list.filter(x => x && x.video) : null;
-        if (live && clean && clean.length) {
-          setReels(clean);
-          try { localStorage.setItem(REELS_CACHE_KEY, JSON.stringify(clean)); } catch { /* noop */ }
-        }
-      })
-      .catch(() => {});
-    return () => { live = false; };
-  }, []);
-
-  const playOne = id => {
-    const v = videoRefs.current[id];
-    if (v) { const pr = v.play(); if (pr) pr.catch(() => {}); }
-  };
-  const pauseAll = () => { Object.values(videoRefs.current).forEach(v => { if (v) v.pause(); }); };
-
-  /* Kaunsi reel screen par hai — sirf wahi chalegi, baqi ruki rahengi */
-  useEffect(() => {
-    if (!reels.length) return undefined;
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(en => {
-        if (en.intersectionRatio >= 0.6) {
-          const i = Number(en.target.dataset.idx);
-          if (!isNaN(i) && i !== activeRef.current) {
-            activeRef.current = i;
-            setActive(i);
-            setPausedId(null);
-            pausedRef.current = null;
-          }
-        }
-      });
-    }, { threshold: [0.6] });
-    Object.values(itemRefs.current).forEach(el => { if (el) io.observe(el); });
-    return () => io.disconnect();
-  }, [reels]);
-
-  /* Active reel chalao, baqi sab pause — kamzor phones par memory bachane ke liye
-     sirf pichli + current + agli reel ka <video> mount hota hai (windowing neeche render mein) */
-  useEffect(() => {
-    reels.forEach((r, i) => {
-      const v = videoRefs.current[r.id];
-      if (!v) return;
-      if (i === active && !hiddenRef.current && pausedRef.current !== r.id) {
-        const pr = v.play(); if (pr) pr.catch(() => {});
-      } else v.pause();
-    });
-  }, [active, reels]);
-
-  /* Home ki Trending strip se kisi khaas reel par land karna ho to feed wahan se shuru karo —
-     sirf pehli dafa (mount par), taake baad mein user ki scroll na khinch jaye */
-  useEffect(() => {
-    if (didStartScroll.current) return undefined;
-    const idx = Math.min(startRef.current, reels.length - 1);
-    if (idx <= 0) { didStartScroll.current = true; return undefined; }
-    const t = setTimeout(() => {
-      didStartScroll.current = true;
-      const el = feedRef.current;
-      if (el) el.scrollTo({ top: idx * el.clientHeight, behavior: 'auto' });
-    }, 60);
-    return () => clearTimeout(t);
-  }, [reels]);
-
-  /* App background mein jaye to videos band — wapas aaye to active reel dobara chale */
-  useEffect(() => {
-    const onVis = () => {
-      hiddenRef.current = document.hidden;
-      if (document.hidden) pauseAll();
-      else {
-        const r = reels[activeRef.current];
-        if (r && pausedRef.current !== r.id) playOne(r.id);
-      }
-    };
-    document.addEventListener('visibilitychange', onVis);
-    return () => document.removeEventListener('visibilitychange', onVis);
-  }, [reels]);
-
-  /* Unmount par saare video resources release */
-  useEffect(() => () => {
-    Object.values(videoRefs.current).forEach(v => {
-      if (v) { try { v.pause(); v.removeAttribute('src'); v.load(); } catch { /* noop */ } }
-    });
-  }, []);
-
-  const toggleMute = () => setMuted(m => {
-    const n = !m;
-    try { localStorage.setItem('dailypoem_reels_muted', n ? '1' : '0'); } catch { /* noop */ }
-    return n;
-  });
-
-  const togglePlay = id => {
-    const v = videoRefs.current[id];
-    if (!v) return;
-    if (v.paused) { playOne(id); setPausedId(null); pausedRef.current = null; }
-    else { v.pause(); setPausedId(id); pausedRef.current = id; }
-  };
-
-  const restart = (e, id) => {
-    e.stopPropagation();
-    const v = videoRefs.current[id];
-    if (!v) return;
-    try { v.currentTime = 0; } catch { /* noop */ }
-    playOne(id);
-    setPausedId(null); pausedRef.current = null;
-  };
-
-  const onTime = id => {
-    const v = videoRefs.current[id];
-    const bar = progRefs.current[id];
-    if (v && bar && v.duration && isFinite(v.duration)) bar.style.width = (v.currentTime / v.duration * 100) + '%';
-  };
-
-  const onErr = id => setErrIds(prev => {
-    if (prev.has(id)) return prev;
-    const n = new Set(prev); n.add(id); return n;
-  });
-
-  const retry = (e, id) => {
-    e.stopPropagation();
-    setErrIds(prev => { const n = new Set(prev); n.delete(id); return n; });
-    setRetryMap(m => ({ ...m, [id]: (m[id] || 0) + 1 }));
-    /* Nayi copy mount hogi — ▶ dikha do taake user tap karke chala sake */
-    setPausedId(id); pausedRef.current = id;
-  };
-
-  const createBtn = onCreate ? (
-    <button className="vfeed-create" onClick={e => { e.stopPropagation(); onCreate(); }}>+ Create Reel</button>
-  ) : null;
-
-  if (!reels.length) {
-    return (
-      <div className="vfeed" ref={feedRef}>
-        {createBtn}
-        <div className="vfeed-empty">
-          <span><span className="big">🎬</span>Reels are coming soon.<br />Poetry videos are on their way — check back in a little while.</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="vfeed" ref={feedRef}>
-      {createBtn}
-      {reels.map((r, i) => {
-        const mounted = Math.abs(i - active) <= 1;
-        const failed = errIds.has(r.id);
-        return (
-          <div className="vfeed-item" key={r.id} data-idx={i}
-            ref={el => { itemRefs.current[r.id] = el; }}
-            onClick={() => togglePlay(r.id)}>
-            {mounted && !failed ? (
-              <video
-                key={r.id + ':' + (retryMap[r.id] || 0)}
-                ref={el => { videoRefs.current[r.id] = el; if (el) el.muted = muted; }}
-                src={r.video} loop playsInline muted={muted}
-                preload={i === active || i === active + 1 ? 'auto' : 'metadata'}
-                onTimeUpdate={() => onTime(r.id)}
-                onError={() => onErr(r.id)}
-              />
-            ) : (
-              <div className="vfeed-ph"><span>{r.title}</span></div>
-            )}
-            <div className="vfeed-shade" />
-            {failed && (
-              <div className="vfeed-err" onClick={e => e.stopPropagation()}>
-                <span>⚠️ This video could not load.<br />Check your connection and try again.</span>
-                <button className="btn btn-gold" style={{ flex: '0 1 auto' }} onClick={e => retry(e, r.id)}>↻ Retry</button>
-              </div>
-            )}
-            {!failed && pausedId === r.id && <div className="vfeed-play">▶</div>}
-            <div className="vfeed-progress"><span ref={el => { progRefs.current[r.id] = el; }} /></div>
-            <button className="vfeed-act vfeed-replay" onClick={e => restart(e, r.id)} aria-label="Replay">↻</button>
-            <button className="vfeed-act vfeed-mute" onClick={e => { e.stopPropagation(); toggleMute(); }} aria-label="Mute or unmute">{muted ? '🔇' : '🔊'}</button>
-            <button className={'vfeed-act vfeed-like' + (likes.has(r.id) ? ' on' : '')}
-              onClick={e => { e.stopPropagation(); toggleLike(r.id); }} aria-label="Like">{likes.has(r.id) ? '❤️' : '🤍'}</button>
-            {r.poemId && favs && (
-              <button className={'vfeed-act vfeed-save' + (favs.has(r.poemId) ? ' on' : '')}
-                onClick={e => {
-                  e.stopPropagation();
-                  const was = favs.has(r.poemId);
-                  if (onFav) onFav(r.poemId);
-                  notify(was ? 'Removed from Saved' : 'Saved to your favourites');
-                }} aria-label="Save poem">🔖</button>
-            )}
-            <button className="vfeed-act vfeed-share" onClick={e => shareReel(e, r)} aria-label="Share reel">📤</button>
-            <div className="vfeed-meta">
-              <div className="vfeed-title">{r.title}</div>
-              <div className="vfeed-poet">{r.poet}</div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 /* ---------------- More menu + Settings ---------------- */
 function MoreMenu({ onOpen }) {
   const rows = [
@@ -3009,7 +2755,7 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.17</b></div>
+        <div className="nd-row"><span>Version</span><b>0.18</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
         <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>
@@ -3076,7 +2822,6 @@ export default function App() {
   const [noorTab, setNoorTab] = useState('dua');
   const [moreView, setMoreView] = useState('menu'); // More ke andar: 'menu' | 'noor' | 'create' | 'bio' | 'saved' | 'settings'
   const [homeQuery, setHomeQuery] = useState('');
-  const [reelsJump, setReelsJump] = useState({ index: 0, nonce: 0 });
   const [novelOpenReq, setNovelOpenReq] = useState(null);
   const [theme, setTheme] = useState(() => { try { return localStorage.getItem('dailypoem_theme') || 'dark'; } catch { return 'dark'; } });
   const [intro, setIntro] = useState(true);
@@ -3149,23 +2894,6 @@ export default function App() {
   const aakhriPub = (novelsPub.find(x => x.nv.id === LEGACY_NOVEL_ID) || novelsPub[0] || { published: [] }).published;
   const totalEpCount = novelsPub.reduce((s, x) => s + x.published.length, 0);
 
-  /* Home ki Trending Reels strip ke liye reels list — ReelsFeed wali hi cache/remote */
-  const [homeReels, setHomeReels] = useState(() => { try { return JSON.parse(localStorage.getItem(REELS_CACHE_KEY)) || REELS_FALLBACK; } catch { return REELS_FALLBACK; } });
-  useEffect(() => {
-    let live = true;
-    fetch(REELS_REMOTE_URL, { cache: 'no-store' })
-      .then(r => (r.ok ? r.json() : null))
-      .then(j => {
-        const list = Array.isArray(j) ? j : (j && j.reels);
-        const clean = Array.isArray(list) ? list.filter(x => x && x.video) : null;
-        if (live && clean && clean.length) {
-          setHomeReels(clean);
-          try { localStorage.setItem(REELS_CACHE_KEY, JSON.stringify(clean)); } catch { /* noop */ }
-        }
-      })
-      .catch(() => {});
-    return () => { live = false; };
-  }, []);
 
   const copyText = async text => {
     try { await navigator.clipboard.writeText(text); }
@@ -3454,22 +3182,6 @@ export default function App() {
               </>
             )}
 
-            <div className="section-title"><h2>Trending Reels</h2><button className="link-btn" onClick={() => { setReelsJump({ index: 0, nonce: Date.now() }); setTab('reels'); }}>View All →</button></div>
-            <div className="hstrip">
-              {homeReels.map((r, i) => {
-                const rp = poems.find(p => p.id === r.poemId);
-                const sc = rp ? sceneForPoem(rp) : SCENES[0];
-                return (
-                  <button key={r.id} className="reel-card" onClick={() => { setReelsJump({ index: i, nonce: Date.now() }); setTab('reels'); }}>
-                    <img src={sc.img} alt="" loading="lazy" />
-                    <span className="reel-card-shade" />
-                    <span className="reel-card-play">▶</span>
-                    <span className="reel-card-meta"><b>{r.title}</b><small>{r.poet}</small></span>
-                  </button>
-                );
-              })}
-            </div>
-
             <div className="section-title"><h2>Daily Noor</h2><small>Today</small></div>
             <div className="pcard" style={{ marginTop: 0 }}>
               <span className="tag">🤲 Dua of the Day · {noorToday.dua.source}</span>
@@ -3556,8 +3268,6 @@ export default function App() {
             ))}
           </>
         )}
-
-        {tab === 'reels' && <ReelsFeed key={reelsJump.nonce} startIndex={reelsJump.index} onCreate={() => goMore('create')} favs={favs} onFav={toggleFav} toast={toast} />}
 
         {tab === 'more' && moreView === 'menu' && <MoreMenu onOpen={setMoreView} />}
 
@@ -3701,7 +3411,6 @@ export default function App() {
       <nav className="nav">
         <button className={tab === 'home' ? 'on' : ''} onClick={() => setTab('home')}><span className="ni">🏠</span>Home</button>
         <button className={tab === 'library' ? 'on' : ''} onClick={() => setTab('library')}><span className="ni">📚</span>Library</button>
-        <button className={tab === 'reels' ? 'on' : ''} onClick={() => { setReelsJump({ index: 0, nonce: Date.now() }); setTab('reels'); }}><span className="ni">🎬</span>Reels</button>
         <button className={tab === 'novel' ? 'on' : ''} onClick={() => setTab('novel')}><span className="ni">📖</span>Novels</button>
         <button className={tab === 'more' ? 'on' : ''} onClick={() => { if (tab === 'more') setMoreView('menu'); else setTab('more'); }}><span className="ni">☰</span>More</button>
       </nav>
