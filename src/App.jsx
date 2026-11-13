@@ -2755,7 +2755,7 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.19</b></div>
+        <div className="nd-row"><span>Version</span><b>0.20</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
         <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>
@@ -3062,13 +3062,6 @@ export default function App() {
               onShare={() => sharePoem(today, todayScene, toast)}
               onGo={setTab} onOpenPoem={(p, sc) => setReel({ poem: p, scene: sc })}
             />
-
-            <button className="saved-cta" onClick={() => goMore('saved')}>
-              <span className="sic">❤️</span>
-              <span className="stx"><b>Saved</b><small>Your favourite poetry — all in one place</small></span>
-              <span className="scount">{favs.size}</span>
-              <span className="sarr">→</span>
-            </button>
 
             <div className="search">
               <span>🔎</span>
@@ -3419,6 +3412,7 @@ export default function App() {
         <button className={tab === 'home' ? 'on' : ''} onClick={() => setTab('home')}><span className="ni">🏠</span>Home</button>
         <button className={tab === 'library' ? 'on' : ''} onClick={() => setTab('library')}><span className="ni">📚</span>Library</button>
         <button className={tab === 'novel' ? 'on' : ''} onClick={() => setTab('novel')}><span className="ni">📖</span>Novels</button>
+        <button className={tab === 'more' && moreView === 'saved' ? 'on' : ''} onClick={() => goMore('saved')}><span className="ni">❤️</span>Saved</button>
         <button className={tab === 'more' ? 'on' : ''} onClick={() => { if (tab === 'more') setMoreView('menu'); else setTab('more'); }}><span className="ni">☰</span>More</button>
       </nav>
 
