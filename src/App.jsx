@@ -2755,7 +2755,7 @@ function SettingsScreen({ theme, onToggleTheme, reelAnim, onReelAnim, toast, poe
       <div className="section-title"><h2>About</h2></div>
       <div className="nd-meta" style={{ marginTop: 2 }}>
         <div className="nd-row"><span>App</span><b>DailyPoem</b></div>
-        <div className="nd-row"><span>Version</span><b>0.18</b></div>
+        <div className="nd-row"><span>Version</span><b>0.19</b></div>
         <div className="nd-row"><span>Content</span><b>{poemsCount} poems · {novelCount} novel episodes</b></div>
         <div className="nd-row"><span>Studio</span><b>MintNest Studio</b></div>
         <div className="nd-row"><span>Reel music</span><b style={{ fontSize: 11.5, textAlign: 'right' }}>Kevin MacLeod · incompetech.com · CC BY 4.0</b></div>
@@ -3062,6 +3062,13 @@ export default function App() {
               onShare={() => sharePoem(today, todayScene, toast)}
               onGo={setTab} onOpenPoem={(p, sc) => setReel({ poem: p, scene: sc })}
             />
+
+            <button className="saved-cta" onClick={() => goMore('saved')}>
+              <span className="sic">❤️</span>
+              <span className="stx"><b>Saved</b><small>Your favourite poetry — all in one place</small></span>
+              <span className="scount">{favs.size}</span>
+              <span className="sarr">→</span>
+            </button>
 
             <div className="search">
               <span>🔎</span>
